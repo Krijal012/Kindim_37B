@@ -19,7 +19,8 @@ Frontend (HTML/CSS/JS)
 
 ```bash
 cd frontend
-open pages/auth/login.html
+npm install
+npm run dev
 ```
 Backend (Node.js) — Once implemented
 
@@ -90,5 +91,6 @@ Start the server
 ## License
 
 This project does not currently have an open-source license (to be determined).
+
 
 
