@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import logoIcon from "../../assets/image/logo-icon.png";
+import logoIcon from "../../assets/icons/logo-icon.png";
 import emailIcon from "../../assets/icons/email.png";
 import eyeIcon from "../../assets/icons/eye.png";
 import eyeOffIcon from "../../assets/icons/eye-off.png";
@@ -29,7 +29,7 @@ const LoginPage = ({ onLogin }) => {
     console.log(loginData)
     try {
       setBackendError("");
-      const res = await callApi("POST", "/auth/login", { data: loginData });
+      const res = await callApi("POST", "/auth/login", loginData);
       console.log(res);
     
       localStorage.setItem("access_token", res.data.access_token);
