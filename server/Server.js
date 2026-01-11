@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 import express from "express";
 import { connection } from "./Database/db.js";
@@ -27,3 +28,20 @@ app.listen(PORT, () => {
   console.log(`Backend running on http://localhost:${PORT}`);
 });
 
+=======
+import express from "express";
+import { notFoundRoute } from "./Routes/notFoundRoute.js";
+import { errorHandler } from "./Security/errorHandler.js";
+import authRoutes from "./Routes/authRoutes.js";
+
+const app = express();
+
+app.use("/api/auth",authRoutes)
+
+app.use(notFoundRoute);
+app.use(errorHandler);
+
+app.listen(5000, () => {
+    console.log("Server running on port 5000");
+});
+>>>>>>> 89a68f35aacc025c3924294389bccd59180a59c0
