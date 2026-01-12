@@ -7,6 +7,7 @@ import profileIcon from "../../assets/icons/profile.png";
 import emailIcon from "../../assets/icons/email.png";
 import eyeIcon from "../../assets/icons/eye.png";
 import eyeOffIcon from "../../assets/icons/eye-off.png";
+import backgroundImage from "../../assets/background-image.jpeg";
 
 import { RegisterSchema } from "../../schema/register.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,7 +42,10 @@ console.log(errors);
   const inputStyle = "flex-1 bg-transparent outline-none text-base";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
       <div className="w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden">
 
         

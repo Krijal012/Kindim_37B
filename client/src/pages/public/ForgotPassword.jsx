@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import forgotImg from "../../assets/image/buy.jpg";
 import { useApi } from "../../hooks/useAPI";
+import backgroundImage from "../../assets/background-image.jpeg";
 
 
 const ForgotPasswordSchema = z.object({
@@ -33,7 +34,10 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div
+      className="flex items-center justify-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
       <div className="w-[90%] max-w-[1100px] h-[90vh] bg-white rounded-2xl shadow-lg flex justify-center items-center">
         <div className="w-full flex justify-between px-12">
 

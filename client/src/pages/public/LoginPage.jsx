@@ -5,6 +5,7 @@ import logoIcon from "../../assets/image/logo-icon.png";
 import emailIcon from "../../assets/icons/email.png";
 import eyeIcon from "../../assets/icons/eye.png";
 import eyeOffIcon from "../../assets/icons/eye-off.png";
+import backgroundImage from "../../assets/background-image.jpeg";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,8 +49,11 @@ const LoginPage = ({ onLogin }) => {
   const inputStyle = "flex-1 bg-transparent outline-none text-base";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
+      <div className="w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden bg-white">
        
         <div className="w-1/2 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-[#1A73E8] to-[#0F4EB3] rounded-tr-[70px] flex flex-col justify-center items-center text-white p-6">
@@ -125,7 +129,7 @@ const LoginPage = ({ onLogin }) => {
               </p>
             </div>
 
-            <button>
+            <button className="mt-4 bg-blue-500 text-white py-2 rounded-md">
               Login
             </button>
           </form>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import backgroundImage from "../../assets/background-image.jpeg";
 
 const ResetPasswordSchema = z
   .object({
@@ -37,7 +38,10 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+    <div
+      className="flex items-center justify-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
       <div className="bg-white p-10 rounded-2xl shadow-lg w-[400px]">
         <h2 className="text-2xl mb-6 text-center font-semibold">
           Reset Password
