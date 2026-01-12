@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import logoIcon from "../../assets/icons/logo-icon.png";
+import logoIcon from "../../assets/image/logo-icon.png";
 import emailIcon from "../../assets/icons/email.png";
 import eyeIcon from "../../assets/icons/eye.png";
 import eyeOffIcon from "../../assets/icons/eye-off.png";
@@ -9,7 +9,9 @@ import eyeOffIcon from "../../assets/icons/eye-off.png";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "../../schema/login.schemas";
-import { useApi } from "../../hooks/useApi";
+import { useApi } from "../../hooks/useAPI";
+import { Link } from "react-router-dom";
+
 
 const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -29,10 +31,11 @@ const LoginPage = ({ onLogin }) => {
     console.log(loginData)
     try {
       setBackendError("");
-      const res = await callApi("POST", "/auth/login", loginData);
+      const res = await callApi("POST", "/auth/login", { data: loginData });
       console.log(res);
     
       localStorage.setItem("access_token", res.data.access_token);
+      localStorage.setItem("userEmail", loginData.email);
       if (onLogin) onLogin();
       navigate("/rewarddashboard", { replace: true });
     } catch (err) {
@@ -109,23 +112,20 @@ const LoginPage = ({ onLogin }) => {
                 />
               </div>
               <div className="text-right mt-1">
-                <button
-                  type="button"
+              
+                  <Link
+                  to="/forgotpass"  
                   className="text-black-500 text-sm hover:underline"
-                  onClick={() => navigate("/forgot-password")}
                 >
                   Forgot Password?
-                </button>
+                </Link>
               </div>
               <p className="text-red-600 text-sm mt-1 text-left">
                 {errors.password?.message}
               </p>
             </div>
 
-            <button
-              type="submit"
-              className="mt-4 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
-            >
+            <button>
               Login
             </button>
           </form>

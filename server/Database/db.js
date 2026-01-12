@@ -13,7 +13,7 @@ export const sequelize = new Sequelize(
 
 export const connection = async () => {
     try {
-        await sequelize.sync(); 
+        await sequelize.sync({ alter: true }); 
         console.log("Database connected");
     } catch (e) {
         console.log("Database connection failed", e);        

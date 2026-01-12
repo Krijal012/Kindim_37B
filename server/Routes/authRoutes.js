@@ -5,7 +5,9 @@ import {
   getAllUsers,
   getUserById,
   updateUser,
-  deleteUser
+  deleteUser,
+  forgotPassword
+  
 } from "../Controller/authController.js";
 
 export const authRouter = express.Router();
@@ -13,6 +15,7 @@ export const authRouter = express.Router();
 
 authRouter.post("/register", register);
 authRouter.post("/login", login);
+authRouter.post("/forgotpass", forgotPassword);
 
 authRouter.get("/users", getAllUsers);
 authRouter.get("/users/:id", getUserById);
