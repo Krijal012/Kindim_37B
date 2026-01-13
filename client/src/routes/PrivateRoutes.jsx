@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import loader from "../assets/image/logo-icon.png";
 
 const RewardDashboard = React.lazy(() => import("../pages/private/RewardDashboard"));
+const Candle = React.lazy(() => import("../pages/private/Candles"));
 
 const PrivateRoutes = () => {
   return (
@@ -14,8 +15,8 @@ const PrivateRoutes = () => {
       }
     >
       <Routes>
-        <Route path="/rewarddashboard" element={<RewardDashboard />} />
-        <Route path="*" element={<Navigate to="/rewarddashboard" />} />
+        <Route path="/candles" element={<Candle />} />
+        <Route path="*" element={<Navigate to="/candles" />} />
       </Routes>
     </Suspense>
   );
