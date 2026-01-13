@@ -1,6 +1,6 @@
 import './App.css'
-import CategorySection from './Pages/Private/CategorySection'
-import { ErrorPage } from './Pages/Public/ErrorPage'
+import CategorySection from './Pages/private/CategorySection'
+import { ErrorPage } from './Pages/public/ErrorPage'
 
 function App() {
   return (

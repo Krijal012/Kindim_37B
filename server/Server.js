@@ -1,15 +1,34 @@
 import express from "express";
-import { notFoundRoute } from "./Routes/notFoundRoute.js";
+import cors from "cors";
+import dotenv from "dotenv";
+import { connection } from "./Database/db.js";
+import { productRouter } from "./Routes/productRoutes.js";
 import { errorHandler } from "./Security/errorHandler.js";
-import authRoutes from "./Routes/authRoutes.js";
+
+dotenv.config();
 
 const app = express();
 
-app.use("/api/auth",authRoutes)
+// Middleware
+app.use(express.json());
+app.use(cors());
 
-app.use(notFoundRoute);
+// Database Connection
+connection();
+
+// Routes
+app.use("/api/products", productRouter);
+
+// Health Check
+app.get("/", (req, res) => {
+  res.send("Kindim API is running");
+});
+
+// Error Handler
 app.use(errorHandler);
 
-app.listen(5000, () => {
-    console.log("Server running on port 5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Backend running on http://localhost:${PORT}`);
 });
