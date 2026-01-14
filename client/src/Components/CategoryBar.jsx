@@ -8,11 +8,11 @@ function CategoryBar({
 }) {
 
     const categories = ['All', 'Beauty Products', 'Clothing', 'Decorations', 'Electronics', 'Music'];
-    const ratings = ['All Stars', '4+ Stars', '3+ Stars', '2+ Stars', '1+ Stars'];
+    const ratings = ['All Stars', '1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'];
 
     const handleClearFilters = () => {
         setSelectedCategory('All');
-        setPriceRange(150000);
+        setPriceRange(125000);
         setSelectedRating('All Stars');
     };
 
@@ -52,7 +52,7 @@ function CategoryBar({
                 <input
                     type="range"
                     min="0"
-                    max="150000"
+                    max="125000"
                     step="1000"
                     value={priceRange}
                     onChange={(e) => setPriceRange(e.target.value)}
@@ -61,7 +61,7 @@ function CategoryBar({
                 <div className="flex justify-between mt-2 text-sm text-gray-600">
                     <span>Rs. 0</span>
                     <span className="font-semibold text-blue-600">Rs. {formatPrice(priceRange)}</span>
-                    <span>Rs. 150,000</span>
+                    <span>Rs. 125,000</span>
                 </div>
             </div>
 

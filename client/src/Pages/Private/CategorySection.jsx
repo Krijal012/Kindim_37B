@@ -3,11 +3,11 @@ import { Header } from "../../Components/Header";
 import { Footer } from "../../Components/Footer";
 import CategoryBar from "../../Components/CategoryBar";
 import ProductGrid from "../../Components/ProductGrid";
-import Products from "../../Data/Product";
+import Products from "../../data/Product";
 
 function CategorySection() {
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [priceRange, setPriceRange] = useState(130000);
+  const [priceRange, setPriceRange] = useState(125000);
   const [selectedRating, setSelectedRating] = useState('All Stars');
 
   // Filter products based on selected filters
@@ -63,7 +63,7 @@ function CategorySection() {
                 <button
                   onClick={() => {
                     setSelectedCategory('All');
-                    setPriceRange(130000);
+                    setPriceRange(125000);
                     setSelectedRating('All Stars');
                   }}
                   className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
