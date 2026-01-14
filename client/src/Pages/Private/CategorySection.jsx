@@ -3,7 +3,7 @@ import { Header } from "../../Components/Header";
 import { Footer } from "../../Components/Footer";
 import CategoryBar from "../../Components/CategoryBar";
 import ProductGrid from "../../Components/ProductGrid";
-import Products from "../../data/Product";
+import Products from "../../Data/Product";
 
 function CategorySection() {
   const [selectedCategory, setSelectedCategory] = useState('All');
