@@ -8,12 +8,17 @@ function CategoryBar({
 }) {
 
     const categories = ['All', 'Beauty Products', 'Clothing', 'Decorations', 'Electronics', 'Music'];
-    const ratings = ['4+ Stars', '3+ Stars', '2+ Stars', '1+ Stars', 'All Stars'];
+    const ratings = ['All Stars', '4+ Stars', '3+ Stars', '2+ Stars', '1+ Stars'];
 
     const handleClearFilters = () => {
         setSelectedCategory('All');
         setPriceRange(150000);
-        setSelectedRating('');
+        setSelectedRating('All Stars');
+    };
+
+    // Format price with commas
+    const formatPrice = (price) => {
+        return parseInt(price).toLocaleString();
     };
 
     return(
@@ -26,14 +31,14 @@ function CategoryBar({
                 <h3 className="text-base font-semibold mb-3">Category</h3>
                 <div className="space-y-2">
                     {categories.map((category) => (
-                        <label key={category} className="flex items-center cursor-pointer">
+                        <label key={category} className="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded transition">
                             <input
                                 type="radio"
                                 name="category"
                                 value={category}
                                 checked={selectedCategory === category}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
-                                className="w-4 h-4 text-blue-600"
+                                className="w-4 h-4 text-blue-600 cursor-pointer"
                             />
                             <span className="ml-2 text-gray-700">{category}</span>
                         </label>
@@ -48,14 +53,15 @@ function CategoryBar({
                     type="range"
                     min="0"
                     max="150000"
+                    step="1000"
                     value={priceRange}
                     onChange={(e) => setPriceRange(e.target.value)}
                     className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                 />
                 <div className="flex justify-between mt-2 text-sm text-gray-600">
                     <span>Rs. 0</span>
-                    <span>Rs. {priceRange}</span>
-                    <span>Rs. 150000</span>
+                    <span className="font-semibold text-blue-600">Rs. {formatPrice(priceRange)}</span>
+                    <span>Rs. 150,000</span>
                 </div>
             </div>
 
@@ -64,14 +70,14 @@ function CategoryBar({
                 <h3 className="text-base font-semibold mb-3">Minimum Rating</h3>
                 <div className="space-y-2">
                     {ratings.map((rating) => (
-                        <label key={rating} className="flex items-center cursor-pointer">
+                        <label key={rating} className="flex items-center cursor-pointer hover:bg-gray-100 p-1 rounded transition">
                             <input
                                 type="radio"
                                 name="rating"
                                 value={rating}
                                 checked={selectedRating === rating}
                                 onChange={(e) => setSelectedRating(e.target.value)}
-                                className="w-4 h-4 text-blue-600"
+                                className="w-4 h-4 text-blue-600 cursor-pointer"
                             />
                             <span className="ml-2 text-gray-700">{rating}</span>
                         </label>
@@ -82,7 +88,7 @@ function CategoryBar({
             {/* Clear Filters Button */}
             <button
                 onClick={handleClearFilters}
-                className="w-full py-2 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 transition-colors"
+                className="w-full py-2 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-100 active:scale-95 transition-all"
             >
                 Clear Filters
             </button>
