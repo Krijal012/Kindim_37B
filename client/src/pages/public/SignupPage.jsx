@@ -18,6 +18,7 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [backendSuccess, setBackendSuccess] = useState("");
+  const [selectedRole, setSelectedRole] = useState("customer");
 
   const {
     register,
@@ -32,7 +33,10 @@ const SignupPage = () => {
   const handleRegister = async (data) => {
     try {
       setBackendSuccess("");
-      const res = await callApi("POST", "/auth/register", { data });
+      // Add role to registration data
+      const res = await callApi("POST", "/auth/register", { 
+        data: { ...data, role: selectedRole } 
+      });
       setBackendSuccess(res.message || "Registered successfully");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
@@ -49,10 +53,10 @@ const SignupPage = () => {
       className="min-h-screen flex items-center justify-center bg-cover bg-center p-4"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      <div className="w-[900px] h-[550px] rounded-lg shadow-2xl flex overflow-hidden bg-white">
+      <div className="w-[900px] h-[600px] rounded-lg shadow-2xl flex overflow-hidden bg-white">
         {/* Left Side - Form */}
         <div className="w-1/2 flex flex-col justify-center items-center px-10 py-8 bg-white">
-          <h3 className="text-4xl font-bold mb-8">Signup</h3>
+          <h3 className="text-4xl font-bold mb-6">Signup</h3>
 
           {error && (
             <p className="text-red-600 text-sm mb-2 w-full text-center">
@@ -109,6 +113,50 @@ const SignupPage = () => {
               )}
             </div>
 
+            {/* Role Selection */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Register as:
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="customer"
+                    checked={selectedRole === "customer"}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    className="w-4 h-4 text-blue-600 cursor-pointer"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Customer</span>
+                </label>
+
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="seller"
+                    checked={selectedRole === "seller"}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    className="w-4 h-4 text-blue-600 cursor-pointer"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Seller</span>
+                </label>
+
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="role"
+                    value="admin"
+                    checked={selectedRole === "admin"}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    className="w-4 h-4 text-blue-600 cursor-pointer"
+                  />
+                  <span className="ml-2 text-sm text-gray-700">Admin</span>
+                </label>
+              </div>
+            </div>
+
             {/* Password */}
             <div>
               <div className={inputWrapper}>
@@ -161,7 +209,7 @@ const SignupPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="mt-4 bg-blue-500 text-white py-3 rounded-md font-semibold hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="mt-3 bg-blue-500 text-white py-3 rounded-md font-semibold hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {loading ? "Signing up..." : "Signup"}
             </button>

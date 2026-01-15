@@ -13,7 +13,6 @@ import { LoginSchema } from "../../schema/login.schemas";
 import { useApi } from "../../hooks/useAPI";
 import { Link } from "react-router-dom";
 
-
 const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
   const { callApi } = useApi();
@@ -29,16 +28,27 @@ const LoginPage = ({ onLogin }) => {
   });
 
   const handleLogin = async (loginData) => {
-    console.log(loginData)
+    console.log(loginData);
     try {
       setBackendError("");
       const res = await callApi("POST", "/auth/login", { data: loginData });
       console.log(res);
-    
+
+      // Save token, email, and role to localStorage
       localStorage.setItem("access_token", res.data.access_token);
       localStorage.setItem("userEmail", loginData.email);
+      localStorage.setItem("userRole", res.data.role); // Save role
+
       if (onLogin) onLogin();
-      navigate("/rewarddashboard", { replace: true });
+
+      // Redirect based on role
+      if (res.data.role === "admin") {
+        navigate("/admin-dashboard", { replace: true });
+      } else if (res.data.role === "seller") {
+        navigate("/seller-dashboard", { replace: true });
+      } else {
+        navigate("/", { replace: true }); // Customer goes to products
+      }
     } catch (err) {
       setBackendError(err.message || "Login failed");
     }
@@ -54,12 +64,14 @@ const LoginPage = ({ onLogin }) => {
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <div className="w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden bg-white">
-       
+        {/* Left Side - Blue Section */}
         <div className="w-1/2 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-[#1A73E8] to-[#0F4EB3] rounded-tr-[70px] flex flex-col justify-center items-center text-white p-6">
             <img src={logoIcon} className="w-20 h-20 mb-6" alt="Logo" />
             <h3 className="text-3xl font-bold mb-2 text-center">Hello,</h3>
-            <h2 className="text-3xl font-bold mb-4 text-center">Welcome to Kindim</h2>
+            <h2 className="text-3xl font-bold mb-4 text-center">
+              Welcome to Kindim
+            </h2>
             <p className="mb-3">Don't have an account?</p>
             <button
               className="px-8 py-2 bg-black rounded-full hover:bg-gray-800"
@@ -70,6 +82,7 @@ const LoginPage = ({ onLogin }) => {
           </div>
         </div>
 
+        {/* Right Side - Form */}
         <div className="w-1/2 flex flex-col justify-center items-center p-8">
           <h3 className="text-3xl font-bold mb-6">Login</h3>
 
@@ -81,7 +94,7 @@ const LoginPage = ({ onLogin }) => {
             onSubmit={handleSubmit(handleLogin)}
             className="w-full flex flex-col gap-4"
           >
-          
+            {/* Email */}
             <div>
               <div className={inputWrapper}>
                 <input
@@ -91,14 +104,18 @@ const LoginPage = ({ onLogin }) => {
                   className={inputStyle}
                   maxLength={50}
                 />
-                <img src={emailIcon} className="w-5 h-5 ml-2" alt="Email Icon" />
+                <img
+                  src={emailIcon}
+                  className="w-5 h-5 ml-2"
+                  alt="Email Icon"
+                />
               </div>
               <p className="text-red-600 text-sm mt-1 text-left">
                 {errors.email?.message}
               </p>
             </div>
 
-         
+            {/* Password */}
             <div>
               <div className={inputWrapper}>
                 <input
@@ -116,10 +133,9 @@ const LoginPage = ({ onLogin }) => {
                 />
               </div>
               <div className="text-right mt-1">
-              
-                  <Link
-                  to="/forgotpass"  
-                  className="text-black-500 text-sm hover:underline"
+                <Link
+                  to="/forgotpass"
+                  className="text-blue-500 text-sm hover:underline"
                 >
                   Forgot Password?
                 </Link>
@@ -129,7 +145,8 @@ const LoginPage = ({ onLogin }) => {
               </p>
             </div>
 
-            <button className="mt-4 bg-blue-500 text-white py-2 rounded-md">
+            {/* Login Button */}
+            <button className="mt-4 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">
               Login
             </button>
           </form>

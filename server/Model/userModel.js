@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import {sequelize} from "../Database/db.js";
+import { sequelize } from "../Database/db.js";
 
 const User = sequelize.define("User", {
   id: {
@@ -27,8 +27,19 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-    resetPasswordToken: { type: DataTypes.STRING, allowNull: true },
-  resetPasswordExpires: { type: DataTypes.DATE, allowNull: true },
+  role: {
+    type: DataTypes.ENUM('customer', 'seller', 'admin'),
+    allowNull: false,
+    defaultValue: 'customer',
+  },
+  resetPasswordToken: { 
+    type: DataTypes.STRING, 
+    allowNull: true 
+  },
+  resetPasswordExpires: { 
+    type: DataTypes.DATE, 
+    allowNull: true 
+  },
 }, {
   tableName: "users",
   timestamps: true,
