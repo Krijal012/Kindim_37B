@@ -10,7 +10,6 @@ export const sequelize = new Sequelize(
     }
 );
  
-
 export const connection = async () => {
     try {
         await sequelize.sync({ alter: true }); 

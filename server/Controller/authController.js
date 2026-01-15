@@ -4,15 +4,15 @@ import { generateToken } from "../Security/jwt-utils.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-dotenv.config(); // load .env variables
+import { Op } from "sequelize";
 
+dotenv.config();
 
-
+// REGISTER
 export const register = async (req, res) => {
   try {
     const { username, email, password, confirmPassword } = req.body;
 
- 
     if (!username || !email || !password || !confirmPassword) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -41,13 +41,13 @@ export const register = async (req, res) => {
     if (existingUser) {
       return res.status(409).json({ message: "User already exists" });
     }
+
     const existingUsername = await Users.findOne({ where: { username } });
-if (existingUsername) {
-  return res.status(409).json({ message: "Username already exists" });
-}
+    if (existingUsername) {
+      return res.status(409).json({ message: "Username already exists" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
 
     const user = await Users.create({
       username,
@@ -64,19 +64,24 @@ if (existingUsername) {
   }
 };
 
-
+// LOGIN
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password)
+    if (!email || !password) {
       return res.status(400).json({ message: "Email and password required" });
+    }
 
     const user = await Users.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Incorrect password" });
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
 
     const access_token = generateToken({ id: user.id, email: user.email });
 
@@ -89,7 +94,7 @@ export const login = async (req, res) => {
   }
 };
 
-
+// GET ALL USERS
 export const getAllUsers = async (req, res) => {
   try {
     const users = await Users.findAll({
@@ -101,27 +106,32 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+// GET USER BY ID
 export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await Users.findByPk(id, {
       attributes: ["id", "username", "email", "createdAt", "updatedAt"],
     });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
+// UPDATE USER
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const { username, email, password } = req.body;
 
     const user = await Users.findByPk(id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     if (username) user.username = username;
     if (email) user.email = email;
@@ -134,12 +144,14 @@ export const updateUser = async (req, res) => {
   }
 };
 
-
+// DELETE USER
 export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await Users.findByPk(id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     await user.destroy();
     res.status(200).json({ message: "User deleted successfully" });
@@ -148,30 +160,32 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-
+// FORGOT PASSWORD
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    if (!email) return res.status(400).json({ message: "Email is required" });
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
 
     const user = await Users.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    // Generate a secure reset token
+    // Generate reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetTokenExpiry = Date.now() + 3600 * 1000; // 1 hour expiry
+    const resetTokenExpiry = Date.now() + 3600 * 1000; // 1 hour
 
-    // Save token and expiry in DB
     user.resetPasswordToken = resetToken;
     user.resetPasswordExpires = resetTokenExpiry;
     await user.save();
 
-      console.log("ENV EMAIL_USER:", process.env.EMAIL_USER); // shows which Gmail Nodemailer is using
-    console.log("Sending email to:", user.email);           // shows which user will receive it
+    console.log("ENV EMAIL_USER:", process.env.EMAIL_USER);
+    console.log("Sending email to:", user.email);
 
-
-    // Send email with nodemailer
+    // Send email
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -193,14 +207,21 @@ export const forgotPassword = async (req, res) => {
 
     res.status(200).json({ message: "Reset link sent to your email" });
   } catch (error) {
+    console.error("Forgot password error:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
+// RESET PASSWORD
 export const resetPassword = async (req, res) => {
   try {
-    const { token, password, confirmPassword } = req.body;
+    const { token } = req.params;
+    const { password, confirmPassword } = req.body;
 
+    console.log("Reset token received:", token);
+    console.log("Password data:", { password, confirmPassword });
+
+    // Validate input
     if (!token || !password || !confirmPassword) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -215,12 +236,17 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
+    // Find user with valid token
     const user = await Users.findOne({
       where: {
         resetPasswordToken: token,
-        resetPasswordExpires: { $gt: Date.now() },
+        resetPasswordExpires: {
+          [Op.gt]: Date.now(),
+        },
       },
     });
+
+    console.log("User found:", user ? "Yes" : "No");
 
     if (!user) {
       return res
@@ -228,17 +254,21 @@ export const resetPassword = async (req, res) => {
         .json({ message: "Invalid or expired reset token" });
     }
 
-  const hashedPassword = await bcrypt.hash(password, 6);
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-
+    // Update user
     user.password = hashedPassword;
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
 
     await user.save();
 
+    console.log("Password updated successfully for user:", user.email);
+
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
+    console.error("Reset password error:", error);
     res.status(500).json({ message: error.message });
   }
 };
