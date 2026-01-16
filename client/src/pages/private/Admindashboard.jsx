@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Header from "../../components/header";
-import Footer from "../../components/footer";
+
 import { DashboardSidebar } from "../../components/dashboardsidebar";
 import { StatCard } from "../../components/statcard";
 
@@ -52,7 +52,7 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      <Footer />
+   
     </div>
   );
 }
