@@ -1,16 +1,17 @@
 import { useState } from "react";
-import gui from "./guitar.jpeg";
+import hat from "../../assets/image/hat.jpeg";
 
-export default function Guitar() {
+export default function Hat() {
   const [color, setColor] = useState("Blue");
   const [size, setSize] = useState("Small");
   const [qty, setQty] = useState(1);
-  const [mainImage, setMainImage] = useState(gui);
+  const [mainImage, setMainImage] = useState(hat);
+
   const colors = ["Blue", "Black", "Yellow", "Red"];
   const sizes = ["Small", "Medium", "Large"];
 
   const thumbnails = [
-    gui,
+    hat,
     "https://via.placeholder.com/400/ff0000",
     "https://via.placeholder.com/400/00ff00",
     "https://via.placeholder.com/400/0000ff",
@@ -44,9 +45,9 @@ export default function Guitar() {
         
           <div>
             <h1 className="text-xl font-semibold">
-            Guitar
+             Hat
             </h1>
-            <p className="text-lg font-bold mt-2">Rs 8000npr</p>
+            <p className="text-lg font-bold mt-2">Rs 500npr</p>
 
           
             <div className="mt-4">
@@ -124,9 +125,11 @@ export default function Guitar() {
       <div className="max-w-5xl mx-auto mt-6 bg-gray-200 p-6 rounded-2xl">
         <h2 className="text-lg font-semibold mb-2">Product details</h2>
         <p className="text-sm text-gray-700">
-        Experience exceptional sound and style with this premium electric guitar, crafted for both aspiring musicians and seasoned performers. Made from high-quality tonewoods and precision-engineered components, it delivers rich, dynamic tones across a wide range of genres while ensuring comfortable playability.
+        Upgrade your everyday look with this classic cotton hat, designed for comfort and style. Made from soft, breathable fabric, it feels light on your head while providing a snug and comfortable fit.
 
-Perfect for studio recording, live performances, or practice sessions, this guitar combines sleek design with durable construction. Its smooth fretboard, responsive pickups, and reliable hardware ensure long-lasting performance, making it a versatile and essential instrument for any guitarist.
+Perfect for casual outings, travel, or daily wear, this hat pairs easily with any outfit. Durable stitching and rich colors ensure it looks good even after long use.
+
+Simple. Stylish. Reliable.
         </p>
       </div>
 

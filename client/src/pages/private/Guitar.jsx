@@ -1,5 +1,5 @@
 import { useState } from "react";
-import gui from "./guitar.jpeg";
+import gui from "../../assets/image/guitar.jpeg";
 
 export default function Guitar() {
   const [color, setColor] = useState("Blue");
