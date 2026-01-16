@@ -4,6 +4,7 @@ import loader from "../assets/image/logo-icon.png";
 
 const RewardDashboard = React.lazy(() => import("../pages/private/RewardDashboard"));
 const Candle = React.lazy(() => import("../pages/private/Candles"));
+const Decorative = React.lazy(() => import("../pages/private/Decorative"));
 
 const PrivateRoutes = () => {
   return (
@@ -15,8 +16,12 @@ const PrivateRoutes = () => {
       }
     >
       <Routes>
-        <Route path="/candles" element={<Candle />} />
-        <Route path="*" element={<Navigate to="/candles" />} />
+        {/* <Route path="/candles" element={<Candle />} />
+        <Route path="*" element={<Navigate to="/candles" />} /> */}
+
+ 
+        <Route path="/decorative" element={<Decorative />} />
+        <Route path="*" element={<Navigate to="/decorative" />} />
       </Routes>
     </Suspense>
   );
