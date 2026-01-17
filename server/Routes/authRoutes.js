@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   register,
   login,
@@ -21,3 +22,4 @@ authRouter.get("/users", getAllUsers);
 authRouter.get("/users/:id", getUserById);
 authRouter.put("/users/:id", updateUser);
 authRouter.delete("/users/:id", deleteUser);
+

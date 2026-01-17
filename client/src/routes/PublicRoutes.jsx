@@ -1,12 +1,14 @@
+
 import React, { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import loader from "../assets/image/logo-icon.png";
-;
+
 
 const LoginPage = React.lazy(() => import("../pages/public/LoginPage"));
 const SignupPage = React.lazy(() => import("../pages/public/SignupPage"));
 const ForgotPassword =React.lazy(()=> import("../pages/public/ForgotPassword"))
 const ResetPassword = React.lazy(() => import("../pages/public/ResetPassword"));
+const ErrorPage = React.lazy(() => import("../pages/public/ErrorPage"));
 
 
 const PublicRoutes = ({ onLogin }) => {
@@ -24,9 +26,15 @@ const PublicRoutes = ({ onLogin }) => {
         <Route path ="/forgotpass" element ={<ForgotPassword/>}/>
          <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="*" element={<Navigate to="/login" />} />
+        
+    <Route key="error" path="*" element={<ErrorPage />} />
       </Routes>
     </Suspense>
   );
 };
 
 export default PublicRoutes;
+
+
+
+
