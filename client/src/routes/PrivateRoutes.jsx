@@ -3,8 +3,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import loader from "../assets/image/logo-icon.png";
 
 const RewardDashboard = React.lazy(() => import("../pages/private/RewardDashboard"));
-const Candle = React.lazy(() => import("../pages/private/Candles"));
-const Decorative = React.lazy(() => import("../pages/private/Decorative"));
+// const Candle = React.lazy(() => import("../pages/private/Candles"));
+// const Decorative = React.lazy(() => import("../pages/private/Decorative"));
+const CategorySection = React.lazy(() => import("../pages/private/CategorySection"));
 
 const PrivateRoutes = () => {
   return (
@@ -20,8 +21,11 @@ const PrivateRoutes = () => {
         <Route path="*" element={<Navigate to="/candles" />} /> */}
 
  
-        <Route path="/decorative" element={<Decorative />} />
-        <Route path="*" element={<Navigate to="/decorative" />} />
+        {/* <Route path="/decorative" element={<Decorative />} />
+        <Route path="*" element={<Navigate to="/decorative" />} /> */}
+
+        <Route path ="/category" element={<CategorySection/>}/>
+        <Route path ="*" element={<Navigate to="/category" />} />
       </Routes>
     </Suspense>
   );
