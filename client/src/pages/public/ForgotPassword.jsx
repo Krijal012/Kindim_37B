@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import logoIcon from "../../assets/image/logo-icon.png";
+import logoIcon from "../../assets/icons/logo-icon.png";
 import emailIcon from "../../assets/icons/email.png";
 import backgroundImage from "../../assets/background-image.jpeg";
 import { ForgotPasswordSchema } from "../../schema/forgot.schema";
