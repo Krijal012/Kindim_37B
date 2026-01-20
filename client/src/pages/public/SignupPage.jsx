@@ -142,18 +142,6 @@ const SignupPage = () => {
                   />
                   <span className="ml-2 text-sm text-gray-700">Seller</span>
                 </label>
-
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="admin"
-                    checked={selectedRole === "admin"}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-4 h-4 text-blue-600 cursor-pointer"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Admin</span>
-                </label>
               </div>
             </div>
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import logo from "../assets/icons/logo-icon.png";
 import Products from "../data/Product"; // make sure path is correct
 
-export function Header({ searchQuery, setSearchQuery, onSearchSubmit }) {
+function Header({ searchQuery, setSearchQuery, onSearchSubmit }) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
@@ -90,3 +90,4 @@ export function Header({ searchQuery, setSearchQuery, onSearchSubmit }) {
     </header>
   );
 }
+export default Header;
