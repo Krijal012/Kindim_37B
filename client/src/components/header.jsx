@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import logo from "../assets/icons/logo-icon.png";
+import logo from "../assets/icons/logo-JJicon.png";
 import Products from "../data/Product"; // make sure path is correct
 
 export function Header({ searchQuery, setSearchQuery, onSearchSubmit }) {
