@@ -45,7 +45,7 @@ const LoginPage = ({ onLogin }) => {
   const inputStyle = "flex-1 bg-transparent outline-none text-base";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+    <div className="min-h-screen flex items-center justify-center   " >
       <div className="w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden">
        
         <div className="w-1/2 relative">
