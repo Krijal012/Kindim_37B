@@ -14,4 +14,3 @@ transporter.verify((err, success) => {
   if (err) console.log("Transporter Error:", err);
   else console.log("Transporter is ready");
 });
-

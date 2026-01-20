@@ -2,7 +2,7 @@ import ErrorMiddle from "../../Components/ErrorMiddle";
 import { Footer } from "../../Components/Footer";
 import { Header } from "../../components/Header";
 
-export function ErrorPage() {
+export default function ErrorPage() {
   return (
     <>
       <Header />

@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize";
 
 export const sequelize = new Sequelize(
-     "postgres",
+    "postgres",
     "postgres",
     "iamsubi10@",
     {
@@ -10,10 +10,9 @@ export const sequelize = new Sequelize(
     }
 );
  
-
-export const connection = () => {
+export const connection = async () => {
     try {
-        sequelize.sync(); 
+        await sequelize.sync({ alter: true }); 
         console.log("Database connected");
     } catch (e) {
         console.log("Database connection failed", e);        

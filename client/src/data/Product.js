@@ -5,9 +5,9 @@ import perfume from "../assets/BeautyProducts/Perfume.jpg";
 import shampoo from "../assets/BeautyProducts/shampoo.jpg";
 
 // Clothing
-import hoodies from "../assets/Clothing/Hoodies.jpg";
-import jacket from "../assets/Clothing/Jacket.jpg";
-import sneaker from "../assets/Clothing/Sneaker.jpg";
+import hoodies from "../assets/Clothings/Hoodies.jpg";
+import jacket from "../assets/Clothings/Jacket.jpg";
+import sneaker from "../assets/Clothings/Sneaker.jpg";
 
 // Decorations
 import tableLamp from "../assets/Decorations/table-lamp.jpg";

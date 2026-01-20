@@ -5,11 +5,11 @@ import CategoryBar from "../../Components/CategoryBar";
 import ProductGrid from "../../Components/ProductGrid";
 import Products from "../../data/Product";  // Import the array of 15 products
 
-function CategorySection() {
+function CategorySection({ onLogout }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [priceRange, setPriceRange] = useState(125000);
   const [selectedRating, setSelectedRating] = useState('All Stars');
-  const [searchQuery, setSearchQuery] = useState(""); 
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchSubmitted, setSearchSubmitted] = useState(false);
 
   const filteredProducts = Products.filter((product) => {
@@ -29,16 +29,17 @@ function CategorySection() {
 
   return (
     <>
-      <Header 
-        searchQuery={searchQuery} 
-        setSearchQuery={setSearchQuery} 
-        onSearchSubmit={() => setSearchSubmitted(true)} 
+      <Header
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onSearchSubmit={() => setSearchSubmitted(true)}
+        onLogout={onLogout}
       />
 
       <main className="bg-gray-50 py-10 mt-20">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 px-6">
-          
-          <CategoryBar 
+
+          <CategoryBar
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
             priceRange={priceRange}
