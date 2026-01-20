@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Header } from "../../components/Header";
-import { Footer } from "../../components/Footer";
+import  Header  from "../../components/Header";
+import  Footer  from "../../components/Footer";
 import CategoryBar from "../../components/CategoryBar";
 import ProductGrid from "../../components/ProductGrid";
 import Products from "../../data/Product";  // Import the array of 15 products
