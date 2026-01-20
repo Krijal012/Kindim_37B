@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Header } from "../../components/Header";
-import { Footer } from "../../components/Footer";
+import { useParams } from "react-router-dom";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import CategoryBar from "../../components/CategoryBar";
 import ProductGrid from "../../components/ProductGrid";
 import Products from "../../data/Product";  // Import the array of 15 products
 
 function CategorySection({ onLogout }) {
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const { category } = useParams();
+  const [selectedCategory, setSelectedCategory] = useState(category || 'All');
   const [priceRange, setPriceRange] = useState(125000);
   const [selectedRating, setSelectedRating] = useState('All Stars');
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,6 +32,7 @@ function CategorySection({ onLogout }) {
   return (
     <>
       <Header
+        show={true}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         onSearchSubmit={() => setSearchSubmitted(true)}
@@ -75,7 +78,7 @@ function CategorySection({ onLogout }) {
         </div>
       </main>
 
-      <Footer />
+      <Footer show={true} />
     </>
   );
 }

@@ -1,14 +1,15 @@
-import logo from "../assets/icons/logo-icon.png"
+import logo from "../assets/icons/logo-icon.png";
 
-export function Header({ onLogout }) {
+export default function Header({ show, onLogout }) {
     return (
         <header
             className={`
-        fixed top-0 left-0 w-full
+        fixed top-0 left-0 w-full z-[9999]
         flex items-center gap-4
         bg-[#1A73E8]
         px-4 py-3 sm:px-8 sm:py-4 md:px-10
         transition-transform duration-300
+        ${show ? "translate-y-0" : "-translate-y-full"}
       `}
         >
             {/* Logo */}
@@ -33,17 +34,15 @@ export function Header({ onLogout }) {
                 />
             </form>
 
+
+
             {/* Logout */}
             <button
                 onClick={onLogout}
-                className="
-        ml-auto
-        bg-[#3d87ff] text-black font-semibold
-        px-4 py-2 rounded-md shadow
-        hover:bg-gray-100
-        active:scale-95
-        transition
-      ">
+                className="ml-auto bg-[#3d87ff] text-black font-semibold
+                   px-4 py-2 rounded-md shadow
+                   hover:bg-gray-100 active:scale-95 transition"
+            >
                 Logout
             </button>
         </header>

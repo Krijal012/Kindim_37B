@@ -27,32 +27,24 @@ const LoginPage = ({ onLogin }) => {
     resolver: zodResolver(LoginSchema),
   });
 
-  const handleLogin = async (loginData) => {
-    console.log(loginData);
-    try {
-      setBackendError("");
-      const res = await callApi("POST", "/auth/login", { data: loginData });
-      console.log(res);
+const handleLogin = async (loginData) => {
+  try {
+    setBackendError("");
+    const res = await callApi("POST", "/auth/login", { data: loginData });
 
-      // Save token, email, and role to localStorage
-      localStorage.setItem("access_token", res.data.access_token);
-      localStorage.setItem("userEmail", loginData.email);
-      localStorage.setItem("userRole", res.data.role); // Save role
+    localStorage.setItem("access_token", res.data.access_token);
+    localStorage.setItem("userEmail", loginData.email);
+    localStorage.setItem("userRole", res.data.role);
 
-      if (onLogin) onLogin();
+    if (onLogin) onLogin();
 
-      // Redirect based on role
-      if (res.data.role === "admin") {
-        navigate("/admin-dashboard", { replace: true });
-      } else if (res.data.role === "seller") {
-        navigate("/seller-dashboard", { replace: true });
-      } else {
-        navigate("/", { replace: true }); // Customer goes to products
-      }
-    } catch (err) {
-      setBackendError(err.message || "Login failed");
-    }
-  };
+    // ✅ Always go to dashboard
+    navigate("/dashboard", { replace: true });
+
+  } catch (err) {
+    setBackendError(err.message || "Login failed");
+  }
+};
 
   const inputWrapper =
     "flex items-center border rounded-md bg-gray-100 px-4 py-2 border-gray-300 focus-within:border-blue-500";
