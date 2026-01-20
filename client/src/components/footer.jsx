@@ -1,4 +1,4 @@
-export function Footer() {
+function Footer() {
   return (
     <footer
       className={`
@@ -36,3 +36,4 @@ export function Footer() {
       </footer>
   );
 }
+export default Footer;

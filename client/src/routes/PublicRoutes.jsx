@@ -1,7 +1,7 @@
 
 import React, { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import loader from "../assets/image/logo-icon.png";
+import loader from "../assets/icons/logo-icon.png";
 
 
 const LoginPage = React.lazy(() => import("../pages/public/LoginPage"));
