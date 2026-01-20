@@ -7,7 +7,7 @@ const RewardDashboard = React.lazy(() => import("../pages/private/RewardDashboar
 const CategorySection = React.lazy(() => import("../pages/private/CategorySection"));
 const ProfilePage = React.lazy(() => import("../pages/private/ProfilePage"));
 
-const PrivateRoutes = () => {
+const PrivateRoutes = ({ onLogout }) => {
   return (
     <Suspense
       fallback={
@@ -18,11 +18,11 @@ const PrivateRoutes = () => {
     >
       <Routes>
         {/* Main Routes */}
-        <Route path="/" element={<CategorySection />} />
-        <Route path="/products" element={<CategorySection />} />
-        <Route path="/rewarddashboard" element={<RewardDashboard />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        
+        <Route path="/" element={<CategorySection onLogout={onLogout} />} />
+        <Route path="/products" element={<CategorySection onLogout={onLogout} />} />
+        <Route path="/rewarddashboard" element={<RewardDashboard onLogout={onLogout} />} />
+        <Route path="/profile" element={<ProfilePage onLogout={onLogout} />} />
+
         {/* Redirect unknown routes to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

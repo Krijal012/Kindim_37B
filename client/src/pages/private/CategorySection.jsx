@@ -5,7 +5,7 @@ import CategoryBar from "../../components/CategoryBar";
 import ProductGrid from "../../components/ProductGrid";
 import Products from "../../data/Product";  // Import the array of 15 products
 
-function CategorySection() {
+function CategorySection({ onLogout }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [priceRange, setPriceRange] = useState(125000);
   const [selectedRating, setSelectedRating] = useState('All Stars');
@@ -33,6 +33,7 @@ function CategorySection() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         onSearchSubmit={() => setSearchSubmitted(true)}
+        onLogout={onLogout}
       />
 
       <main className="bg-gray-50 py-10 mt-20">

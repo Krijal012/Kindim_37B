@@ -1,6 +1,6 @@
 import logo from "../assets/icons/logo-icon.png"
 
-export function Header() {
+export function Header({ onLogout }) {
     return (
         <header
             className={`
@@ -34,7 +34,9 @@ export function Header() {
             </form>
 
             {/* Logout */}
-            <button className="
+            <button
+                onClick={onLogout}
+                className="
         ml-auto
         bg-[#3d87ff] text-black font-semibold
         px-4 py-2 rounded-md shadow

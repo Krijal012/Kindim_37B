@@ -1,43 +1,43 @@
 import React, { useState } from "react";
 import wheelImg from "../../assets/icons/wheel.png";
 import axios from "axios";
-import { Header } from "../../Components/Header";
-import { Footer } from "../../Components/Footer";
+import { Header } from "../../components/Header";
+import { Footer } from "../../components/Footer";
 
-export default function RewardDashboard() {
+export default function RewardDashboard({ onLogout }) {
   const [gems, setGems] = useState(1000);
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSpin = async () => {
-  try {
-    console.log("Spin clicked");
-    setLoading(true);
-    setResult("");
+    try {
+      console.log("Spin clicked");
+      setLoading(true);
+      setResult("");
 
-    const res = await axios.post(
-      "http://localhost:5000/api/rewards/spin",
-      { userId: "123" }
-    );
+      const res = await axios.post(
+        "http://localhost:5000/api/rewards/spin",
+        { userId: "123" }
+      );
 
-    console.log("API response:", res.data);
+      console.log("API response:", res.data);
 
-    setGems(res.data.totalGems);
-    setResult(`You won ${res.data.gemsWon} gems 🎉`);
-  } catch (err) {
-    console.error("Spin error:", err);
-    setResult("API error. Check console.");
-  } finally {
-    setLoading(false);
-  }
-};
+      setGems(res.data.totalGems);
+      setResult(`You won ${res.data.gemsWon} gems 🎉`);
+    } catch (err) {
+      console.error("Spin error:", err);
+      setResult("API error. Check console.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   return (
     <>
-      <Header />
+      <Header onLogout={onLogout} />
       <div className="min-h-screen bg-white flex justify-center px-5 pb-5 pt-24">
-      
+
         <div className="w-full max-w-5xl border-[3px] border-blue-500 p-5">
 
           <h2 className="text-center text-xl font-bold mb-5">
