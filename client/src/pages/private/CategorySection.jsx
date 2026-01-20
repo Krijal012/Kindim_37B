@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Header } from "../../Components/Header";
+import { Header } from "../../components/Header";
 import { Footer } from "../../Components/Footer";
 import CategoryBar from "../../Components/CategoryBar";
 import ProductGrid from "../../Components/ProductGrid";
