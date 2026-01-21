@@ -1,17 +1,24 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/icons/logo-icon.png";
-import Products from "../data/Product"; // make sure path is correct
+import profileIcon from "../assets/icons/profile.png";
+import Products from "../data/Product";
 
-export default function Header({ show = true, searchQuery, setSearchQuery, onSearchSubmit, onLogout }) {
+export default function Header({
+  show = true,
+  searchQuery,
+  setSearchQuery,
+  onSearchSubmit,
+  onLogout
+}) {
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
-  // Sync local input with parent searchQuery
   useEffect(() => {
     setQuery(searchQuery || "");
   }, [searchQuery]);
 
-  // Handle typing in search bar
   const handleChange = (e) => {
     const value = e.target.value;
     setQuery(value);
@@ -19,88 +26,63 @@ export default function Header({ show = true, searchQuery, setSearchQuery, onSea
     if (!value) {
       setSuggestions([]);
       setSearchQuery("");
-      onSearchSubmit(); // reset search on clear
+      onSearchSubmit();
       return;
     }
 
     const filtered = Products.filter((product) =>
       product.name.toLowerCase().includes(value.toLowerCase())
     );
-    setSuggestions(filtered.length > 0 ? filtered : [{ id: "no-result", name: "No products found" }]);
-  };
-
-  // Handle selecting a suggestion
-  const handleSelect = (item) => {
-    if (item.id === "no-result") {
-      setQuery("");
-      setSuggestions([]);
-      setSearchQuery("");
-      onSearchSubmit();
-      return;
-    }
-
-    setQuery(item.name);
-    setSuggestions([]);
-    setSearchQuery(item.name);
-    onSearchSubmit();
+    setSuggestions(filtered.length ? filtered : [{ id: "no-result", name: "No products found" }]);
   };
 
   return (
     <header
-      className={`
-        fixed top-0 left-0 w-full z-[9999]
-        flex items-center gap-4
-        bg-[#1A73E8]
-        px-4 py-3 sm:px-8 sm:py-4 md:px-10
-        transition-transform duration-300
-        ${show ? "translate-y-0" : "-translate-y-full"}
-      `}
+      className={`fixed top-0 left-0 w-full z-[9999] flex items-center gap-4
+      bg-[#1A73E8] px-6 py-4 transition-transform duration-300
+      ${show ? "translate-y-0" : "-translate-y-full"}`}
     >
       {/* Logo */}
-      <img src={logo} alt="logo" className="h-12 w-12 sm:h-14 sm:w-14 md:h-20 md:w-20" />
-      <span className="text-white font-bold text-xl sm:text-2xl md:text-3xl">Kindim</span>
+      <img src={logo} alt="logo" className="h-14 w-14" />
+      <span className="text-white font-bold text-2xl">Kindim</span>
 
-      {/* Search Bar */}
+      {/* Search */}
       <div className="ml-10 hidden md:flex flex-1 max-w-xl relative">
-        <i className="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
         <input
           type="text"
           value={query}
           onChange={handleChange}
           placeholder="Search products..."
-          className="w-full px-4 py-2 pl-12 rounded-md bg-white text-black outline-none"
+          className="w-full px-4 py-2 rounded-md outline-none"
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              setSuggestions([]);    // hide dropdown
-              setSearchQuery(query); // send current input to parent
-              onSearchSubmit();      // trigger search
+              setSuggestions([]);
+              setSearchQuery(query);
+              onSearchSubmit();
             }
           }}
         />
-
-        {suggestions.length > 0 && (
-          <ul className="absolute top-full left-0 w-full bg-white border mt-1 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
-            {suggestions.map((item) => (
-              <li
-                key={item.id}
-                className={`px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 ${item.id === "no-result" ? "justify-center text-gray-500" : ""}`}
-                onClick={() => handleSelect(item)}
-              >
-                {item.image && <img src={item.image} alt={item.name} className="w-8 h-8 object-cover rounded" />}
-                <span>{item.name}</span>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
-      {/* Logout Button */}
-      <button
-        onClick={onLogout}
-        className="ml-auto bg-[#3d87ff] text-black font-semibold px-4 py-2 rounded-md shadow hover:bg-gray-100 active:scale-95 transition"
-      >
-        Logout
-      </button>
+      {/* Right Actions */}
+      <div className="ml-auto flex items-center gap-4">
+        {/* Profile Icon */}
+        <button
+          onClick={() => navigate("/profile")}
+          className="p-2 rounded-full hover:bg-blue-400 transition"
+          title="Profile Settings"
+        >
+          <img src={profileIcon} alt="Profile" className="w-8 h-8 rounded-full" />
+        </button>
+
+        {/* Logout */}
+        <button
+          onClick={onLogout}
+          className="bg-white text-black font-semibold px-4 py-2 rounded-md hover:bg-gray-100"
+        >
+          Logout
+        </button>
+      </div>
     </header>
   );
 }
