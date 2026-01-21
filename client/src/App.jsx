@@ -1,7 +1,14 @@
-import PublicRoutes from "./routes/PublicRoutes";
+import PrivateRoutes from "./routes/PrivateRoutes";
+
 
 function App() {
-  return <PublicRoutes />;
+  return (
+    <div>
+      
+      <PrivateRoutes />
+    </div>
+  );
 }
+
 
 export default App;
