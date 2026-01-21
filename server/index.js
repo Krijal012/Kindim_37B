@@ -1,28 +1,25 @@
 import express from "express";
-import { connection } from "./Database/db.js";
-import { authRouter } from "./Routes/authRoutes.js"; 
-import rewardRoutes from "./Routes/rewardRoutes.js";
-
 import cors from "cors";
+import profileRoutes from "./routes/profile.js";
+import { connection } from "./database/db.js";
 
 const app = express();
 
-
+app.use(cors());
 app.use(express.json());
-app.use(cors()); 
+app.use("/uploads", express.static("uploads"));
 
 
 connection();
 
+app.get("/api/test", (req, res) => res.json({ message: "Server works" }));
 
-app.use("/api/auth", authRouter);
-app.use("/api/rewards", rewardRoutes);
-
-app.get("/", (req, res) => res.send("Auth API is running"));
+app.use("/api/profile", profileRoutes);
 
 
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: "Server error" });
 });
 
+app.listen(5000, () => console.log("Server running on http://localhost:5000"));

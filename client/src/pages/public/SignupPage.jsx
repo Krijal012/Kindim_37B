@@ -11,6 +11,8 @@ import eyeOffIcon from "../../assets/icons/eye-off.png";
 import { RegisterSchema } from "../../schema/register.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useApi } from "../../hooks/useAPi";
+import bgImage from "../../assets/image/background.png";
+
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -41,11 +43,18 @@ console.log(errors);
   const inputStyle = "flex-1 bg-transparent outline-none text-base";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
-      <div className="w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden">
+    <div
+  className="min-h-screen flex items-center justify-center bg-cover bg-center"
+  style={{ backgroundImage: `url(${bgImage})` }}
+>
 
-        
-        <div className="w-1/2 flex flex-col justify-center items-center p-8 bg-white">
+      <div className="w-[900px] h-[520px] flex rounded-2xl shadow-2xl overflow-hidden bg-white">
+
+
+   
+   <div className="w-[60%] flex flex-col justify-center items-center p-10 bg-white">
+
+
           <h3 className="text-3xl font-bold mb-6">Signup</h3>
 
           {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
@@ -116,19 +125,24 @@ console.log(errors);
           </form>
         </div>
 
-       
-        <div className="w-1/2 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1A73E8] to-[#0F4EB3] rounded-tl-[70px] flex flex-col justify-center items-center text-white">
-            <img src={logoIcon} className="w-20 h-20 mb-6" />
-            <h2 className="text-3xl font-bold text-center mb-4">
-              Hello,<br />Welcome to Kindim
-            </h2>
-            <p className="mb-3">Already have an account?</p>
-            <button className="px-8 py-2 bg-black rounded-full" onClick={() => navigate("/login")}>
-              Login
-            </button>
-          </div>
-        </div>
+<div className="w-[40%] overflow-hidden rounded-tl-[48px]">
+  <div className="h-full w-full bg-gradient-to-b from-[#1A73E8] to-[#0F4EB3]
+    flex flex-col justify-center items-center text-white">
+    
+    <img src={logoIcon} className="w-20 h-20 mb-6" />
+    <h2 className="text-3xl font-bold text-center mb-4">
+      Hello,<br />Welcome to Kindim
+    </h2>
+    <p className="mb-3">Already have an account?</p>
+    <button
+      className="px-8 py-2 bg-black rounded-full"
+      onClick={() => navigate("/login")}
+    >
+      Login
+    </button>
+  </div>
+</div>
+
 
       </div>
     </div>

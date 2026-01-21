@@ -6,7 +6,7 @@ import {
   getUserById,
   updateUser,
   deleteUser
-} from "../Controller/authController.js";
+} from "../controllers/authController.js";
 
 export const authRouter = express.Router();
 
