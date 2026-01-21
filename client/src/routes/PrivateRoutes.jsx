@@ -15,10 +15,10 @@ const PrivateRoutes = () => {
       }
     >
       <Routes>
-        
-        <Route path="/profile" element={<Profile/>}/>
-        
-      </Routes>
+        <Route path="/" element={<Navigate to="/profile" replace />} />
+        <Route path="/profile" element={<Profile />} />
+</Routes>
+
     </Suspense>
   );
 };
