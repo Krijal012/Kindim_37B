@@ -1,144 +1,114 @@
-import { useState } from "react";
-import userImg from "../../assets/icons/user.png";
-import editIcon from "../../assets/icons/edit.png"; 
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState, useEffect } from "react";
+import { useApi } from "../hooks/useApi";
 import { profileSchema } from "../schema/profile.schemas";
 
+export default function PersonalInfo({ user, setUser }) {
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+    resolver: zodResolver(profileSchema),
+  });
 
-const PersonalInfo=() =>{
-  const [profileImage, setProfileImage] = useState(userImg);
+  const [preview, setPreview] = useState(user?.profileImage ? `http://localhost:5000${user.profileImage}` : null);
+  const { callApi, loading, error } = useApi();
+  const [successMessage, setSuccessMessage] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setValue("name", user.name);
+      setValue("email", user.email);
+      setValue("dob", user.dob);
+      setValue("gender", user.gender);
+      setValue("phone", user.phone);
+    }
+  }, [user]);
 
 
-   const {
-      register,
-      handleSubmit,
-      formState: { errors },
-    } = useForm({
-      resolver: zodResolver(profileSchema),
-    });
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setProfileImage(event.target.result);
-      };
-      reader.readAsDataURL(file);
+  const onSubmit = async (data) => {
+    try {
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (key !== "profileImage") formData.append(key, value);
+      });
+      if (data.profileImage?.[0]) formData.append("profileImage", data.profileImage[0]);
+
+      const res = await callApi("POST", "/api/profile", {
+        data: formData,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setUser(res.data.user);
+      setPreview(res.data.user.profileImage ? `http://localhost:5000${res.data.user.profileImage}` : null);
+      setSuccessMessage("Profile updated successfully!");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete your account?")) return;
+
+    try {
+      await callApi("DELETE", "/api/profile");
+      setUser(null);
+      setPreview(null);
+      setSuccessMessage("Account deleted successfully!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
-    
-    <div className="flex-1 bg-gray-100 rounded p-6">
-      <div className="flex justify-between items-center border-b pb-3 mb-6">
-        <h2 className="font-semibold">Personal Information</h2>
-        <button className="text-sm flex items-center gap-1 text-gray-600">
-          <img src={editIcon} alt="Edit" className="w-4 h-4" />
-          Change Profile Information
+    <form onSubmit={handleSubmit(onSubmit)} className="flex-1 bg-white p-6 rounded shadow space-y-4">
+      {preview && <img src={preview} alt="Preview" className="w-24 h-24 rounded-full object-cover mb-2" />}
+      <input
+        type="file"
+        {...register("profileImage")}
+        onChange={(e) => e.target.files[0] && setPreview(URL.createObjectURL(e.target.files[0]))}
+      />
+
+      <div>
+        <input {...register("name")} placeholder="Name" className="w-full p-2 border rounded" />
+        {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+      </div>
+
+      <div>
+        <input {...register("email")} placeholder="Email" className="w-full p-2 border rounded" />
+        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+      </div>
+
+      <div>
+        <input {...register("phone")} placeholder="Phone" className="w-full p-2 border rounded" />
+        {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
+      </div>
+
+      <div>
+        <select {...register("gender")} className="w-full p-2 border rounded">
+          <option value="">Select Gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+        {errors.gender && <p className="text-red-500 text-sm">{errors.gender.message}</p>}
+      </div>
+
+      <div>
+        <input {...register("dob")} type="date" className="w-full p-2 border rounded" />
+        {errors.dob && <p className="text-red-500 text-sm">{errors.dob.message}</p>}
+      </div>
+
+      <div className="flex gap-4 mt-4">
+        <button type="submit" disabled={loading} className={`px-4 py-2 rounded text-white ${loading ? "bg-gray-400" : "bg-blue-600"}`}>
+          {loading ? "Saving..." : "Save Changes"}
         </button>
-      </div>
-
-  
-      <div className="flex items-center gap-4 mb-6">
-        <div className="relative">
-          <div
-            className="w-20 h-20 rounded-full flex items-center justify-center cursor-pointer"
-            style={{
-              border: "2px solid #0033FF",
-            }}
-            onClick={() => document.getElementById("fileInput").click()}
-          >
-            <img
-              src={profileImage}
-              alt="Profile"
-              className="w-full h-full rounded-full object-cover"
-            />
-          </div>
-
-          <input
-            id="fileInput"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageChange}
-          />
-
-        
-          <div
-            className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center cursor-pointer"
-            style={{
-              backgroundColor: "#D9D9D9",
-              border: "2px solid #0033FF",
-            }}
-            onClick={() => document.getElementById("fileInput").click()}
-          >
-            <img src={editIcon} alt="Edit" className="w-3 h-3" />
-          </div>
-        </div>
-      </div>
-
-    <form >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="text-sm font-medium">Name</label>
-          <input
-            className="w-full mt-1 p-2 rounded border bg-white"
-            placeholder="Max 50 characters"
-            maxLength={50}
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium">Date of Birth</label>
-          <input
-            type="date"
-            className="w-full mt-1 p-2 rounded border bg-white"
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium">Gender</label>
-          <div className="flex gap-4 mt-2">
-            <label className="flex items-center gap-1 text-sm">
-              <input type="radio" name="gender" defaultChecked />
-              Male
-            </label>
-            <label className="flex items-center gap-1 text-sm">
-              <input type="radio" name="gender" />
-              Female
-            </label>
-          </div>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium">Phone Number</label>
-          <input
-            className="w-full mt-1 p-2 rounded border bg-white"
-            placeholder="Max 50 characters"
-            maxLength={50}
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium">Email</label>
-          <input
-            className="w-full mt-1 p-2 rounded border bg-white"
-            placeholder="Max 50 characters"
-            maxLength={50}
-          />
-        </div>
-      </div>
-
-      <div className="flex gap-4 mt-8">
-        <button className="px-6 py-2 bg-gray-300 rounded text-sm">
-          Save Changes
-        </button>
-        <button className="px-6 py-2 bg-black text-white rounded-full text-sm">
+        <button type="button" onClick={handleDelete} disabled={loading} className="px-4 py-2 rounded text-white bg-red-600 hover:bg-red-700">
           Delete Account
         </button>
       </div>
+
+      {successMessage && <p className="text-green-500 mt-2">{successMessage}</p>}
+      {error && <p className="text-red-500 mt-2">{error}</p>}
     </form>
-    </div>
   );
 }
-export default PersonalInfo;

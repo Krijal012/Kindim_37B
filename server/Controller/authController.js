@@ -4,15 +4,15 @@ import { generateToken } from "../Security/jwt-utils.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-dotenv.config(); // load .env variables
+import { Op } from "sequelize";
 
+dotenv.config();
 
-
+/* ===================== REGISTER ===================== */
 export const register = async (req, res) => {
   try {
-    const { username, email, password, confirmPassword } = req.body;
+    const { username, email, password, confirmPassword, role } = req.body;
 
- 
     if (!username || !email || !password || !confirmPassword) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -37,63 +37,85 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    const existingUser = await Users.findOne({ where: { email } });
-    if (existingUser) {
+    const validRoles = ["customer", "seller", "admin"];
+    if (role && !validRoles.includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    const existingEmail = await Users.findOne({ where: { email } });
+    if (existingEmail) {
       return res.status(409).json({ message: "User already exists" });
     }
+
     const existingUsername = await Users.findOne({ where: { username } });
-if (existingUsername) {
-  return res.status(409).json({ message: "Username already exists" });
-}
+    if (existingUsername) {
+      return res.status(409).json({ message: "Username already exists" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
 
     const user = await Users.create({
       username,
       email,
       password: hashedPassword,
+      role: role || "customer",
     });
 
     res.status(201).json({
       message: "User registered successfully",
-      user: { id: user.id, username: user.username, email: user.email },
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
+/* ===================== LOGIN ===================== */
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password)
+    if (!email || !password) {
       return res.status(400).json({ message: "Email and password required" });
+    }
 
     const user = await Users.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Incorrect password" });
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
 
-    const access_token = generateToken({ id: user.id, email: user.email });
+    const access_token = generateToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    });
 
     res.status(200).json({
       message: "Login successful",
       access_token,
+      role: user.role,
+      username: user.username,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
+/* ===================== USERS ===================== */
 export const getAllUsers = async (req, res) => {
   try {
     const users = await Users.findAll({
-      attributes: ["id", "username", "email", "createdAt", "updatedAt"],
+      attributes: ["id", "username", "email", "role", "createdAt", "updatedAt"],
     });
     res.status(200).json(users);
   } catch (error) {
@@ -103,43 +125,58 @@ export const getAllUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await Users.findByPk(id, {
-      attributes: ["id", "username", "email", "createdAt", "updatedAt"],
+    const user = await Users.findByPk(req.params.id, {
+      attributes: ["id", "username", "email", "role", "createdAt", "updatedAt"],
     });
-    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
 export const updateUser = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
+    const user = await Users.findByPk(req.params.id);
 
-    const user = await Users.findByPk(id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     if (username) user.username = username;
     if (email) user.email = email;
     if (password) user.password = await bcrypt.hash(password, 10);
 
+    if (role) {
+      const validRoles = ["customer", "seller", "admin"];
+      if (!validRoles.includes(role)) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+      user.role = role;
+    }
+
     await user.save();
-    res.status(200).json({ message: "User updated successfully" });
+
+    res.status(200).json({
+      message: "User updated successfully",
+      user,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-
 export const deleteUser = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await Users.findByPk(id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const user = await Users.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
     await user.destroy();
     res.status(200).json({ message: "User deleted successfully" });
@@ -148,30 +185,22 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-
+/* ===================== FORGOT PASSWORD ===================== */
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    if (!email) return res.status(400).json({ message: "Email is required" });
-
     const user = await Users.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    // Generate a secure reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
-    const resetTokenExpiry = Date.now() + 3600 * 1000; // 1 hour expiry
 
-    // Save token and expiry in DB
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpires = resetTokenExpiry;
+    user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-      console.log("ENV EMAIL_USER:", process.env.EMAIL_USER); // shows which Gmail Nodemailer is using
-    console.log("Sending email to:", user.email);           // shows which user will receive it
-
-
-    // Send email with nodemailer
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -183,33 +212,22 @@ export const forgotPassword = async (req, res) => {
     const resetURL = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
       to: user.email,
-      subject: "Password Reset Request",
-      html: `<p>You requested a password reset.</p>
-             <p>Click this link to reset your password: <a href="${resetURL}">${resetURL}</a></p>
-             <p>This link will expire in 1 hour.</p>`,
+      subject: "Password Reset",
+      html: `<p>Reset your password:</p><a href="${resetURL}">${resetURL}</a>`,
     });
 
-    res.status(200).json({ message: "Reset link sent to your email" });
+    res.status(200).json({ message: "Reset link sent to email" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
+/* ===================== RESET PASSWORD ===================== */
 export const resetPassword = async (req, res) => {
   try {
-    const { token, password, confirmPassword } = req.body;
-
-    if (!token || !password || !confirmPassword) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 6 characters" });
-    }
+    const { token } = req.params;
+    const { password, confirmPassword } = req.body;
 
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
@@ -218,23 +236,17 @@ export const resetPassword = async (req, res) => {
     const user = await Users.findOne({
       where: {
         resetPasswordToken: token,
-        resetPasswordExpires: { $gt: Date.now() },
+        resetPasswordExpires: { [Op.gt]: Date.now() },
       },
     });
 
     if (!user) {
-      return res
-        .status(400)
-        .json({ message: "Invalid or expired reset token" });
+      return res.status(400).json({ message: "Invalid or expired token" });
     }
 
-  const hashedPassword = await bcrypt.hash(password, 6);
-
-
-    user.password = hashedPassword;
+    user.password = await bcrypt.hash(password, 10);
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
-
     await user.save();
 
     res.status(200).json({ message: "Password reset successful" });
