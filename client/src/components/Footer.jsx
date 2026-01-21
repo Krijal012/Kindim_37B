@@ -6,9 +6,9 @@ function Footer({ show }) {
 
             <footer
                 className={`
-          bottom-0 left-0 w-full
+          fixed bottom-0 left-0 w-full
           bg-[#1A73E8] text-white
-          px-1 py-2
+          px-6 py-4
           transition-all duration-300
           ${show ? "opacity-100" : "opacity-0 pointer-events-none"}
         `}
