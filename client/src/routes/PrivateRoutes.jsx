@@ -13,23 +13,39 @@ const PrivateRoutes = ({ onLogout }) => {
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-screen">
-          <img src={loader} alt="Loading..." className="w-20 h-20 animate-pulse" />
+          <img
+            src={loader}
+            alt="Loading..."
+            className="w-20 h-20 animate-pulse"
+          />
         </div>
       }
     >
       <Routes>
-        {/* User Dashboard */}
-        <Route path="/dashboard" element={<Dashboard onLogout={onLogout} />} />
-
-        {/* Other private pages */}
-        <Route path="/rewarddashboard" element={<RewardDashboard onLogout={onLogout} />} />
-        <Route path="/profile" element={<ProfilePage onLogout={onLogout} />} />
-        <Route path="/category/:category" element={<CategorySection onLogout={onLogout} />} />
-
-        {/* Root path redirects to dashboard */}
+        {/* Default redirect */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        {/* Any unknown route redirects to dashboard */}
+        {/* Main dashboard */}
+        <Route
+          path="/dashboard"
+          element={<Dashboard onLogout={onLogout} />}
+        />
+
+        {/* Other private pages */}
+        <Route
+          path="/rewarddashboard"
+          element={<RewardDashboard onLogout={onLogout} />}
+        />
+        <Route
+          path="/profile"
+          element={<ProfilePage onLogout={onLogout} />}
+        />
+        <Route
+          path="/category/:category"
+          element={<CategorySection onLogout={onLogout} />}
+        />
+
+        {/* Catch-all */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Suspense>

@@ -1,6 +1,6 @@
 import { Routes } from 'react-router-dom';
 import { PrivateRoutes } from './PrivateRoutes';
-import { PublicRoutes } from './publicRoutes';
+import { PublicRoutes } from './PublicRoutes';
 
 
 // Combine all routes

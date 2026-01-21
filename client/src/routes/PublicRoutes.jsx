@@ -13,7 +13,11 @@ const PublicRoutes = ({ onLogin }) => {
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-screen">
-          <img src={loader} alt="Loading..." className="w-20 h-20 animate-pulse" />
+          <img
+            src={loader}
+            alt="Loading..."
+            className="w-20 h-20 animate-pulse"
+          />
         </div>
       }
     >
@@ -23,6 +27,8 @@ const PublicRoutes = ({ onLogin }) => {
         <Route path="/forgotpass" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/error" element={<ErrorPage />} />
+
+        {/* Default fallback */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Suspense>
