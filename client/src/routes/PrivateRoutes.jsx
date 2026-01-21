@@ -2,7 +2,8 @@ import React, { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import loader from "../assets/image/logo-icon.png";
 
-const RewardDashboard = React.lazy(() => import("../pages/private/RewardDashboard"));
+
+const Profile = React.lazy(()=> import("../pages/private/Profile"))
 
 const PrivateRoutes = () => {
   return (
@@ -14,8 +15,9 @@ const PrivateRoutes = () => {
       }
     >
       <Routes>
-        <Route path="/rewarddashboard" element={<RewardDashboard />} />
-        <Route path="*" element={<Navigate to="/rewarddashboard" />} />
+        
+        <Route path="/profile" element={<Profile/>}/>
+        
       </Routes>
     </Suspense>
   );
