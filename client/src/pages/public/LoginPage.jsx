@@ -29,48 +29,48 @@ const LoginPage = ({ onLogin }) => {
     resolver: zodResolver(LoginSchema),
   });
 
-const handleLogin = async (loginData) => {
-  console.log("Login Data Sent:", loginData);
-  try {
-    setBackendError("");
-    const res = await callApi("POST", "/auth/login", { data: loginData });
+  const handleLogin = async (loginData) => {
+    console.log("Login Data Sent:", loginData);
+    try {
+      setBackendError("");
+      const res = await callApi("POST", "/auth/login", { data: loginData });
 
-    // The backend sends { data: { access_token, role, ... } }
-    // So we need to access res.data.data
-    const backendData = res.data.data; 
+      const backendData = res.data.data;
 
-    if (backendData) {
-      localStorage.setItem("access_token", backendData.access_token);
-      localStorage.setItem("userEmail", loginData.email);
-      localStorage.setItem("userRole", backendData.role);
+      if (backendData) {
+        localStorage.setItem("access_token", backendData.access_token);
+        localStorage.setItem("userEmail", loginData.email);
+        localStorage.setItem("userRole", backendData.role);
 
-      if (onLogin) {
-        flushSync(() => {
-          onLogin();
-        });
-      }
+        if (onLogin) {
+          flushSync(() => {
+            onLogin();
+          });
+        }
 
-      // Use backendData.role for navigation
-      if (backendData.role === "admin") {
-        navigate("/admin-dashboard", { replace: true });
-      } else if (backendData.role === "seller") {
-        navigate("/seller-dashboard", { replace: true });
+        // ✅ Fixed navigation - customers go to /dashboard
+        if (backendData.role === "admin") {
+          navigate("/admin-dashboard", { replace: true });
+        } else if (backendData.role === "seller") {
+          navigate("/seller-dashboard", { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
       } else {
-        navigate("/", { replace: true });
+        setBackendError("Unexpected response format from server");
       }
-    } else {
-      setBackendError("Unexpected response format from server");
+    } catch (err) {
+      setBackendError(err.message || "Login failed");
     }
-  } catch (err) {
-    setBackendError(err.message || "Login failed");
-  }
-};
-const handleSignupClick = () => {
+  };
+
+  const handleSignupClick = () => {
     setIsAnimating(true);
     setTimeout(() => {
       navigate("/signup");
     }, 600);
   };
+
   const inputWrapper =
     "flex items-center border rounded-md bg-gray-100 px-4 py-2 border-gray-300 focus-within:border-blue-500";
   const inputStyle = "flex-1 bg-transparent outline-none text-base";
@@ -81,8 +81,9 @@ const handleSignupClick = () => {
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <div
-        className={`w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden bg-white transition-all duration-600 ${isAnimating ? "animate-slide-right" : "animate-slide-in-left"
-          }`}
+        className={`w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden bg-white transition-all duration-600 ${
+          isAnimating ? "animate-slide-right" : "animate-slide-in-left"
+        }`}
       >
         {/* Left Side - Blue Section */}
         <div className="w-1/2 relative">

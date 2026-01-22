@@ -26,7 +26,7 @@ function CategorySection({ onLogout }) {
     async function fetchProducts() {
       try {
         setLoading(true);
-        const response = await fetch('/api/products'); // Update this to your actual API endpoint
+        const response = await fetch('http://localhost:5000/api/products');
         
         if (!response.ok) {
           throw new Error('Failed to fetch products');
@@ -44,7 +44,7 @@ function CategorySection({ onLogout }) {
     }
     
     fetchProducts();
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   // Filter products
   const filteredProducts = products.filter((product) => {
