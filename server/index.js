@@ -3,6 +3,7 @@ import cors from "cors";
 import profileRoutes from "./Routes/profile.js";
 import { authRouter } from "./Routes/authRoutes.js";
 import { connection } from "./Database/db.js";
+import { productRouter } from "./Routes/productRoutes.js";
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.get("/api/test", (req, res) => res.json({ message: "Server works" }));
 
 app.use("/auth", authRouter);
 app.use("/api/profile", profileRoutes);
+app.use("/api/products", productRouter);
 
 
 app.use((err, req, res, next) => {

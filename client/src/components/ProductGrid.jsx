@@ -1,4 +1,4 @@
-import ProductCard from "./ProductCard";
+import ProductCard from "./productcard";
 
 function ProductGrid({ products = [] }) {  // Receives array of products, defaults to empty array
     return (

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import wheelImg from "../../assets/icons/wheel.png";
 import axios from "axios";
-import { Header } from "../../components/Header";
-import { Footer } from "../../components/Footer";
+import  Header  from "../../components/Header";
+import  Footer  from "../../components/Footer";
 
 export default function RewardDashboard({ onLogout }) {
   const [gems, setGems] = useState(1000);

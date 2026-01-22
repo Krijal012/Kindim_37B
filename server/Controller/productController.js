@@ -41,7 +41,11 @@ export const getProductsByCategory = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, price, category, rating, image } = req.body;
+    // 1. Get text fields from req.body
+    const { name, price, category, rating,description } = req.body;
+
+    // 2. Get the filename from req.file (NOT req.body.image)
+    const imageName = req.file ? req.file.filename : null;
 
     if (!name || !price || !category) {
       return res.status(400).json({ message: "Name, price, and category are required" });
@@ -51,8 +55,9 @@ export const createProduct = async (req, res) => {
       name,
       price,
       category,
+      description,
       rating: rating || 0,
-      image: image || null,
+      image: imageName, 
     });
 
     res.status(201).json({
@@ -67,26 +72,25 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, category, rating, image } = req.body;
+    const { name, price, category, rating, description } = req.body;
+    
+    // Check if a new file was uploaded via Multer
+    const newImage = req.file ? req.file.filename : undefined;
 
     const product = await Product.findByPk(id);
-    
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+    if (!product) return res.status(404).json({ message: "Product not found" });
 
     if (name) product.name = name;
     if (price) product.price = price;
     if (category) product.category = category;
     if (rating !== undefined) product.rating = rating;
-    if (image !== undefined) product.image = image;
+    if (description !== undefined) product.description = description;
+    
+   
+    if (newImage !== undefined) product.image = newImage;
 
     await product.save();
-
-    res.status(200).json({
-      message: "Product updated successfully",
-      product,
-    });
+    res.status(200).json({ message: "Product updated successfully", product });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

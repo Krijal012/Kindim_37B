@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { flushSync } from "react-dom";
 
 import logoIcon from "../../assets/icons/logo-icon.png";
 import emailIcon from "../../assets/icons/email.png";
@@ -27,25 +28,37 @@ const LoginPage = ({ onLogin }) => {
     resolver: zodResolver(LoginSchema),
   });
 
-const handleLogin = async (loginData) => {
+ const handleLogin = async (loginData) => {
+  console.log(loginData);
   try {
     setBackendError("");
     const res = await callApi("POST", "/auth/login", { data: loginData });
+    console.log(res);
 
+    // Save token, email, and role to localStorage
     localStorage.setItem("access_token", res.data.access_token);
     localStorage.setItem("userEmail", loginData.email);
     localStorage.setItem("userRole", res.data.role);
 
-    if (onLogin) onLogin();
+    // Force synchronous state update in App.js
+    if (onLogin) {
+      flushSync(() => {
+        onLogin();
+      });
+    }
 
-    // ✅ Always go to dashboard
-    navigate("/dashboard", { replace: true });
-
+    // Now navigate - App.js will already be showing PrivateRoutes
+    if (res.data.role === "admin") {
+      navigate("/admin-dashboard", { replace: true });
+    } else if (res.data.role === "seller") {
+      navigate("/seller-dashboard", { replace: true });
+    } else {
+      navigate("/", { replace: true });
+    }
   } catch (err) {
     setBackendError(err.message || "Login failed");
   }
 };
-
   const inputWrapper =
     "flex items-center border rounded-md bg-gray-100 px-4 py-2 border-gray-300 focus-within:border-blue-500";
   const inputStyle = "flex-1 bg-transparent outline-none text-base";
