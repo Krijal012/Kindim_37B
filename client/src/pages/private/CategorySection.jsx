@@ -5,6 +5,7 @@ import Footer from "../../components/Footer";
 import CategoryBar from "../../components/CategoryBar";
 import ProductGrid from "../../components/ProductGrid";
 
+
 function CategorySection({ onLogout }) {
   const { category } = useParams();
   const navigate = useNavigate();
@@ -27,11 +28,11 @@ function CategorySection({ onLogout }) {
       try {
         setLoading(true);
         const response = await fetch('http://localhost:5000/api/products');
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch products');
         }
-        
+
         const data = await response.json();
         setProducts(data);
         setError(null);
@@ -42,7 +43,7 @@ function CategorySection({ onLogout }) {
         setLoading(false);
       }
     }
-    
+
     fetchProducts();
   }, []);
 
@@ -61,6 +62,11 @@ function CategorySection({ onLogout }) {
 
     return true;
   });
+
+  // Handle product click to navigate to detail page
+  const handleProductClick = (product) => {
+    navigate(`/product/${product.id}`);
+  };
 
   // Handle logout
   const handleLogout = () => {
@@ -113,11 +119,11 @@ function CategorySection({ onLogout }) {
                   Retry
                 </button>
               </div>
-            ) : filteredProducts.length === 0 && searchSubmitted ? (
+            ) : filteredProducts.length === 0 ? (
               /* No results */
               <div className="text-center py-20">
                 <p className="text-gray-600 text-lg">
-                  No products found matching "{searchQuery}"
+                  No products found matching your filters
                 </p>
                 <button
                   onClick={() => {
@@ -134,7 +140,16 @@ function CategorySection({ onLogout }) {
               </div>
             ) : (
               /* Display products */
-              <ProductGrid products={filteredProducts} />
+              <>
+                <div className="mb-4 text-gray-600">
+                  Showing {filteredProducts.length} products
+                </div>
+
+                <ProductGrid
+                  products={filteredProducts}
+                  onProductClick={handleProductClick}
+                />
+              </>
             )}
           </div>
 

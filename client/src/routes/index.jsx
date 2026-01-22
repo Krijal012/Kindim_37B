@@ -1,15 +1,14 @@
-import { Routes } from 'react-router-dom';
-import { PrivateRoutes } from './PrivateRoutes';
-import { PublicRoutes } from './PublicRoutes';
+import PrivateRoutes from './PrivateRoutes';
+import PublicRoutes from './PublicRoutes';
 
 
 // Combine all routes
-function AppRoutes() {
+function AppRoutes(props) {
   return (
-    <Routes>
-      {PrivateRoutes}
-      {PublicRoutes}
-    </Routes>
+    <>
+      <PrivateRoutes {...props} />
+      <PublicRoutes {...props} />
+    </>
   );
 }
 

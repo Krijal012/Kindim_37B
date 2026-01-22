@@ -7,6 +7,8 @@ const SellerDashboard = React.lazy(() => import("../pages/private/Sellerdashboar
 const CategorySection = React.lazy(() => import("../pages/private/CategorySection"));
 const ProfilePage = React.lazy(() => import("../pages/private/ProfilePage"));
 const ProductDetail = React.lazy(() => import("../pages/private/ProductDetail"));
+const CartPage = React.lazy(() => import("../pages/private/CartPage"));
+const OrderHistoryPage = React.lazy(() => import("../pages/private/OrderHistoryPage"));
 
 const PrivateRoutes = ({ onLogout }) => {
   return (
@@ -27,9 +29,14 @@ const PrivateRoutes = ({ onLogout }) => {
         <Route path="/category/:category" element={<CategorySection onLogout={onLogout} />} />
         <Route path="/product/:id" element={<ProductDetail onLogout={onLogout} />} />
 
+        {/* Cart */}
+        <Route path="/cart" element={<CartPage onLogout={onLogout} />} />
+        <Route path="/cartpage" element={<CartPage onLogout={onLogout} />} />
+
         {/* Other Pages */}
         <Route path="/profile" element={<ProfilePage onLogout={onLogout} />} />
-        
+        <Route path="/orderhistory" element={<OrderHistoryPage onLogout={onLogout} />} />
+
         {/* Seller Dashboard */}
         <Route path="/seller-dashboard" element={<SellerDashboard onLogout={onLogout} />} />
 

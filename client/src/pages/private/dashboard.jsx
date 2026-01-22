@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApi } from "../../hooks/useAPI";
+import { useApi } from "../../hooks/useAPI.js";
 
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
