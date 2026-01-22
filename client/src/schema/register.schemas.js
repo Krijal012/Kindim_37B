@@ -22,14 +22,17 @@ export const RegisterSchema = z
       }),
 
     // Password: minimum 6 characters, must have letter and number
-    password: z
-      .string()
-      .nonempty({ message: "Password cannot be empty" })
-      .min(6, { message: "Password must be at least 6 characters" })
-      .max(50, { message: "Password cannot exceed 50 characters" })
-      .regex(/^(?=.*[A-Za-z])(?=.*\d)/, {
-        message: "Password must contain at least one letter and one number",
-      }),
+   password: z
+  .string()
+  .nonempty({ message: "Password cannot be empty" })
+  .min(6, { message: "Password must be at least 6 characters" })
+  .max(50, { message: "Password cannot exceed 50 characters" })
+  .regex(
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])/,
+    {
+      message: "Password must contain at least one letter, one number, and one special character",
+    }
+  ),
 
     // Confirm Password
     confirmPassword: z
