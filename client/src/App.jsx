@@ -3,6 +3,7 @@ import { useState } from "react";
 import PublicRoutes from "./routes/PublicRoutes";
 import PrivateRoutes from "./routes/PrivateRoutes";
 import DashBoard from "./pages/private/dashboard";
+import Wishlist from "./pages/private/wishlist";
 
 
 
@@ -26,7 +27,7 @@ function App() {
 //   );
   return (
     <>
-      <DashBoard />
+      <Wishlist />
     </>
   );
 }
