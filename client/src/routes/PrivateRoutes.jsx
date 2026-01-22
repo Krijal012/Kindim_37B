@@ -4,7 +4,6 @@ import loader from "../assets/icons/logo-icon.png";
 
 const Dashboard = React.lazy(() => import("../pages/private/dashboard"));
 const SellerDashboard = React.lazy(() => import("../pages/private/Sellerdashboard"));
-const RewardDashboard = React.lazy(() => import("../pages/private/RewardDashboard"));
 const CategorySection = React.lazy(() => import("../pages/private/CategorySection"));
 const ProfilePage = React.lazy(() => import("../pages/private/ProfilePage"));
 const ProductDetail = React.lazy(() => import("../pages/private/ProductDetail"));
@@ -29,7 +28,6 @@ const PrivateRoutes = ({ onLogout }) => {
         <Route path="/product/:id" element={<ProductDetail onLogout={onLogout} />} />
 
         {/* Other Pages */}
-        <Route path="/rewarddashboard" element={<RewardDashboard onLogout={onLogout} />} />
         <Route path="/profile" element={<ProfilePage onLogout={onLogout} />} />
         
         {/* Seller Dashboard */}
