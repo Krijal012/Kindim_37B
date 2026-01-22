@@ -4,11 +4,30 @@ import loader from "../assets/icons/logo-icon.png";
 
 // Lazy load components
 const Dashboard = React.lazy(() => import("../pages/private/dashboard"));
-const RewardDashboard = React.lazy(() => import("../pages/private/RewardDashboard"));
+const SellerDashboard = React.lazy(() => import("../pages/private/SellerDashboard"));
+// const AdminDashboard = React.lazy(() => import("../pages/private/AdminDashboard"));
 const ProfilePage = React.lazy(() => import("../pages/private/ProfilePage"));
 const CategorySection = React.lazy(() => import("../pages/private/CategorySection"));
 
-const PrivateRoutes = ({ onLogout }) => {
+// Protected Route Component
+const ProtectedRoute = ({ children, allowedRoles, userRole }) => {
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    // Redirect to their appropriate dashboard
+    if (userRole === "admin") return <Navigate to="/admin-dashboard" replace />;
+    if (userRole === "seller") return <Navigate to="/seller-dashboard" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+};
+
+const PrivateRoutes = ({ onLogout, userRole }) => {
+  // Determine default dashboard based on role
+  const getDefaultDashboard = () => {
+    if (userRole === "admin") return "/admin-dashboard";
+    if (userRole === "seller") return "/seller-dashboard";
+    return "/dashboard";
+  };
+
   return (
     <Suspense
       fallback={
@@ -22,16 +41,40 @@ const PrivateRoutes = ({ onLogout }) => {
       }
     >
       <Routes>
-        {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        {/* Default redirect based on role */}
+        <Route path="/" element={<Navigate to={getDefaultDashboard()} replace />} />
 
-        {/* Main dashboard */}
+        {/* Customer Dashboard */}
         <Route
           path="/dashboard"
-          element={<Dashboard onLogout={onLogout} />}
+          element={
+            <ProtectedRoute allowedRoles={["customer"]} userRole={userRole}>
+              <Dashboard onLogout={onLogout} />
+            </ProtectedRoute>
+          }
         />
 
-        {/* Other private pages */}
+        {/* Seller Dashboard */}
+        <Route
+          path="/seller-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["seller"]} userRole={userRole}>
+              <SellerDashboard onLogout={onLogout} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Admin Dashboard */}
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]} userRole={userRole}>
+              <AdminDashboard onLogout={onLogout} />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Shared pages - accessible by all roles */}
         <Route
           path="/rewarddashboard"
           element={<RewardDashboard onLogout={onLogout} />}
@@ -45,8 +88,8 @@ const PrivateRoutes = ({ onLogout }) => {
           element={<CategorySection onLogout={onLogout} />}
         />
 
-        {/* Catch-all */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        {/* Catch-all - redirect to appropriate dashboard */}
+        <Route path="*" element={<Navigate to={getDefaultDashboard()} replace />} />
       </Routes>
     </Suspense>
   );

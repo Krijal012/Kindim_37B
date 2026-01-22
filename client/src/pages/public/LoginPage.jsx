@@ -18,6 +18,7 @@ const LoginPage = ({ onLogin }) => {
   const { callApi } = useApi();
   const [showPassword, setShowPassword] = useState(false);
   const [backendError, setBackendError] = useState("");
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const {
     register,
@@ -27,24 +28,38 @@ const LoginPage = ({ onLogin }) => {
     resolver: zodResolver(LoginSchema),
   });
 
-const handleLogin = async (loginData) => {
-  try {
-    setBackendError("");
-    const res = await callApi("POST", "/auth/login", { data: loginData });
+  const handleLogin = async (loginData) => {
+    try {
+      setBackendError("");
+      const res = await callApi("POST", "/auth/login", { data: loginData });
 
-    localStorage.setItem("access_token", res.data.access_token);
-    localStorage.setItem("userEmail", loginData.email);
-    localStorage.setItem("userRole", res.data.role);
+      localStorage.setItem("access_token", res.data.access_token);
+      localStorage.setItem("userEmail", loginData.email);
+      localStorage.setItem("userRole", res.data.role);
 
-    if (onLogin) onLogin();
+      if (onLogin) onLogin();
 
-    // ✅ Always go to dashboard
-    navigate("/dashboard", { replace: true });
+      const role = res.data.role;
 
-  } catch (err) {
-    setBackendError(err.message || "Login failed");
-  }
-};
+      if (role === "admin") {
+        navigate("/admin-dashboard", { replace: true });
+      } else if (role === "seller") {
+        navigate("/seller-dashboard", { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
+
+    } catch (err) {
+      setBackendError(err.message || "Login failed");
+    }
+  };
+
+  const handleSignupClick = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      navigate("/signup");
+    }, 600);
+  };
 
   const inputWrapper =
     "flex items-center border rounded-md bg-gray-100 px-4 py-2 border-gray-300 focus-within:border-blue-500";
@@ -52,10 +67,13 @@ const handleLogin = async (loginData) => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      className="min-h-screen flex items-center justify-center bg-cover bg-center overflow-hidden"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      <div className="w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden bg-white">
+      <div
+        className={`w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden bg-white transition-all duration-600 ${isAnimating ? "animate-slide-right" : "animate-slide-in-left"
+          }`}
+      >
         {/* Left Side - Blue Section */}
         <div className="w-1/2 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-[#1A73E8] to-[#0F4EB3] rounded-tr-[70px] flex flex-col justify-center items-center text-white p-6">
@@ -66,8 +84,8 @@ const handleLogin = async (loginData) => {
             </h2>
             <p className="mb-3">Don't have an account?</p>
             <button
-              className="px-8 py-2 bg-black rounded-full hover:bg-gray-800"
-              onClick={() => navigate("/signup")}
+              className="px-8 py-2 bg-black rounded-full hover:bg-gray-800 transition-all hover:scale-105"
+              onClick={handleSignupClick}
             >
               Signup
             </button>
@@ -138,12 +156,44 @@ const handleLogin = async (loginData) => {
             </div>
 
             {/* Login Button */}
-            <button className="mt-4 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600">
+            <button className="mt-4 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-all hover:scale-105">
               Login
             </button>
           </form>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes slide-in-left {
+          0% {
+            transform: translateX(-100%);
+            opacity: 0;
+          }
+          100% {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+
+        @keyframes slide-right {
+          0% {
+            transform: translateX(0);
+            opacity: 1;
+          }
+          100% {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+        }
+
+        .animate-slide-in-left {
+          animation: slide-in-left 0.6s ease-in-out;
+        }
+
+        .animate-slide-right {
+          animation: slide-right 0.6s ease-in-out;
+        }
+      `}</style>
     </div>
   );
 };

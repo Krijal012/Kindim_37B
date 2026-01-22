@@ -100,11 +100,14 @@ export const login = async (req, res) => {
       role: user.role,
     });
 
+    // ✅ Updated response structure to match frontend expectations
     res.status(200).json({
       message: "Login successful",
-      access_token,
-      role: user.role,
-      username: user.username,
+      data: {
+        access_token,
+        role: user.role,
+        username: user.username,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
