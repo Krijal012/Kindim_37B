@@ -100,7 +100,6 @@ export const login = async (req, res) => {
       role: user.role,
     });
 
-    // ✅ Updated response structure to match frontend expectations
     res.status(200).json({
       message: "Login successful",
       data: {

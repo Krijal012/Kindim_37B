@@ -39,15 +39,8 @@ const LoginPage = ({ onLogin }) => {
 
       if (onLogin) onLogin();
 
-      const role = res.data.role;
-
-      if (role === "admin") {
-        navigate("/admin-dashboard", { replace: true });
-      } else if (role === "seller") {
-        navigate("/seller-dashboard", { replace: true });
-      } else {
-        navigate("/dashboard", { replace: true });
-      }
+      // ✅ Always go to dashboard regardless of role
+      navigate("/dashboard", { replace: true });
 
     } catch (err) {
       setBackendError(err.message || "Login failed");
