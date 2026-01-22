@@ -6,12 +6,11 @@ import OrderSummary from "../../components/OrderSummary";
 import { Header } from '../../components/Header';
 import { Footer } from '../../components/Footer';
 
-function CartPage(){
+function CartPage() {
     const navigate = useNavigate();
     const { loading, callApi } = useApi();
     const [cartItems, setCartItems] = useState([]);
 
-    // ✅ Fetch cart items from backend
     useEffect(() => {
         fetchCartItems();
     }, []);
@@ -19,7 +18,7 @@ function CartPage(){
     const fetchCartItems = async () => {
         try {
             const token = localStorage.getItem("access_token");
-            
+
             if (!token) {
                 navigate("/login");
                 return;
@@ -46,7 +45,7 @@ function CartPage(){
 
         try {
             const token = localStorage.getItem("access_token");
-            
+
             await callApi("PUT", `/api/cart/${cartId}`, {
                 data: { quantity: newQuantity },
                 headers: {
@@ -54,7 +53,7 @@ function CartPage(){
                 }
             });
 
-            setCartItems(cartItems.map(item => 
+            setCartItems(cartItems.map(item =>
                 item.id === cartId ? { ...item, quantity: newQuantity } : item
             ));
         } catch (err) {
@@ -67,7 +66,7 @@ function CartPage(){
 
         try {
             const token = localStorage.getItem("access_token");
-            
+
             await callApi("DELETE", `/api/cart/${cartId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -101,13 +100,13 @@ function CartPage(){
         );
     }
 
-    return(
+    return (
         <>
             <Header />
             <main className="bg-gray-50 py-10 mt-20 min-h-screen">
                 <div className="max-w-7xl mx-auto px-6">
                     <h1 className="text-3xl text-left font-bold text-gray-900 mb-8">Your Shopping Cart</h1>
-                    
+
                     {cartItems.length === 0 ? (
                         <div className="text-center py-20">
                             <p className="text-gray-500 text-lg mb-4">Your cart is empty</p>
@@ -121,10 +120,10 @@ function CartPage(){
                     ) : (
                         <div className="flex flex-col lg:flex-row gap-8">
                             <div className="flex-1">
-                                <Cart 
-                                    cartItems={cartItems} 
-                                    updateQuantity={updateQuantity} 
-                                    handleRemove={handleRemove} 
+                                <Cart
+                                    cartItems={cartItems}
+                                    updateQuantity={updateQuantity}
+                                    handleRemove={handleRemove}
                                 />
                             </div>
                             <div className="w-full lg:w-96">

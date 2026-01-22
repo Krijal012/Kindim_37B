@@ -1,9 +1,25 @@
 import express from "express";
-import { loginUser } from "../Controller/authController.js";
+import {
+    register,
+    login,
+    getAllUsers,
+    getUserById,
+    updateUser,
+    deleteUser,
+    forgotPassword,
+    resetPassword,
+} from "../Controller/authController.js";
 
-const router = express.Router();
+export const authRouter = express.Router();
 
-// testing login route
-router.post("/login", loginUser);
+// Authentication Routes
+authRouter.post("/register", register);
+authRouter.post("/login", login);
+authRouter.post("/forgotpass", forgotPassword);
+authRouter.post("/resetpass/:token", resetPassword);
 
-export default router;
+// User Management Routes
+authRouter.get("/users", getAllUsers);
+authRouter.get("/users/:id", getUserById);
+authRouter.put("/users/:id", updateUser);
+authRouter.delete("/users/:id", deleteUser);
