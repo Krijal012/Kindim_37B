@@ -5,71 +5,104 @@ const SellerDashboard = () => {
   const { loading, error, callApi } = useApi();
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  
-  // 1. STATE: Initialized with all required fields
-  const [newProduct, setNewProduct] = useState({ 
-    name: "", 
-    price: "", 
-    rating: "", 
+  const [editingProduct, setEditingProduct] = useState(null);
+
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    price: "",
+    rating: "",
     category: "Electronics",
-    description :"", // Default value to prevent "required" errors
-    image: null 
+    description: "",
+    image: null,
   });
 
+  // Fetch all products
   const fetchProducts = async () => {
     try {
       const res = await callApi("GET", "/api/products");
-      setProducts(res.data); 
+      setProducts(res.data);
     } catch (err) {
       console.error("Fetch failed:", err.message);
     }
   };
 
-  useEffect(() => { fetchProducts(); }, []);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
+  // Add or Update Product
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // 2. FORMDATA: All fields MUST be appended here
     const formData = new FormData();
     formData.append("name", newProduct.name);
     formData.append("price", newProduct.price);
     formData.append("rating", newProduct.rating);
-    formData.append("category", newProduct.category); // CRITICAL FIX: Adding category
-    formData.append("image", newProduct.image);
-    formData.append("description", newProduct.description); // <--- Add this
+    formData.append("category", newProduct.category);
+    formData.append("description", newProduct.description);
+    if (newProduct.image) formData.append("image", newProduct.image);
 
     try {
-      await callApi("POST", "/api/products", { 
-        data: formData,
-        headers: { "Content-Type": "multipart/form-data" } 
-      });
-      
-      // 3. CLEANUP: Reset form and close modal on success
+      if (editingProduct) {
+        // Update existing product
+        await callApi("PUT", `/api/products/${editingProduct.id}`, {
+          data: formData,
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        alert("Product updated successfully!");
+      } else {
+        // Add new product
+        await callApi("POST", "/api/products", {
+          data: formData,
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        alert("Product added successfully!");
+      }
+
+      // Reset modal & form
       setShowModal(false);
-      setNewProduct({ name: "", price: "", rating: "", category: "Electronics", image: null });
-      fetchProducts(); 
-      alert("Product added successfully!");
+      setEditingProduct(null);
+      setNewProduct({
+        name: "",
+        price: "",
+        rating: "",
+        category: "Electronics",
+        description: "",
+        image: null,
+      });
+
+      fetchProducts(); // Refresh product list
     } catch (err) {
-      console.error("Upload failed", err);
+      console.error("Operation failed", err);
+      alert("Operation failed: " + (err.response?.data?.message || err.message));
     }
   };
 
+  // Delete product
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        // This calls your backend DELETE /api/products/:id
         await callApi("DELETE", `/api/products/${id}`);
-        
-        // This removes the product from the UI table immediately
         setProducts(products.filter((p) => p.id !== id));
-        
         alert("Product deleted successfully!");
       } catch (err) {
         console.error("Delete failed:", err);
-        alert("Failed to delete product. " + (err.response?.data?.message || err.message));
+        alert("Failed to delete product: " + (err.response?.data?.message || err.message));
       }
     }
+  };
+
+  // Open modal to edit product
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setNewProduct({
+      name: product.name,
+      price: product.price,
+      rating: product.rating,
+      category: product.category,
+      description: product.description,
+      image: null,
+    });
+    setShowModal(true);
   };
 
   return (
@@ -90,8 +123,11 @@ const SellerDashboard = () => {
       <main className="flex-1 p-8">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Seller Management</h1>
-          <button 
-            onClick={() => setShowModal(true)}
+          <button
+            onClick={() => {
+              setEditingProduct(null);
+              setShowModal(true);
+            }}
             className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all"
           >
             Add New Product
@@ -116,25 +152,37 @@ const SellerDashboard = () => {
               {products.map((p) => (
                 <tr key={p.id} className="hover:bg-blue-50/30 transition">
                   <td className="p-5">
-                    <img 
-                      src={`http://localhost:5000/uploads/${p.image}`} 
+                    <img
+                      src={`http://localhost:5000/uploads/${p.image}`}
                       className="w-14 h-14 rounded-lg object-cover border shadow-sm"
-                      onError={(e) => e.target.src = "https://placehold.co/100x100?text=No+Image"} 
+                      onError={(e) => (e.target.src = "https://placehold.co/100x100?text=No+Image")}
                       alt=""
                     />
                   </td>
                   <td className="p-5 font-semibold text-gray-700">{p.name}</td>
                   <td className="p-5 text-blue-600 font-black">Rs. {p.price}</td>
-                  <td className="p-5"><span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span></td>
                   <td className="p-5">
-  <button 
-    onClick={() => handleDelete(p.id)} 
-    className="text-red-400 hover:text-red-600 font-bold text-sm"
-  >
-    Delete
-  </button>
-</td>
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span>
+                  </td>
+                  <td className="p-5 flex space-x-2">
+                    <div className="flex items-center gap-6">
+                    <button
+                      onClick={() => handleEdit(p)}
+                      className="text-blue-500 hover:text-blue-700 font-bold text-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      className="text-red-400 hover:text-red-600 font-bold text-sm"
+                    >
+                      Delete
+                    </button>
+                    </div>
+                  </td>
+                   
                 </tr>
+               
               ))}
             </tbody>
           </table>
@@ -142,99 +190,147 @@ const SellerDashboard = () => {
       </main>
 
       {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-blue-900/20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl border">
-            <h2 className="text-2xl font-black text-gray-800 mb-6">Create New Listing</h2>
-            
-            <div className="space-y-4">
-              {/* Name Input */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase ml-1">Product Title</label>
-                <input 
-                  type="text" 
-                  value={newProduct.name}
-                  className="w-full border-gray-200 border p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" 
-                  onChange={(e) => setNewProduct({...newProduct, name: e.target.value})} 
-                  required 
-                />
-              </div>
-
-              {/* 4. UI: Category Dropdown (Crucial Fix) */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase ml-1">Category</label>
-                <select 
-                  className="w-full border-gray-200 border p-3 rounded-xl outline-none bg-white"
-                  value={newProduct.category}
-                  onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                  required
-                >
-                  <option value="Electronics">Electronics</option>
-                  <option value="Fashion">Fashion</option>
-                  <option value="Home">Home & Kitchen</option>
-                  <option value="Beauty">Beauty</option>
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                {/* Price Input */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-gray-400 uppercase ml-1">Price (Rs)</label>
-                  <input 
-                    type="number" 
-                    value={newProduct.price}
-                    className="w-full border-gray-200 border p-3 rounded-xl outline-none" 
-                    onChange={(e) => setNewProduct({...newProduct, price: e.target.value})} 
-                    required 
-                  />
-                </div>
-                {/* Rating Input */}
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-gray-400 uppercase ml-1">Initial Rating</label>
-                  <input 
-                    type="number" 
-                    step="0.1" 
-                    value={newProduct.rating}
-                    className="w-full border-gray-200 border p-3 rounded-xl outline-none" 
-                    onChange={(e) => setNewProduct({...newProduct, rating: e.target.value})} 
-                    required 
-                  />
-                </div>
-              </div>
-
-
-              <div className="space-y-1">
-  <label className="text-xs font-bold text-gray-400 uppercase ml-1">Product Description</label>
-  <textarea 
-    rows="4"
-    value={newProduct.description}
-    className="w-full border-gray-200 border p-3 rounded-xl outline-none resize-none" 
-    onChange={(e) => setNewProduct({...newProduct, description: e.target.value})} 
-    placeholder="Enter detailed product information..."
-  />
-</div>
-
-              {/* Image Input */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-400 uppercase ml-1">Thumbnail Image</label>
-                <input 
-                  type="file" 
-                  className="w-full border-gray-200 border p-3 rounded-xl bg-gray-50" 
-                  onChange={(e) => setNewProduct({...newProduct, image: e.target.files[0]})} 
-                  required 
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end mt-10 space-x-4">
-              <button type="button" onClick={() => setShowModal(false)} className="font-bold text-gray-400 hover:text-gray-600">Discard</button>
-              <button type="submit" className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg transition-all">
-                Publish Product
-              </button>
-            </div>
-          </form>
+    {showModal && (
+  <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
+    <form onSubmit={handleSubmit} className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden border">
+      {/* Header */}
+      <div className="bg-gray-50 border-b px-8 py-6 flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-black text-gray-800">
+            {editingProduct ? "Edit Product" : "New Listing"}
+          </h2>
+          <p className="text-sm text-gray-500 font-medium">Fill in the information below to list your item.</p>
         </div>
-      )}
+        <button 
+          type="button" 
+          onClick={() => { setShowModal(false); setEditingProduct(null); }}
+          className="text-gray-400 hover:text-gray-600 text-2xl"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Left Side: Media Upload */}
+        <div className="space-y-4">
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">Product Media</label>
+          <div className="relative group border-2 border-dashed border-gray-200 rounded-3xl h-64 flex flex-col items-center justify-center bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 transition-all overflow-hidden">
+            {newProduct.image ? (
+              <>
+                <img 
+                  src={typeof newProduct.image === 'string' ? `http://localhost:5000/uploads/${newProduct.image}` : URL.createObjectURL(newProduct.image)} 
+                  className="w-full h-full object-cover"
+                  alt="Preview"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                  <span className="text-white font-bold text-sm">Change Image</span>
+                </div>
+              </>
+            ) : (
+              <div className="text-center p-6">
+                <div className="text-4xl mb-2">📸</div>
+                <p className="text-sm font-bold text-gray-500">Click to upload image</p>
+                <p className="text-xs text-gray-400 mt-1">PNG, JPG up to 10MB</p>
+              </div>
+            )}
+            <input
+              type="file"
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
+              required={!editingProduct}
+            />
+          </div>
+        </div>
+
+        {/* Right Side: Primary Info */}
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Title</label>
+            <input
+              type="text"
+              placeholder="e.g. Wireless Headphones"
+              value={newProduct.name}
+              className="w-full bg-gray-50 border-transparent border focus:border-blue-500 focus:bg-white p-3 rounded-xl outline-none transition-all"
+              onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Price (Rs)</label>
+              <input
+                type="number"
+                placeholder="0.00"
+                value={newProduct.price}
+                className="w-full bg-gray-50 border-transparent border focus:border-blue-500 focus:bg-white p-3 rounded-xl outline-none transition-all"
+                onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Rating</label>
+              <input
+                type="number"
+                step="0.1"
+                placeholder="4.5"
+                value={newProduct.rating}
+                className="w-full bg-gray-50 border-transparent border focus:border-blue-500 focus:bg-white p-3 rounded-xl outline-none transition-all"
+                onChange={(e) => setNewProduct({ ...newProduct, rating: e.target.value })}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Category</label>
+            <select
+              className="w-full bg-gray-50 border-transparent border focus:border-blue-500 focus:bg-white p-3 rounded-xl outline-none transition-all appearance-none cursor-pointer"
+              value={newProduct.category}
+              onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+              required
+            >
+              <option value="Electronics">Electronics</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Home">Home & Kitchen</option>
+              <option value="Beauty">Beauty</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Bottom Section: Full Width Description */}
+        <div className="md:col-span-2 space-y-1">
+          <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Description</label>
+          <textarea
+            rows="3"
+            value={newProduct.description}
+            className="w-full bg-gray-50 border-transparent border focus:border-blue-500 focus:bg-white p-4 rounded-2xl outline-none transition-all resize-none"
+            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+            placeholder="Tell buyers about your product's key features..."
+          />
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="bg-gray-50 border-t px-8 py-6 flex justify-end space-x-4">
+        <button 
+          type="button" 
+          onClick={() => { setShowModal(false); setEditingProduct(null); }} 
+          className="px-6 py-3 font-bold text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          Discard changes
+        </button>
+        <button 
+          type="submit" 
+          className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-bold shadow-lg shadow-blue-200 transition-all active:scale-95"
+        >
+          {editingProduct ? "Save Changes" : "Publish Product"}
+        </button>
+      </div>
+    </form>
+  </div>
+)}
+
     </div>
   );
 };

@@ -72,29 +72,37 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, category, rating, description } = req.body;
-    
-    // Check if a new file was uploaded via Multer
-    const newImage = req.file ? req.file.filename : undefined;
+    const body = req.body || {};
+    const { name, price, rating, category, description } = body;
 
     const product = await Product.findByPk(id);
-    if (!product) return res.status(404).json({ message: "Product not found" });
 
-    if (name) product.name = name;
-    if (price) product.price = price;
-    if (category) product.category = category;
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (name !== undefined) product.name = name;
+    if (price !== undefined) product.price = price;
     if (rating !== undefined) product.rating = rating;
+    if (category !== undefined) product.category = category;
     if (description !== undefined) product.description = description;
-    
-   
-    if (newImage !== undefined) product.image = newImage;
+
+    if (req.file) {
+      product.image = req.file.filename;
+    }
 
     await product.save();
-    res.status(200).json({ message: "Product updated successfully", product });
+
+    res.status(200).json({
+      message: "Product updated successfully",
+      product,
+    });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const deleteProduct = async (req, res) => {
   try {
