@@ -9,6 +9,18 @@ function Wishlist() {
     { id: 2, name: "Facewash", image: "/product1.jpg", price: 450 },
     { id: 3, name: "Facewash", image: "/product1.jpg", price: 450 },
     { id: 4, name: "Facewash", image: "/product1.jpg", price: 550 },
+    { id: 5, name: "Herbal Shampoo", image: "/product2.jpg", price: 650 },
+{ id: 6, name: "Moisturizing Cream", image: "/product3.jpg", price: 720 },
+{ id: 7, name: "Body Lotion", image: "/product4.jpg", price: 580 },
+{ id: 8, name: "Sunscreen SPF 50", image: "/product5.jpg", price: 890 },
+{ id: 9, name: "Hair Conditioner", image: "/product6.jpg", price: 610 },
+{ id: 10, name: "Aloe Vera Gel", image: "/product7.jpg", price: 430 },
+{ id: 11, name: "Vitamin C Serum", image: "/product8.jpg", price: 1250 },
+{ id: 12, name: "Charcoal Face Mask", image: "/product9.jpg", price: 540 },
+{ id: 13, name: "Anti-Dandruff Oil", image: "/product10.jpg", price: 760 },
+{ id: 14, name: "Lip Care Balm", image: "/product11.jpg", price: 320 },
+
+    
   ]);
 
   const handleRemove = (id) => {
