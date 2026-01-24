@@ -6,6 +6,7 @@ import loader from "../assets/image/logo-icon.png";
 const Profile = React.lazy(()=> import("../pages/private/Profile"))
 const Checkout = React.lazy(()=> import("../pages/private/Checkout"))
 const ProductComparison = React.lazy(()=> import("../pages/private/ProductComparison"))
+const RecentlyViewed = React.lazy(()=> import("../pages/private/RecentlyViewed"))
 
 const PrivateRoutes = () => {
   return (
@@ -19,10 +20,11 @@ const PrivateRoutes = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/profile" replace />} />
         <Route path="/profile" element={<Profile />} />
-</Routes>
+
         <Route path="/checkout" element={<Checkout/>}/>
         <Route path="/productcomparison" element={<ProductComparison/>}/>
-
+        <Route path="/recentlyviewed" element={<RecentlyViewed/>}/>
+</Routes>
     </Suspense>
   );
 };
