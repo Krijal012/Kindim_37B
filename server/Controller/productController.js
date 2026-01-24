@@ -41,7 +41,11 @@ export const getProductsByCategory = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    const { name, price, category, rating, image } = req.body;
+    // 1. Get text fields from req.body
+    const { name, price, category, rating,description } = req.body;
+
+    // 2. Get the filename from req.file (NOT req.body.image)
+    const imageName = req.file ? req.file.filename : null;
 
     if (!name || !price || !category) {
       return res.status(400).json({ message: "Name, price, and category are required" });
@@ -51,8 +55,9 @@ export const createProduct = async (req, res) => {
       name,
       price,
       category,
+      description,
       rating: rating || 0,
-      image: image || null,
+      image: imageName, 
     });
 
     res.status(201).json({
@@ -67,19 +72,24 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, price, category, rating, image } = req.body;
+    const body = req.body || {};
+    const { name, price, rating, category, description } = body;
 
     const product = await Product.findByPk(id);
-    
+
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    if (name) product.name = name;
-    if (price) product.price = price;
-    if (category) product.category = category;
+    if (name !== undefined) product.name = name;
+    if (price !== undefined) product.price = price;
     if (rating !== undefined) product.rating = rating;
-    if (image !== undefined) product.image = image;
+    if (category !== undefined) product.category = category;
+    if (description !== undefined) product.description = description;
+
+    if (req.file) {
+      product.image = req.file.filename;
+    }
 
     await product.save();
 
@@ -88,9 +98,11 @@ export const updateProduct = async (req, res) => {
       product,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 export const deleteProduct = async (req, res) => {
   try {

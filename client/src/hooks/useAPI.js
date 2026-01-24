@@ -1,33 +1,31 @@
-import axios from "axios";
-import { useState } from "react";
-
-const API = axios.create({
-  baseURL: "http://localhost:5000",
-});
+import { useState } from 'react';
+import axios from 'axios';
 
 export const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const callApi = async (method, url, options = {}) => {
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      setError(null);
-
-      const res = await API({
+      const config = {
         method,
-        url,
-        ...options,
-      });
+        url: `http://localhost:5000${url}`,
+        ...options
+      };
 
-      return res;
+      const response = await axios(config);
+      return response;
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
-      throw err;
+      const errorMessage = err.response?.data?.message || err.message;
+      setError(errorMessage);
+      throw new Error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  return { callApi, loading, error };
+  return { loading, error, callApi };
 };

@@ -1,24 +1,54 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Add useNavigate
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import CategoryBar from "../../components/CategoryBar";
 import ProductGrid from "../../components/ProductGrid";
-import Products from "../../data/Product"; // Import the array of 15 products
+
 
 function CategorySection({ onLogout }) {
   const { category } = useParams();
-  const navigate = useNavigate(); // For redirecting after logout
+  const navigate = useNavigate();
 
-  // State
+  // State for products from database
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Filter state
   const [selectedCategory, setSelectedCategory] = useState(category || 'All');
   const [priceRange, setPriceRange] = useState(125000);
   const [selectedRating, setSelectedRating] = useState('All Stars');
   const [searchQuery, setSearchQuery] = useState("");
   const [searchSubmitted, setSearchSubmitted] = useState(false);
 
+  // Fetch products from database
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:5000/api/products');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+
+        const data = await response.json();
+        setProducts(data);
+        setError(null);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setError('Failed to load products. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProducts();
+  }, []);
+
   // Filter products
-  const filteredProducts = Products.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     if (selectedCategory !== 'All' && product.category !== selectedCategory) return false;
     if (parseFloat(product.price) > parseFloat(priceRange)) return false;
 
@@ -33,16 +63,19 @@ function CategorySection({ onLogout }) {
     return true;
   });
 
+  // Handle product click to navigate to detail page
+  const handleProductClick = (product) => {
+    navigate(`/product/${product.id}`);
+  };
+
   // Handle logout
   const handleLogout = () => {
-    onLogout(); // clear authentication/session
-    // Reset filters
+    onLogout();
     setSelectedCategory('All');
     setPriceRange(125000);
     setSelectedRating('All Stars');
     setSearchQuery("");
     setSearchSubmitted(false);
-    // Redirect to login page
     navigate("/login", { replace: true });
   };
 
@@ -53,7 +86,7 @@ function CategorySection({ onLogout }) {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         onSearchSubmit={() => setSearchSubmitted(true)}
-        onLogout={handleLogout} // Use fixed logout handler
+        onLogout={handleLogout}
       />
 
       <main className="bg-gray-50 py-10 mt-20">
@@ -69,10 +102,28 @@ function CategorySection({ onLogout }) {
           />
 
           <div className="flex-1">
-            {filteredProducts.length === 0 && searchSubmitted ? (
+            {/* Loading state */}
+            {loading ? (
+              <div className="text-center py-20">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <p className="mt-4 text-gray-600">Loading products...</p>
+              </div>
+            ) : error ? (
+              /* Error state */
+              <div className="text-center py-20">
+                <p className="text-red-600 text-lg">{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              /* No results */
               <div className="text-center py-20">
                 <p className="text-gray-600 text-lg">
-                  No products found matching "{searchQuery}"
+                  No products found matching your filters
                 </p>
                 <button
                   onClick={() => {
@@ -88,7 +139,17 @@ function CategorySection({ onLogout }) {
                 </button>
               </div>
             ) : (
-              <ProductGrid products={filteredProducts} />
+              /* Display products */
+              <>
+                <div className="mb-4 text-gray-600">
+                  Showing {filteredProducts.length} products
+                </div>
+
+                <ProductGrid
+                  products={filteredProducts}
+                  onProductClick={handleProductClick}
+                />
+              </>
             )}
           </div>
 

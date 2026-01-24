@@ -1,13 +1,13 @@
 import express from "express";
 import {
-  register,
-  login,
-  getAllUsers,
-  getUserById,
-  updateUser,
-  deleteUser,
-  forgotPassword,
-  resetPassword,
+    register,
+    login,
+    getAllUsers,
+    getUserById,
+    updateUser,
+    deleteUser,
+    forgotPassword,
+    resetPassword,
 } from "../Controller/authController.js";
 
 export const authRouter = express.Router();

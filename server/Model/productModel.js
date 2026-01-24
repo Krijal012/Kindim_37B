@@ -27,6 +27,12 @@ const Product = sequelize.define("Product", {
       max: 5,
     },
   },
+
+
+  description: {
+  type: DataTypes.TEXT, // Using TEXT allows for long descriptions
+  allowNull: true
+},
   image: {
     type: DataTypes.TEXT,
     allowNull: true,
