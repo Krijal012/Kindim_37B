@@ -17,8 +17,7 @@ productRouter.get("/category/:category", getProductsByCategory);
 
 // ✅ KEEP ONLY THIS ONE (It has the 'upload' middleware)
 productRouter.post("/", upload.single("image"), createProduct);
+// ✅ Corrected PUT route
+productRouter.put("/:id", upload.single("image"), updateProduct);
 
-
-
-productRouter.put("/:id", updateProduct);
 productRouter.delete("/:id", deleteProduct);
