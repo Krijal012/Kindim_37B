@@ -15,7 +15,7 @@ const SellerDashboard = ({ onLogout }) => {
     name: "",
     price: "",
     rating: "",
-    category: "Electronics",
+    category: "Beauty Products",
     description: "",
     image: null,
   });
@@ -69,7 +69,7 @@ const SellerDashboard = ({ onLogout }) => {
         name: "",
         price: "",
         rating: "",
-        category: "Electronics",
+        category: "Beauty Products",
         description: "",
         image: null,
       });
@@ -112,7 +112,7 @@ const SellerDashboard = ({ onLogout }) => {
   };
 
   const confirmDelete = async (id) => {
-    toast.dismiss(); 
+    toast.dismiss();
     try {
       await callApi("DELETE", `/api/products/${id}`);
       setProducts(products.filter((p) => p.id !== id));
@@ -164,7 +164,7 @@ const SellerDashboard = ({ onLogout }) => {
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Seller Management</h1>
           <div className="flex gap-4">
-            <button 
+            <button
               onClick={() => {
                 setEditingProduct(null);
                 setShowModal(true);
@@ -173,7 +173,7 @@ const SellerDashboard = ({ onLogout }) => {
             >
               Add New Product
             </button>
-            <button 
+            <button
               onClick={onLogout}
               className="bg-gray-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-gray-700 transition-all"
             >
@@ -209,10 +209,10 @@ const SellerDashboard = ({ onLogout }) => {
                 products.map((p) => (
                   <tr key={p.id} className="hover:bg-blue-50/30 transition">
                     <td className="p-5">
-                      <img 
-                        src={`http://localhost:5000/uploads/${p.image}`} 
+                      <img
+                        src={`http://localhost:5000/uploads/${p.image}`}
                         className="w-14 h-14 rounded-lg object-cover border shadow-sm"
-                        onError={(e) => e.target.src = "https://placehold.co/100x100?text=No+Image"} 
+                        onError={(e) => e.target.src = "https://placehold.co/100x100?text=No+Image"}
                         alt={p.name}
                       />
                     </td>
@@ -233,8 +233,8 @@ const SellerDashboard = ({ onLogout }) => {
                         >
                           Edit
                         </button>
-                        <button 
-                          onClick={() => handleDelete(p.id)} 
+                        <button
+                          onClick={() => handleDelete(p.id)}
                           className="text-red-400 hover:text-red-600 font-bold text-sm transition"
                         >
                           Delete
@@ -261,8 +261,8 @@ const SellerDashboard = ({ onLogout }) => {
                 </h2>
                 <p className="text-sm text-gray-500 font-medium">Fill in the information below to list your item.</p>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => { setShowModal(false); setEditingProduct(null); }}
                 className="text-gray-400 hover:text-gray-600 text-2xl"
               >
@@ -277,8 +277,8 @@ const SellerDashboard = ({ onLogout }) => {
                 <div className="relative group border-2 border-dashed border-gray-200 rounded-3xl h-64 flex flex-col items-center justify-center bg-gray-50 hover:bg-blue-50/50 hover:border-blue-300 transition-all overflow-hidden">
                   {newProduct.image ? (
                     <>
-                      <img 
-                        src={typeof newProduct.image === 'string' ? `http://localhost:5000/uploads/${newProduct.image}` : URL.createObjectURL(newProduct.image)} 
+                      <img
+                        src={typeof newProduct.image === 'string' ? `http://localhost:5000/uploads/${newProduct.image}` : URL.createObjectURL(newProduct.image)}
                         className="w-full h-full object-cover"
                         alt="Preview"
                       />
@@ -350,10 +350,11 @@ const SellerDashboard = ({ onLogout }) => {
                     onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
                     required
                   >
+                    <option value="Beauty Products">Beauty Products</option>
+                    <option value="Clothing">Clothing</option>
+                    <option value="Decorations">Decorations</option>
                     <option value="Electronics">Electronics</option>
-                    <option value="Fashion">Fashion</option>
-                    <option value="Home">Home & Kitchen</option>
-                    <option value="Beauty">Beauty</option>
+                    <option value="Music">Music</option>
                   </select>
                 </div>
               </div>
@@ -373,15 +374,15 @@ const SellerDashboard = ({ onLogout }) => {
 
             {/* Footer */}
             <div className="bg-gray-50 border-t px-8 py-6 flex justify-end space-x-4">
-              <button 
-                type="button" 
-                onClick={() => { setShowModal(false); setEditingProduct(null); }} 
+              <button
+                type="button"
+                onClick={() => { setShowModal(false); setEditingProduct(null); }}
                 className="px-6 py-3 font-bold text-gray-500 hover:text-gray-700 transition-colors"
               >
                 Discard changes
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-bold shadow-lg shadow-blue-200 transition-all active:scale-95"
               >
                 {editingProduct ? "Save Changes" : "Publish Product"}
@@ -392,7 +393,7 @@ const SellerDashboard = ({ onLogout }) => {
       )}
 
       {/* Toast Container */}
-      <ToastContainer 
+      <ToastContainer
         position="top-right"
         autoClose={3000}
         hideProgressBar={false}
