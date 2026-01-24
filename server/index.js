@@ -3,7 +3,7 @@ import cors from "cors";
 import shippingRoutes from "./Routes/shippingRoutes.js";
 import profileRoutes from "./Routes/profile.js";
 import orderRoutes from "./Routes/orderRoutes.js";
-import cartRoutes from "./Routes/cartRoutes.js";
+import productRoutes from "./Routes/productRoutes.js";
 import { connection } from "./database/db.js";
 
 const app = express();
@@ -20,7 +20,8 @@ app.get("/api/test", (req, res) => res.json({ message: "Server works" }));
 app.use("/api/profile", profileRoutes);
 app.use("/api/shipping", shippingRoutes);
 app.use("/api/orders", orderRoutes);
-app.use("/api/cart", cartRoutes);
+app.use("/api/products", productRoutes);
+
 
 
 
