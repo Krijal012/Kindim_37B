@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
+import { toast } from "react-toastify";
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
@@ -12,7 +13,7 @@ function WishlistPage() {
 
     useEffect(() => {
         fetchWishlistItems();
-    }, []);
+    }, [callApi]);
 
     const fetchWishlistItems = async () => {
         try {
@@ -23,13 +24,7 @@ function WishlistPage() {
                 return;
             }
 
-            const res = await callApi("GET", "/api/wishlist", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            console.log("Wishlist API response:", res); // Debug log
+            const res = await callApi("GET", "/api/wishlist");
 
             // Handle different response formats
             const items = Array.isArray(res) ? res : (res?.data ? res.data : []);
@@ -44,49 +39,42 @@ function WishlistPage() {
         if (!window.confirm("Remove this item from wishlist?")) return;
 
         try {
-            const token = localStorage.getItem("access_token");
-
-            await callApi("DELETE", `/api/wishlist/${wishlistId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            await callApi("DELETE", `/api/wishlist/${wishlistId}`);
 
             setWishlistItems(wishlistItems.filter(item => item.id !== wishlistId));
-            alert("Item removed from wishlist");
+            toast.info("Item removed from wishlist");
         } catch (err) {
             console.error("Failed to remove item:", err);
+            toast.error("Failed to remove item.");
         }
     };
 
     const handleAddToCart = async (item) => {
         try {
-            const token = localStorage.getItem("access_token");
-
             // Check if Product exists
             if (!item.Product) {
-                alert("Product information not available");
+                toast.error("Product information not available");
                 return;
             }
 
             await callApi("POST", "/api/cart", {
-                data: {
-                    productId: item.Product.id,
-                    quantity: 1,
-                    selectedColor: "Blue",
-                    selectedSize: "Medium"
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                productId: item.Product.id,
+                quantity: 1,
+                selectedColor: "Blue",
+                selectedSize: "Medium"
             });
 
-            alert(`${item.Product.name} added to cart!`);
+            toast.success(`${item.Product.name} added to cart!`);
             // Optionally remove from wishlist after adding to cart
             await handleRemove(item.id);
         } catch (err) {
             console.error("Failed to add to cart:", err);
-            alert("Failed to add to cart");
+            if (err.message === "No token provided") {
+                toast.warn("Please login to add items to your cart.");
+                navigate("/login");
+            } else {
+                toast.error("Failed to add to cart.");
+            }
         }
     };
 

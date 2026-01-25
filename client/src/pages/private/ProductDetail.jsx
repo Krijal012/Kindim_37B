@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
+import { toast } from "react-toastify";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
@@ -18,6 +19,7 @@ const ProductDetail = ({ onLogout }) => {
   const [addingToCart, setAddingToCart] = useState(false);
   const [addingToWishlist, setAddingToWishlist] = useState(false);
   const [inWishlist, setInWishlist] = useState(false);
+  const [wishlistItemId, setWishlistItemId] = useState(null);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -39,20 +41,18 @@ const ProductDetail = ({ onLogout }) => {
       const token = localStorage.getItem("access_token");
       if (!token) return;
 
-      const res = await callApi("GET", "/api/wishlist", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      const res = await callApi("GET", "/api/wishlist");
 
-      console.log("Wishlist response:", res);
-
-      // The response is directly the array, not res.data
       const wishlistArray = Array.isArray(res) ? res : [];
-      
-      // Check if this product is in the wishlist
-      const isInWishlist = wishlistArray.some(item => item.productId === parseInt(id));
-      setInWishlist(isInWishlist);
+      const wishlistItem = wishlistArray.find(item => item.productId === parseInt(id));
+
+      if (wishlistItem) {
+        setInWishlist(true);
+        setWishlistItemId(wishlistItem.id);
+      } else {
+        setInWishlist(false);
+        setWishlistItemId(null);
+      }
     } catch (err) {
       console.error("Error checking wishlist:", err);
     }
@@ -70,32 +70,23 @@ const ProductDetail = ({ onLogout }) => {
     try {
       setAddingToCart(true);
 
-      const token = localStorage.getItem("access_token");
-
-      if (!token) {
-        alert("Please login to add items to cart");
-        navigate("/login");
-        return;
-      }
-
       await callApi("POST", "/api/cart", {
-        data: {
-          productId: product.id,
-          quantity: quantity,
-          selectedColor: selectedColor,
-          selectedSize: selectedSize
-        },
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        productId: product.id,
+        quantity: quantity,
+        selectedColor: selectedColor,
+        selectedSize: selectedSize,
       });
 
-      alert("Product added to cart successfully!");
-      navigate("/cartpage");
-
+      toast.success("Product added to cart successfully!");
+      navigate("/cart");
     } catch (err) {
       console.error("Add to cart failed:", err);
-      alert(err.message || "Failed to add to cart");
+      if (err.message === "No token provided") {
+        toast.warn("Please login to add items to cart.");
+        navigate("/login");
+      } else {
+        toast.error(err.message || "Failed to add to cart");
+      }
     } finally {
       setAddingToCart(false);
     }
@@ -103,53 +94,33 @@ const ProductDetail = ({ onLogout }) => {
 
   // Add/Remove from Wishlist
   const handleWishlistToggle = async () => {
-    const token = localStorage.getItem("access_token");
-
-    if (!token) {
-      alert("Please login to use wishlist");
-      navigate("/login");
-      return;
-    }
-
     try {
       setAddingToWishlist(true);
       
       if (inWishlist) {
-        // Find the wishlist item to remove
-        const res = await callApi("GET", "/api/wishlist", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        
-        const wishlistArray = Array.isArray(res) ? res : [];
-        const wishlistItem = wishlistArray.find(item => item.productId === parseInt(id));
-        
-        if (wishlistItem) {
-          await callApi("DELETE", `/api/wishlist/${wishlistItem.id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
+        if (wishlistItemId) {
+          await callApi("DELETE", `/api/wishlist/${wishlistItemId}`);
           
           setInWishlist(false);
-          alert("Removed from wishlist");
+          setWishlistItemId(null);
+          toast.info("Removed from wishlist");
         }
       } else {
         // Add to wishlist
-        await callApi("POST", "/api/wishlist", {
-          data: { productId: product.id },
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const res = await callApi("POST", "/api/wishlist", { productId: product.id });
         
         setInWishlist(true);
-        alert("Added to wishlist!");
+        setWishlistItemId(res.data.wishlistItem.id);
+        toast.success("Added to wishlist!");
       }
     } catch (err) {
       console.error("Wishlist error:", err);
-      alert(err.message || "Something went wrong");
+      if (err.message === "No token provided") {
+        toast.warn("Please login to use your wishlist.");
+        navigate("/login");
+      } else {
+        toast.error(err.message || "Something went wrong");
+      }
     } finally {
       setAddingToWishlist(false);
     }

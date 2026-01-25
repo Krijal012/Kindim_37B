@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/icons/logo-icon.png";
 import profileIcon from "../assets/icons/profile.png";
-import Products from "../data/Product";
+import { products as Products } from "../data/product.js";
 
 export default function Header({
   show = true,
@@ -46,7 +46,7 @@ export default function Header({
       {/* Logo */}
       <div 
         className="flex items-center gap-2 cursor-pointer"
-        onClick={() => navigate("/dashboard")}
+        onClick={() => navigate("/")}
       >
         <img src={logo} alt="logo" className="h-14 w-14" />
         <span className="text-white font-bold text-2xl">Kindim</span>
@@ -69,6 +69,23 @@ export default function Header({
               }
             }}
           />
+          {suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 bg-white border rounded-md mt-1 shadow-lg z-10">
+              {suggestions.map((s) => (
+                <div
+                  key={s.id}
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => {
+                    if (s.id === "no-result") return;
+                    navigate(`/product/${s.id}`);
+                    setSuggestions([]);
+                  }}
+                >
+                  {s.name}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -101,7 +118,7 @@ export default function Header({
 
         {/* Cart Icon */}
         <button
-          onClick={() => navigate("/cartpage")}
+          onClick={() => navigate("/cart")}
           className="relative p-2 rounded-full hover:bg-blue-400 transition group"
           title="View Cart"
         >

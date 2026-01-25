@@ -117,7 +117,7 @@ export default function DashBoard({ onLogout }) {
               <ProductGrid
                 products={recommendedProducts}
                 onProductClick={(product) =>
-                  navigate(`/category/${product.category}`)
+                  navigate(`/product/${product.id}`)
                 }
               />
             )}
@@ -148,7 +148,7 @@ export default function DashBoard({ onLogout }) {
             <ProductGrid
               products={dbProducts}
               onProductClick={(product) =>
-                navigate(`/category/${product.category}`)
+                navigate(`/product/${product.id}`)
               }
             />
           )}
