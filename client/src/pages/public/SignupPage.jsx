@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -12,6 +11,7 @@ import backgroundImage from "../../assets/background-image.jpeg";
 
 import { RegisterSchema } from "../../schema/register.schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useApi } from "../../hooks/useAPI";
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -29,21 +29,18 @@ const SignupPage = () => {
     resolver: zodResolver(RegisterSchema),
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { loading, error, callApi } = useApi();
 
   const handleRegister = async (data) => {
     try {
-      setLoading(true);
-      setError("");
       setBackendSuccess("");
-      const res = await axios.post("http://localhost:5000/auth/register", { ...data, role: selectedRole });
-      setBackendSuccess(res.data.message || "Registered successfully");
+      const res = await callApi("POST", "/auth/register", {
+        data: { ...data, role: selectedRole }
+      });
+      setBackendSuccess(res.message || "Registered successfully");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Registration failed");
-    } finally {
-      setLoading(false);
+      console.log(err.message);
     }
   };
 

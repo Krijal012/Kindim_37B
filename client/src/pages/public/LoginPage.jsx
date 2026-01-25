@@ -1,5 +1,4 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { flushSync } from "react-dom";
 
@@ -12,10 +11,12 @@ import backgroundImage from "../../assets/background-image.jpeg";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "../../schema/login.schemas";
+import { useApi } from "../../hooks/useAPI";
 import { Link } from "react-router-dom";
 
 const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
+  const { callApi } = useApi();
   const [showPassword, setShowPassword] = useState(false);
   const [backendError, setBackendError] = useState("");
   const [isAnimating, setIsAnimating] = useState(false);
@@ -32,9 +33,9 @@ const LoginPage = ({ onLogin }) => {
     console.log("Login Data Sent:", loginData);
     try {
       setBackendError("");
-      const res = await axios.post("http://localhost:5000/auth/login", loginData);
+      const res = await callApi("POST", "/auth/login", { data: loginData });
 
-      const backendData = res.data.data || res.data;
+      const backendData = res.data.data;
 
       if (backendData) {
         localStorage.setItem("access_token", backendData.access_token);
@@ -59,7 +60,7 @@ const LoginPage = ({ onLogin }) => {
         setBackendError("Unexpected response format from server");
       }
     } catch (err) {
-      setBackendError(err.response?.data?.message || err.message || "Login failed");
+      setBackendError(err.message || "Login failed");
     }
   };
 
