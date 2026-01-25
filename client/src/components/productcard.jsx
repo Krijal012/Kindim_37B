@@ -1,46 +1,13 @@
-import { useApi } from "../hooks/useAPI";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-
-export default function ProductCard({ product, onProductClick }) {
-  const { callApi } = useApi();
-  const navigate = useNavigate();
-
-  const handleAddToCart = async (e) => {
-    e.stopPropagation(); // Prevent card click when adding to cart
-    try {
-      await callApi("POST", "/api/cart", {
-        productId: product.id,
-        quantity: 1,
-        selectedColor: "Blue", // Default
-        selectedSize: "Medium", // Default
-      });
-      toast.success(`${product.name} added to cart!`);
-    } catch (err) {
-      if (err.message === "No token provided") {
-        toast.warn("Please login to add items to cart.");
-        navigate("/login");
-      } else {
-        toast.error(err.message || "Failed to add to cart");
-      }
-    }
-  };
-
+export default function ProductCard({ product }) {
   return (
-    <div
-      className="border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 cursor-pointer"
-      onClick={() => onProductClick && onProductClick(product)}
-    >
-      <div className="relative bg-gray-100 p-4 flex items-center justify-center h-40">
+    <div className="border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200">
+      <div className="relative bg-cyan-400 p-4 flex items-center justify-center h-40">
         <img
-          src={`http://localhost:5000/uploads/${product.image}`}
+          src={product.image}
           alt={product.name}
           className="max-h-full object-contain"
         />
-        <button
-          onClick={handleAddToCart}
-          className="absolute bottom-3 left-3 bg-blue-600 text-white text-xs px-3 py-1 rounded-full hover:bg-blue-700"
-        >
+        <button className="absolute bottom-3 left-3 bg-blue-600 text-white text-xs px-3 py-1 rounded-full hover:bg-blue-700">
           + Add
         </button>
       </div>
