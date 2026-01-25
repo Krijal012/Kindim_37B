@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
+import { toast } from "react-toastify";
 import Cart from "../../components/Cart";
-import OrderSummary from "../../components/OrderSummary";
 import  Header  from '../../components/Header';
 import  Footer  from '../../components/Footer';
 
@@ -13,7 +13,7 @@ function CartPage() {
 
     useEffect(() => {
         fetchCartItems();
-    }, []);
+    }, [callApi]);
 
     const fetchCartItems = async () => {
         try {
@@ -24,11 +24,7 @@ function CartPage() {
                 return;
             }
 
-            const res = await callApi("GET", "/api/cart", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const res = await callApi("GET", "/api/cart");
 
             setCartItems(res.data || []);
         } catch (err) {
@@ -44,14 +40,7 @@ function CartPage() {
         if (newQuantity < 1) return;
 
         try {
-            const token = localStorage.getItem("access_token");
-
-            await callApi("PUT", `/api/cart/${cartId}`, {
-                data: { quantity: newQuantity },
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            await callApi("PUT", `/api/cart/${cartId}`, { quantity: newQuantity });
 
             setCartItems(cartItems.map(item =>
                 item.id === cartId ? { ...item, quantity: newQuantity } : item
@@ -65,18 +54,13 @@ function CartPage() {
         if (!window.confirm("Remove this item from cart?")) return;
 
         try {
-            const token = localStorage.getItem("access_token");
-
-            await callApi("DELETE", `/api/cart/${cartId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            await callApi("DELETE", `/api/cart/${cartId}`);
 
             setCartItems(cartItems.filter(item => item.id !== cartId));
-            alert("Item removed from cart");
+            toast.info("Item removed from cart");
         } catch (err) {
             console.error("Failed to remove item:", err);
+            toast.error("Failed to remove item.");
         }
     };
 
@@ -127,7 +111,21 @@ function CartPage() {
                                 />
                             </div>
                             <div className="w-full lg:w-96">
-                                <OrderSummary subtotal={subtotal} />
+                                <div className="bg-white p-6 rounded-2xl shadow border sticky top-24">
+                                    <h2 className="text-2xl font-bold mb-4">Summary</h2>
+                                    <div className="border-t pt-3 mt-3 space-y-2">
+                                        <div className="flex justify-between font-bold text-lg">
+                                            <span>Subtotal</span>
+                                            <span className="text-blue-600">Rs. {subtotal.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => navigate("/checkout")}
+                                        className="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all"
+                                    >
+                                        Proceed to Checkout
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}

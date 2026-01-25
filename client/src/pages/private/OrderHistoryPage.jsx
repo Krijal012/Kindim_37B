@@ -1,30 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
 import OrderHistoryList from "../../components/OrderHistoryList";
+import { useApi } from "../../hooks/useApi";
 
 export default function OrderHistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [orders, setOrders] = useState([]);
+  const { callApi, loading } = useApi();
 
-  // Mock order data - replace with real data from your backend/state management
-  const orders = [
-    {
-      id: 1,
-      productName: "Product Name 1",
-      price: "$29.99",
-      image: "/placeholder1.jpg"
-    },
-    {
-      id: 2,
-      productName: "Product Name 2",
-      price: "$49.99",
-      image: "/placeholder2.jpg"
-    }
-  ];
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await callApi("GET", "/api/orders");
+        // The UI expects a flat list of ordered items, not grouped orders.
+        // We will flatten the response from the backend.
+        const formattedOrders = res.data.flatMap(order =>
+          order.OrderItems.map(item => ({
+            id: item.id,
+            productName: item.Product.name,
+            price: `Rs. ${item.price}`,
+            image: `http://localhost:5000/uploads/${item.Product.image}`
+          }))
+        );
+        setOrders(formattedOrders);
+      } catch (err) {
+        console.error("Failed to fetch orders:", err);
+      }
+    };
+    fetchOrders();
+  }, [callApi]);
 
   const filteredOrders = orders.filter(order =>
     order.productName.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-10 mt-20 min-h-screen bg-gray-100">
+          <div className="text-center py-20">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600">Loading order history...</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

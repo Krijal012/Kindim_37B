@@ -9,15 +9,13 @@ import {
   deleteProduct,
 } from "../Controller/productController.js";
 
-export const productRouter = express.Router();
+const router = express.Router();
 
-productRouter.get("/", getAllProducts);
-productRouter.get("/:id", getProductById);
-productRouter.get("/category/:category", getProductsByCategory);
+router.get("/", getAllProducts);
+router.get("/:id", getProductById);
+router.get("/category/:category", getProductsByCategory);
+router.post("/", upload.single("image"), createProduct);
+router.put("/:id", upload.single("image"), updateProduct);
+router.delete("/:id", deleteProduct);
 
-// ✅ KEEP ONLY THIS ONE (It has the 'upload' middleware)
-productRouter.post("/", upload.single("image"), createProduct);
-// ✅ Corrected PUT route
-productRouter.put("/:id", upload.single("image"), updateProduct);
-
-productRouter.delete("/:id", deleteProduct);
+export default router;

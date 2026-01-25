@@ -1,31 +1,31 @@
-import { useState } from 'react';
-import axios from 'axios';
+import axios from "axios";
+
+const API_URL = "http://localhost:5000";
 
 export const useApi = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const callApi = async (method, url, data = null) => {
+    const token = localStorage.getItem("access_token");
 
-  const callApi = async (method, url, options = {}) => {
-    setLoading(true);
-    setError(null);
+    if (!token) {
+      throw new Error("No token provided");
+    }
 
     try {
-      const config = {
+      const res = await axios({
         method,
-        url: `http://localhost:5000${url}`,
-        ...options
-      };
+        url: API_URL + url,
+        data,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const response = await axios(config);
-      return response;
-    } catch (err) {
-      const errorMessage = err.response?.data?.message || err.message;
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setLoading(false);
+      return res;
+    } catch (error) {
+      console.error("API Error:", error.response?.data || error.message);
+      throw error;
     }
   };
 
-  return { loading, error, callApi };
+  return { callApi };
 };

@@ -1,122 +1,68 @@
 import Product from "../Model/productModel.js";
+import { Op } from "sequelize";
 
 export const getAllProducts = async (req, res) => {
   try {
+    const { search } = req.query;
+
+    const where = search
+      ? { name: { [Op.iLike]: `%${search}%` } }
+      : {};
+
     const products = await Product.findAll({
-      order: [['id', 'ASC']],
+      where,
+      order: [["id", "ASC"]],
     });
-    res.status(200).json(products);
+
+    res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
 export const getProductById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const product = await Product.findByPk(id);
-    
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-    
-    res.status(200).json(product);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  const product = await Product.findByPk(req.params.id);
+  if (!product) return res.status(404).json({ message: "Product not found" });
+  res.json(product);
 };
 
 export const getProductsByCategory = async (req, res) => {
-  try {
-    const { category } = req.params;
-    const products = await Product.findAll({
-      where: { category },
-      order: [['id', 'ASC']],
-    });
-    res.status(200).json(products);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  const products = await Product.findAll({
+    where: { category: req.params.category },
+  });
+  res.json(products);
 };
 
 export const createProduct = async (req, res) => {
-  try {
-    // 1. Get text fields from req.body
-    const { name, price, category, rating,description } = req.body;
+  const { name, price, category, rating, description } = req.body;
 
-    // 2. Get the filename from req.file (NOT req.body.image)
-    const imageName = req.file ? req.file.filename : null;
+  const product = await Product.create({
+    name,
+    price,
+    category,
+    rating: rating || 0,
+    description,
+    image: req.file?.filename || null,
+  });
 
-    if (!name || !price || !category) {
-      return res.status(400).json({ message: "Name, price, and category are required" });
-    }
-
-    const newProduct = await Product.create({
-      name,
-      price,
-      category,
-      description,
-      rating: rating || 0,
-      image: imageName, 
-    });
-
-    res.status(201).json({
-      message: "Product created successfully",
-      product: newProduct,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  res.status(201).json(product);
 };
 
 export const updateProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const body = req.body || {};
-    const { name, price, rating, category, description } = body;
+  const product = await Product.findByPk(req.params.id);
+  if (!product) return res.status(404).json({ message: "Product not found" });
 
-    const product = await Product.findByPk(id);
+  Object.assign(product, req.body);
+  if (req.file) product.image = req.file.filename;
 
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
-
-    if (name !== undefined) product.name = name;
-    if (price !== undefined) product.price = price;
-    if (rating !== undefined) product.rating = rating;
-    if (category !== undefined) product.category = category;
-    if (description !== undefined) product.description = description;
-
-    if (req.file) {
-      product.image = req.file.filename;
-    }
-
-    await product.save();
-
-    res.status(200).json({
-      message: "Product updated successfully",
-      product,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: error.message });
-  }
+  await product.save();
+  res.json(product);
 };
 
-
 export const deleteProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const product = await Product.findByPk(id);
-    
-    if (!product) {
-      return res.status(404).json({ message: "Product not found" });
-    }
+  const product = await Product.findByPk(req.params.id);
+  if (!product) return res.status(404).json({ message: "Product not found" });
 
-    await product.destroy();
-    
-    res.status(200).json({ message: "Product deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  await product.destroy();
+  res.json({ message: "Product deleted successfully" });
 };
