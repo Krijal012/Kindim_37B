@@ -1,4 +1,31 @@
+import { useApi } from "../hooks/useAPI";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+
 export default function ProductCard({ product, onProductClick }) {
+  const { callApi } = useApi();
+  const navigate = useNavigate();
+
+  const handleAddToCart = async (e) => {
+    e.stopPropagation(); // Prevent card click when adding to cart
+    try {
+      await callApi("POST", "/api/cart", {
+        productId: product.id,
+        quantity: 1,
+        selectedColor: "Blue", // Default
+        selectedSize: "Medium", // Default
+      });
+      toast.success(`${product.name} added to cart!`);
+    } catch (err) {
+      if (err.message === "No token provided") {
+        toast.warn("Please login to add items to cart.");
+        navigate("/login");
+      } else {
+        toast.error(err.message || "Failed to add to cart");
+      }
+    }
+  };
+
   return (
     <div
       className="border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 cursor-pointer"
@@ -11,11 +38,7 @@ export default function ProductCard({ product, onProductClick }) {
           className="max-h-full object-contain"
         />
         <button
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent card click when adding to cart
-            // TODO: Implement add to cart logic
-            console.log("Add to cart clicked for", product.name);
-          }}
+          onClick={handleAddToCart}
           className="absolute bottom-3 left-3 bg-blue-600 text-white text-xs px-3 py-1 rounded-full hover:bg-blue-700"
         >
           + Add
