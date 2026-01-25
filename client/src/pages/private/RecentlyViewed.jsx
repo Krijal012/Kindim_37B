@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { products as initialProducts } from "../../data/product";
+// import { products as initialProducts } from "../../data/product";
 import ProductCard from "../../components/ProductCard";
+const initialProducts = [];
 
 export default function RecentlyViewed() {
   const [products, setProducts] = useState(initialProducts);

@@ -8,7 +8,7 @@ const CategoryBar = ({
   selectedRating,
   setSelectedRating,
 }) => {
-  const categories = ['All', 'Electronics', 'Decorations', 'Clothings', 'Music', 'Beauty Products'];
+  const categories = ['All', 'Beauty Products', 'Clothing', 'Decorations', 'Electronics', 'Music'];
   const ratings = ['All Stars', '1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'];
 
   return (

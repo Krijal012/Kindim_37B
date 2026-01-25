@@ -24,9 +24,7 @@ const ForgotPassword = () => {
   const onSubmit = async (data) => {
     setMessage("");
     try {
-      const res = await callApi("POST", "/auth/forgotpass", {
-        data: { email: data.email },
-      });
+      const res = await callApi("POST", "/auth/forgotpass", data);
       setMessage(res.data.message || "Check your email for a reset link!");
     } catch (err) {
       setMessage(err.message);

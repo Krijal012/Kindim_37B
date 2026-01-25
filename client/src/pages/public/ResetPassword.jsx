@@ -38,12 +38,7 @@ const ResetPassword = () => {
 
     try {
       // Call backend API to reset password
-      const res = await callApi("POST", `/auth/resetpass/${token}`, {
-        data: {
-          password: data.password,
-          confirmPassword: data.confirmPassword,
-        },
-      });
+      const res = await callApi("POST", `/auth/resetpass/${token}`, data);
 
       setMessage(res.data.message || "Password reset successfully!");
       reset();

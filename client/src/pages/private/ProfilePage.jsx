@@ -1,24 +1,25 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { useApi } from "../../hooks/useAPI";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Sidebar from "../../components/Sidebar";
 import PersonalInfo from "../../components/PersonalInfo";
 
 export default function ProfilePage({ onLogout }) {
+  const { callApi } = useApi();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/profile");
+        const res = await callApi("GET", "/api/profile");
         setUser(res.data);
       } catch (err) {
         console.error("Profile fetch error:", err);
       }
     };
     fetchProfile();
-  }, []);
+  }, [callApi]);
 
   if (!user) return <p>Loading...</p>;
 

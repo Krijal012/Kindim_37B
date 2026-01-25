@@ -34,15 +34,16 @@ const SignupPage = () => {
   const handleRegister = async (data) => {
     try {
       setBackendSuccess("");
-      const res = await callApi("POST", "/auth/register", {
-        data: { ...data, role: selectedRole }
-      });
+
+      const res = await callApi("POST", "/auth/register", { ...data, role: selectedRole });
+
       setBackendSuccess(res.message || "Registered successfully");
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      console.log(err.message);
+      console.error("Registration failed:", err.message);
     }
   };
+
 
   const handleLoginClick = () => {
     setIsAnimating(true);
@@ -232,7 +233,7 @@ const SignupPage = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         @keyframes slide-in-right {
           0% {
             transform: translateX(100%);

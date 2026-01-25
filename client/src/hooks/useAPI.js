@@ -1,31 +1,54 @@
-import axios from "axios";
+import { useState } from "react";
 
 const API_URL = "http://localhost:5000";
 
 export const useApi = () => {
-  const callApi = async (method, url, data = null) => {
-    const token = localStorage.getItem("access_token");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    if (!token) {
-      throw new Error("No token provided");
-    }
+  const callApi = async (method, url, data = null) => {
+    setLoading(true);
+    setError(null);
 
     try {
-      const res = await axios({
+      const token = localStorage.getItem("token");
+
+      const headers = {};
+
+      // DO NOT set Content-Type for FormData
+      if (!(data instanceof FormData)) {
+        headers["Content-Type"] = "application/json";
+      }
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const res = await fetch(API_URL + url, {
         method,
-        url: API_URL + url,
-        data,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
+        body:
+          data instanceof FormData
+            ? data
+            : data
+            ? JSON.stringify(data)
+            : null,
       });
 
-      return res;
-    } catch (error) {
-      console.error("API Error:", error.response?.data || error.message);
-      throw error;
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.message || "Request failed");
+      }
+
+      return result;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { callApi };
+  return { callApi, loading, error };
 };

@@ -33,9 +33,9 @@ const LoginPage = ({ onLogin }) => {
     console.log("Login Data Sent:", loginData);
     try {
       setBackendError("");
-      const res = await callApi("POST", "/auth/login", { data: loginData });
+      const res = await callApi("POST", "/auth/login", loginData);
 
-      const backendData = res.data.data;
+      const backendData = res.data;
 
       if (backendData) {
         localStorage.setItem("access_token", backendData.access_token);
@@ -174,7 +174,7 @@ const LoginPage = ({ onLogin }) => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style jsx="true">{`
         @keyframes slide-in-left {
           0% {
             transform: translateX(-100%);
