@@ -1,13 +1,23 @@
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, onProductClick }) {
   return (
-    <div className="border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200">
-      <div className="relative bg-cyan-400 p-4 flex items-center justify-center h-40">
+    <div
+      className="border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+      onClick={() => onProductClick && onProductClick(product)}
+    >
+      <div className="relative bg-gray-100 p-4 flex items-center justify-center h-40">
         <img
-          src={product.image}
+          src={`http://localhost:5000/uploads/${product.image}`}
           alt={product.name}
           className="max-h-full object-contain"
         />
-        <button className="absolute bottom-3 left-3 bg-blue-600 text-white text-xs px-3 py-1 rounded-full hover:bg-blue-700">
+        <button
+          onClick={(e) => {
+            e.stopPropagation(); // Prevent card click when adding to cart
+            // TODO: Implement add to cart logic
+            console.log("Add to cart clicked for", product.name);
+          }}
+          className="absolute bottom-3 left-3 bg-blue-600 text-white text-xs px-3 py-1 rounded-full hover:bg-blue-700"
+        >
           + Add
         </button>
       </div>
