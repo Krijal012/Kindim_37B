@@ -265,8 +265,9 @@ const ProductDetail = ({ onLogout }) => {
               </button>
             </div>
 
+            {/* Bargain Here Button */}
             <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all">
-              Buy Now
+              Bargain Here
             </button>
           </div>
         </div>
