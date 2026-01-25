@@ -35,9 +35,9 @@ const LoginPage = ({ onLogin }) => {
       setBackendError("");
       const res = await callApi("POST", "/auth/login", loginData);
 
-      const backendData = res.data;
+      const backendData = res.data || res;
 
-      if (backendData) {
+      if (backendData && backendData.access_token) {
         localStorage.setItem("access_token", backendData.access_token);
         localStorage.setItem("userEmail", loginData.email);
         localStorage.setItem("userRole", backendData.role);

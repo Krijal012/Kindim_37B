@@ -26,7 +26,8 @@ function CartPage() {
 
             const res = await callApi("GET", "/api/cart");
 
-            setCartItems(res.data || []);
+            // Handle both { data: [...] } and [...] formats
+            setCartItems(Array.isArray(res) ? res : (res?.data || []));
         } catch (err) {
             console.error("Failed to fetch cart:", err);
         }

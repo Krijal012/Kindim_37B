@@ -25,10 +25,10 @@ const ProductDetail = ({ onLogout }) => {
     const fetchProductDetails = async () => {
       try {
         const res = await callApi("GET", `/api/products/${id}`);
-        setProduct(res.data);
+        setProduct(res.data || res);
         
         // Check if product is in wishlist
-        await checkWishlistStatus();
+        checkWishlistStatus();
       } catch (err) {
         console.error("Error fetching product details:", err);
       }
@@ -43,7 +43,7 @@ const ProductDetail = ({ onLogout }) => {
 
       const res = await callApi("GET", "/api/wishlist");
 
-      const wishlistArray = Array.isArray(res) ? res : [];
+      const wishlistArray = Array.isArray(res) ? res : (res?.data || []);
       const wishlistItem = wishlistArray.find(item => item.productId === parseInt(id));
 
       if (wishlistItem) {
@@ -55,6 +55,10 @@ const ProductDetail = ({ onLogout }) => {
       }
     } catch (err) {
       console.error("Error checking wishlist:", err);
+      // If the token is invalid, clear it so the user is forced to re-login properly
+      if (err.message === "No token provided" || err.response?.status === 401) {
+        localStorage.removeItem("access_token");
+      }
     }
   };
 
@@ -67,6 +71,12 @@ const ProductDetail = ({ onLogout }) => {
 
   // Add to Cart Function
   const handleAddToCart = async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      toast.warn("Please login to add items to cart.");
+      navigate("/login");
+      return;
+    }
     try {
       setAddingToCart(true);
 
@@ -81,7 +91,7 @@ const ProductDetail = ({ onLogout }) => {
       navigate("/cart");
     } catch (err) {
       console.error("Add to cart failed:", err);
-      if (err.message === "No token provided") {
+      if (err.message === "No token provided" || err.response?.status === 401) {
         toast.warn("Please login to add items to cart.");
         navigate("/login");
       } else {
@@ -95,6 +105,13 @@ const ProductDetail = ({ onLogout }) => {
   // Add/Remove from Wishlist
   const handleWishlistToggle = async () => {
     try {
+      const token = localStorage.getItem("access_token");
+      if (!token) {
+        toast.warn("Please login to use your wishlist.");
+        navigate("/login");
+        return;
+      }
+
       setAddingToWishlist(true);
       
       if (inWishlist) {
@@ -115,7 +132,7 @@ const ProductDetail = ({ onLogout }) => {
       }
     } catch (err) {
       console.error("Wishlist error:", err);
-      if (err.message === "No token provided") {
+      if (err.message === "No token provided" || err.response?.status === 401) {
         toast.warn("Please login to use your wishlist.");
         navigate("/login");
       } else {

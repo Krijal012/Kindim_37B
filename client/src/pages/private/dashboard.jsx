@@ -44,7 +44,7 @@ export default function DashBoard({ onLogout }) {
       console.log("2. DATA CONTENT:", res.data);
 
       // Some APIs wrap data: res.data.products or res.data.data
-      const actualProducts = Array.isArray(res.data) ? res.data : res.data.data;
+      const actualProducts = Array.isArray(res) ? res : (res?.data || []);
       setDbProducts(actualProducts || []);
 
       // ✅ Generate random product recommendations from each category
