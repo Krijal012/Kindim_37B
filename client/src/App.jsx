@@ -5,16 +5,16 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
-  const [token, setToken] = useState(localStorage.getItem("access_token"));
+  const [token, setToken] = useState(localStorage.getItem("token"));
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
 
   const handleLogin = () => {
-    setToken(localStorage.getItem("access_token"));
+    setToken(localStorage.getItem("token"));
     setUserRole(localStorage.getItem("userRole"));
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
+    localStorage.removeItem("token");
     localStorage.removeItem("userRole");
     localStorage.removeItem("userEmail");
     setToken(null);

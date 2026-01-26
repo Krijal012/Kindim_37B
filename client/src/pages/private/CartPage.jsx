@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
 import { toast } from "react-toastify";
 import Cart from "../../components/Cart";
-import  Header  from '../../components/Header';
-import  Footer  from '../../components/Footer';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 
 function CartPage() {
     const navigate = useNavigate();
@@ -13,11 +13,11 @@ function CartPage() {
 
     useEffect(() => {
         fetchCartItems();
-    }, [callApi]);
+    }, []);
 
     const fetchCartItems = async () => {
         try {
-            const token = localStorage.getItem("access_token");
+            const token = localStorage.getItem("token");
 
             if (!token) {
                 navigate("/login");
@@ -26,7 +26,6 @@ function CartPage() {
 
             const res = await callApi("GET", "/api/cart");
 
-            // Handle both { data: [...] } and [...] formats
             setCartItems(Array.isArray(res) ? res : (res?.data || []));
         } catch (err) {
             console.error("Failed to fetch cart:", err);

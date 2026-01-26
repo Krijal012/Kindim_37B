@@ -27,8 +27,11 @@ const ProductDetail = ({ onLogout }) => {
         const res = await callApi("GET", `/api/products/${id}`);
         setProduct(res.data || res);
         
-        // Check if product is in wishlist
-        checkWishlistStatus();
+        // Only check wishlist if user is logged in
+        const token = localStorage.getItem("token");
+        if (token) {
+          checkWishlistStatus();
+        }
       } catch (err) {
         console.error("Error fetching product details:", err);
       }
@@ -38,8 +41,12 @@ const ProductDetail = ({ onLogout }) => {
 
   const checkWishlistStatus = async () => {
     try {
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setInWishlist(false);
+        setWishlistItemId(null);
+        return;
+      }
 
       const res = await callApi("GET", "/api/wishlist");
 
@@ -55,10 +62,8 @@ const ProductDetail = ({ onLogout }) => {
       }
     } catch (err) {
       console.error("Error checking wishlist:", err);
-      // If the token is invalid, clear it so the user is forced to re-login properly
-      if (err.message === "No token provided" || err.response?.status === 401) {
-        localStorage.removeItem("access_token");
-      }
+      setInWishlist(false);
+      setWishlistItemId(null);
     }
   };
 
@@ -69,9 +74,8 @@ const ProductDetail = ({ onLogout }) => {
     }
   };
 
-  // Add to Cart Function
   const handleAddToCart = async () => {
-    const token = localStorage.getItem("access_token");
+    const token = localStorage.getItem("token");
     if (!token) {
       toast.warn("Please login to add items to cart.");
       navigate("/login");
@@ -102,10 +106,9 @@ const ProductDetail = ({ onLogout }) => {
     }
   };
 
-  // Add/Remove from Wishlist
   const handleWishlistToggle = async () => {
     try {
-      const token = localStorage.getItem("access_token");
+      const token = localStorage.getItem("token");
       if (!token) {
         toast.warn("Please login to use your wishlist.");
         navigate("/login");
@@ -123,7 +126,6 @@ const ProductDetail = ({ onLogout }) => {
           toast.info("Removed from wishlist");
         }
       } else {
-        // Add to wishlist
         const res = await callApi("POST", "/api/wishlist", { productId: product.id });
         
         setInWishlist(true);
@@ -143,7 +145,6 @@ const ProductDetail = ({ onLogout }) => {
     }
   };
 
-  // Color options with actual colors
   const colors = [
     { name: "Blue", hex: "#3B82F6" },
     { name: "Black", hex: "#1F2937" },
@@ -156,47 +157,53 @@ const ProductDetail = ({ onLogout }) => {
   if (loading) return <div className="mt-20 text-center">Loading...</div>;
   if (!product) return <div className="mt-20 text-center">Product not found.</div>;
 
+  const imageUrl = product.image?.startsWith('http') 
+    ? product.image 
+    : `http://localhost:5000/uploads/${product.image}`;
+
   return (
     <>
-      <Header />
+      <Header onLogout={onLogout} />
       <main className="max-w-7xl mx-auto px-6 py-10 mt-20 bg-gray-50">
 
-        {/* Top Section: Image and Purchase Options */}
         <div className="bg-white rounded-3xl p-8 shadow-sm flex flex-col md:flex-row gap-10">
 
-          {/* Gallery Section */}
           <div className="flex-1">
             <div className="bg-gray-100 rounded-2xl overflow-hidden mb-4 border">
               <img
-                src={`http://localhost:5000/uploads/${product.image}`}
+                src={imageUrl}
                 className="w-full h-[400px] object-contain"
                 alt={product.name}
+                onError={(e) => {
+                  e.target.src = 'https://via.placeholder.com/400?text=No+Image';
+                }}
               />
             </div>
             <div className="flex gap-4">
               {[1, 2, 3].map((i) => (
                 <img
                   key={i}
-                  src={`http://localhost:5000/uploads/${product.image}`}
+                  src={imageUrl}
                   className="w-20 h-20 rounded-lg border object-cover cursor-pointer hover:border-blue-500"
                   alt="thumbnail"
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/80?text=No+Image';
+                  }}
                 />
               ))}
             </div>
           </div>
 
-          {/* Info & Selectors Section */}
           <div className="flex-1 space-y-6">
             <h1 className="text-3xl font-bold text-gray-800">{product.name}</h1>
             <div className="flex items-center gap-4">
               <p className="text-2xl font-black text-blue-600">Rs. {product.price}</p>
               <div className="flex items-center gap-1">
                 <span className="text-yellow-500 text-xl">⭐</span>
-                <span className="font-bold text-gray-700">{product.rating}</span>
+                <span className="font-bold text-gray-700">{product.rating || 'N/A'}</span>
               </div>
             </div>
 
-            {/* Color Selector */}
             <div>
               <label className="text-sm font-bold text-gray-400 uppercase">Color</label>
               <div className="flex gap-3 mt-2">
@@ -216,7 +223,6 @@ const ProductDetail = ({ onLogout }) => {
               <p className="text-sm text-gray-600 mt-2">Selected: {selectedColor}</p>
             </div>
 
-            {/* Size Selector */}
             <div>
               <label className="text-sm font-bold text-gray-400 uppercase">Size</label>
               <div className="flex gap-3 mt-2">
@@ -235,7 +241,6 @@ const ProductDetail = ({ onLogout }) => {
               </div>
             </div>
 
-            {/* Quantity Counter */}
             <div>
               <label className="text-sm font-bold text-gray-400 uppercase">Quantity</label>
               <div className="flex items-center gap-4 mt-2">
@@ -255,7 +260,6 @@ const ProductDetail = ({ onLogout }) => {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex gap-4 pt-4">
               <button
                 onClick={handleAddToCart}
@@ -288,7 +292,6 @@ const ProductDetail = ({ onLogout }) => {
           </div>
         </div>
 
-        {/* Product Details Section */}
         <div className="mt-8 bg-gray-200 p-8 rounded-2xl shadow-inner border border-gray-300">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Product Details</h2>
           <div className="bg-white p-6 rounded-xl">
@@ -302,13 +305,12 @@ const ProductDetail = ({ onLogout }) => {
               </div>
               <div>
                 <span className="font-bold text-gray-600">Rating:</span>
-                <span className="ml-2 text-gray-800">⭐ {product.rating}</span>
+                <span className="ml-2 text-gray-800">⭐ {product.rating || 'N/A'}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Customer Reviews Section */}
         <div className="mt-8 bg-gray-200 p-8 rounded-2xl shadow-inner border border-gray-300">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Customer Reviews</h2>
           <div className="space-y-4">
@@ -329,7 +331,6 @@ const ProductDetail = ({ onLogout }) => {
           </div>
         </div>
 
-        {/* Questions Section */}
         <div className="mt-8 bg-gray-200 p-8 rounded-2xl shadow-inner border border-gray-300">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Questions & Answers</h2>
           <div className="space-y-4">

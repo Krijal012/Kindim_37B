@@ -13,11 +13,11 @@ function WishlistPage() {
 
     useEffect(() => {
         fetchWishlistItems();
-    }, [callApi]);
+    }, []);
 
     const fetchWishlistItems = async () => {
         try {
-            const token = localStorage.getItem("access_token");
+            const token = localStorage.getItem("token");
 
             if (!token) {
                 navigate("/login");
@@ -26,12 +26,11 @@ function WishlistPage() {
 
             const res = await callApi("GET", "/api/wishlist");
 
-            // Handle different response formats
             const items = Array.isArray(res) ? res : (res?.data ? res.data : []);
             setWishlistItems(items);
         } catch (err) {
             console.error("Failed to fetch wishlist:", err);
-            setWishlistItems([]); // Set empty array on error
+            setWishlistItems([]);
         }
     };
 
@@ -51,7 +50,6 @@ function WishlistPage() {
 
     const handleAddToCart = async (item) => {
         try {
-            // Check if Product exists
             if (!item.Product) {
                 toast.error("Product information not available");
                 return;
@@ -65,7 +63,6 @@ function WishlistPage() {
             });
 
             toast.success(`${item.Product.name} added to cart!`);
-            // Optionally remove from wishlist after adding to cart
             await handleRemove(item.id);
         } catch (err) {
             console.error("Failed to add to cart:", err);
@@ -134,23 +131,27 @@ function WishlistPage() {
 function WishlistItem({ item, onRemove, onAddToCart }) {
     const product = item.Product;
 
-    // Safety check
     if (!product) {
         return null;
     }
 
+    const imageUrl = product.image?.startsWith('http') 
+        ? product.image 
+        : `http://localhost:5000/uploads/${product.image}`;
+
     return (
         <div className="flex items-center gap-6 p-4 border border-gray-200 rounded-lg hover:shadow-md transition">
-            {/* Product Image */}
             <div className="flex-shrink-0">
                 <img
-                    src={`http://localhost:5000/uploads/${product.image}`}
+                    src={imageUrl}
                     alt={product.name}
                     className="w-24 h-24 object-cover rounded-lg"
+                    onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/96?text=No+Image';
+                    }}
                 />
             </div>
 
-            {/* Product Info */}
             <div className="flex-1">
                 <h3 className="text-lg font-semibold text-gray-800 mb-1">
                     {product.name}
@@ -167,7 +168,6 @@ function WishlistItem({ item, onRemove, onAddToCart }) {
                 </div>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-col gap-2">
                 <button
                     onClick={() => onAddToCart(item)}
