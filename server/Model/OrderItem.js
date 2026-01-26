@@ -1,11 +1,15 @@
-
 import { DataTypes } from "sequelize";
 import { sequelize } from "../Database/db.js";
 import { Order } from "./Order.js";
 
 export const OrderItem = sequelize.define("OrderItem", {
-  orderId: {
+  id: {
     type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+  },
+  orderId: {
+    type: DataTypes.UUID,
     allowNull: false,
   },
   productName: {
@@ -22,5 +26,5 @@ export const OrderItem = sequelize.define("OrderItem", {
   },
 });
 
-Order.hasMany(OrderItem, { foreignKey: "orderId" });
+Order.hasMany(OrderItem, { foreignKey: "orderId", onDelete: "CASCADE" });
 OrderItem.belongsTo(Order, { foreignKey: "orderId" });

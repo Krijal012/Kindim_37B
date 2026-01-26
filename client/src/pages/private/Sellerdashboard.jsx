@@ -48,17 +48,11 @@ const SellerDashboard = ({ onLogout }) => {
     try {
       if (editingProduct) {
         // Update existing product
-        await callApi("PUT", `/api/products/${editingProduct.id}`, {
-          data: formData,
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+      await callApi("PUT", `/api/products/${editingProduct.id}`, formData);
         toast.success("Product updated successfully! 🎉");
       } else {
         // Add new product
-        await callApi("POST", "/api/products", {
-          data: formData,
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+       await callApi("POST", "/api/products", formData);
         toast.success("Product added successfully! 🎉");
       }
 

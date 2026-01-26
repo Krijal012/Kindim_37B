@@ -1,9 +1,9 @@
 import { Sequelize } from "sequelize";
 
 export const sequelize = new Sequelize(
-    "Kindim",
+    "Kidim",
     "postgres",
-    "admin123",
+    "12345",
     {
         "host": "localhost",
         "dialect": "postgres",
