@@ -11,6 +11,7 @@ const CartPage = React.lazy(() => import("../pages/private/CartPage"));
 const WishlistPage = React.lazy(() => import("../pages/private/Wishlist"));
 const OrderHistoryPage = React.lazy(() => import("../pages/private/OrderHistoryPage"));
 const Checkout = React.lazy(() => import("../pages/private/Checkout"));
+const ProductComparison = React.lazy(() => import("../pages/private/ProductComparison"));
 
 const PrivateRoutes = ({ onLogout, userRole }) => {
   return (
@@ -33,6 +34,7 @@ const PrivateRoutes = ({ onLogout, userRole }) => {
         <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="/orderhistory" element={<OrderHistoryPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/compare" element={<ProductComparison />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Suspense>
