@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useApi } from "../../hooks/useAPI";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Link } from 'react-router-dom';
 
 const SellerDashboard = () => {
   const { loading, error, callApi } = useApi();
@@ -145,7 +146,9 @@ const SellerDashboard = () => {
         <nav className="space-y-2">
           <div className="p-3 text-gray-400 hover:text-blue-600 cursor-pointer font-medium">Dashboard</div>
           <div className="p-3 bg-blue-600 text-white rounded-lg shadow-md font-medium">Product Management</div>
-          <div className="p-3 text-gray-400 hover:text-blue-600 cursor-pointer font-medium">Orders</div>
+          <Link to="/seller-orders" className="block p-3 text-gray-400 hover:text-blue-600 cursor-pointer font-medium">
+      Orders
+    </Link>
         </nav>
       </aside>
 

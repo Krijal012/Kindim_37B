@@ -40,6 +40,12 @@ const User = sequelize.define("User", {
     type: DataTypes.DATE, 
     allowNull: true 
   },
+  // Inside your userModel.js
+status: {
+  type: DataTypes.STRING,
+  defaultValue: "Pending", // New users start as Pending
+  allowNull: false
+},
 }, {
   tableName: "users",
   timestamps: true,

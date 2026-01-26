@@ -232,37 +232,7 @@ const SignupPage = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes slide-in-right {
-          0% {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          100% {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
-        @keyframes slide-left {
-          0% {
-            transform: translateX(0);
-            opacity: 1;
-          }
-          100% {
-            transform: translateX(-100%);
-            opacity: 0;
-          }
-        }
-
-        .animate-slide-in-right {
-          animation: slide-in-right 0.6s ease-in-out;
-        }
-
-        .animate-slide-left {
-          animation: slide-left 0.6s ease-in-out;
-        }
-      `}</style>
+      
     </div>
   );
 };

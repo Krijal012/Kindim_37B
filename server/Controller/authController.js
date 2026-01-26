@@ -59,6 +59,7 @@ export const register = async (req, res) => {
       email,
       password: hashedPassword,
       role: role || "customer",
+      
     });
 
     res.status(201).json({
@@ -68,6 +69,7 @@ export const register = async (req, res) => {
         username: user.username,
         email: user.email,
         role: user.role,
+        status: "Pending",
       },
     });
   } catch (error) {
@@ -75,6 +77,7 @@ export const register = async (req, res) => {
   }
 };
 
+/* ===================== LOGIN ===================== */
 /* ===================== LOGIN ===================== */
 export const login = async (req, res) => {
   try {
@@ -87,6 +90,14 @@ export const login = async (req, res) => {
     const user = await Users.findOne({ where: { email } });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    // --- ADDED GATEKEEPER CHECK ---
+    // If they are a seller but not Verified, stop them here
+    if (user.role === "seller" && user.status !== "Verified") {
+      return res.status(403).json({ 
+        message: "Your account is pending admin approval. Please wait for verification." 
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -106,6 +117,7 @@ export const login = async (req, res) => {
         access_token,
         role: user.role,
         username: user.username,
+        status: user.status, // SEND STATUS TO FRONTEND
       },
     });
   } catch (error) {
@@ -117,9 +129,9 @@ export const login = async (req, res) => {
 export const getAllUsers = async (req, res) => {
   try {
     const users = await Users.findAll({
-      attributes: ["id", "username", "email", "role", "createdAt", "updatedAt"],
+      attributes: ["id", "username", "email", "role", "status", "createdAt", "updatedAt"],
     });
-    res.status(200).json(users);
+    res.status(200).json({  users });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -143,7 +155,8 @@ export const getUserById = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   try {
-    const { username, email, password, role } = req.body;
+    // ADDED: status must be pulled from req.body
+    const { username, email, password, role, status } = req.body; 
     const user = await Users.findByPk(req.params.id);
 
     if (!user) {
@@ -153,6 +166,9 @@ export const updateUser = async (req, res) => {
     if (username) user.username = username;
     if (email) user.email = email;
     if (password) user.password = await bcrypt.hash(password, 10);
+    
+    // This will now work correctly
+    if (status) user.status = status; 
 
     if (role) {
       const validRoles = ["customer", "seller", "admin"];
@@ -163,11 +179,7 @@ export const updateUser = async (req, res) => {
     }
 
     await user.save();
-
-    res.status(200).json({
-      message: "User updated successfully",
-      user,
-    });
+    res.status(200).json({ message: "User updated successfully", user });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

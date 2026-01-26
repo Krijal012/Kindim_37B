@@ -30,27 +30,29 @@ const LoginPage = ({ onLogin }) => {
   });
 
 const handleLogin = async (loginData) => {
-  console.log("Login Data Sent:", loginData);
   try {
     setBackendError("");
     const res = await callApi("POST", "/auth/login", { data: loginData });
-
-    // The backend sends { data: { access_token, role, ... } }
-    // So we need to access res.data.data
     const backendData = res.data.data; 
 
     if (backendData) {
+      // --- THE GATEKEEPER CHECK ---
+      // If they are a seller but the status is NOT 'Verified', stop them here.
+      if (backendData.role === "seller" && backendData.status !== "Verified") {
+        setBackendError("Your account is pending admin approval. Please wait for verification.");
+        return; // Exit the function so they don't log in
+      }
+
+      localStorage.clear(); 
       localStorage.setItem("access_token", backendData.access_token);
       localStorage.setItem("userEmail", loginData.email);
       localStorage.setItem("userRole", backendData.role);
 
       if (onLogin) {
-        flushSync(() => {
-          onLogin();
-        });
+        flushSync(() => { onLogin(); });
       }
 
-      // Use backendData.role for navigation
+      // --- NAVIGATION LOGIC ---
       if (backendData.role === "admin") {
         navigate("/admin-dashboard", { replace: true });
       } else if (backendData.role === "seller") {
@@ -58,13 +60,13 @@ const handleLogin = async (loginData) => {
       } else {
         navigate("/", { replace: true });
       }
-    } else {
-      setBackendError("Unexpected response format from server");
     }
   } catch (err) {
-    setBackendError(err.message || "Login failed");
+    // If the backend sends a specific "Not Verified" error, show that message
+    setBackendError(err.response?.data?.message || err.message || "Login failed");
   }
 };
+  
 const handleSignupClick = () => {
     setIsAnimating(true);
     setTimeout(() => {
@@ -173,37 +175,6 @@ const handleSignupClick = () => {
         </div>
       </div>
 
-      <style jsx>{`
-        @keyframes slide-in-left {
-          0% {
-            transform: translateX(-100%);
-            opacity: 0;
-          }
-          100% {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
-        @keyframes slide-right {
-          0% {
-            transform: translateX(0);
-            opacity: 1;
-          }
-          100% {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-        }
-
-        .animate-slide-in-left {
-          animation: slide-in-left 0.6s ease-in-out;
-        }
-
-        .animate-slide-right {
-          animation: slide-right 0.6s ease-in-out;
-        }
-      `}</style>
     </div>
   );
 };
