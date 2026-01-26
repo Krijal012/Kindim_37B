@@ -4,6 +4,7 @@ import PublicRoutes from "./routes/PublicRoutes";
 import PrivateRoutes from "./routes/PrivateRoutes";
 import DashBoard from "./pages/private/dashboard";
 import Wishlist from "./pages/private/wishlist";
+import WelcomeScreen from "./pages/public/welcomePage";
 
 
 
@@ -27,9 +28,9 @@ function App() {
 //   );
   return (
     <>
-      <Wishlist />
+      <WelcomeScreen />
     </>
   );
-}
+ }
 
 export default App;
