@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import logo from "../assets/icons/logo-icon.png";
 import profileIcon from "../assets/icons/profile.png";
 
@@ -14,6 +14,9 @@ export default function Header({
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+
+  // NOTE: This was causing a runtime error as `Products` was not defined.
+  const Products = [];
 
   useEffect(() => {
     setQuery(searchQuery || "");
@@ -91,12 +94,12 @@ export default function Header({
       {/* Right Actions */}
       <div className="ml-auto flex items-center gap-4">
         {/* Wishlist Icon */}
-        <button
-          onClick={() => navigate("/wishlist")}
+        <Link
+          to="/wishlist"
           className="relative p-2 rounded-full hover:bg-blue-400 transition group"
           title="View Wishlist"
         >
-          <svg 
+          <svg
             className="w-7 h-7 text-white group-hover:scale-110 transition-transform" 
             fill="none" 
             stroke="currentColor" 
@@ -113,16 +116,16 @@ export default function Header({
           {/* <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
             5
           </span> */}
-        </button>
+        </Link>
 
         {/* Cart Icon */}
-        <button
-          onClick={() => navigate("/cart")}
+        <Link
+          to="/cart"
           className="relative p-2 rounded-full hover:bg-blue-400 transition group"
           title="View Cart"
         >
-          <svg 
-            className="w-7 h-7 text-white group-hover:scale-110 transition-transform" 
+          <svg
+            className="w-7 h-7 text-white group-hover:scale-110 transition-transform"
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
@@ -136,27 +139,4 @@ export default function Header({
           </svg>
           {/* Optional: Badge for cart item count */}
           {/* <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-            3
-          </span> */}
-        </button>
-
-        {/* Profile Icon */}
-        <button
-          onClick={() => navigate("/profile")}
-          className="p-2 rounded-full hover:bg-blue-400 transition"
-          title="Profile Settings"
-        >
-          <img src={profileIcon} alt="Profile" className="w-8 h-8 rounded-full" />
-        </button>
-
-        {/* Logout */}
-        <button
-          onClick={onLogout}
-          className="bg-white text-black font-semibold px-4 py-2 rounded-md hover:bg-gray-100 transition"
-        >
-          Logout
-        </button>
-      </div>
-    </header>
-  );
-}
+         
