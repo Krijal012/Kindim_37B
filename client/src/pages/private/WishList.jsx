@@ -59,9 +59,3 @@ function Wishlist() {
         )}
       </main>
 
-      <Footer show={true} />
-    </div>
-  );
-}
-
-export default Wishlist;
