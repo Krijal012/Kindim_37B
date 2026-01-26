@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const initialFormState = {
-  name: "",
-  price: "",
-  rating: "",
-  category: "Electronics",
-  description: "",
-  image: null,
-};
-
 const SellerDashboard = ({ onLogout }) => {
+  const navigate = useNavigate();
   const { loading, error, callApi } = useApi();
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -31,12 +24,9 @@ const SellerDashboard = ({ onLogout }) => {
   const fetchProducts = async () => {
     try {
       const res = await callApi("GET", "/api/products");
-      // API might return an array directly, or an object with a `data` property.
-      const productList = Array.isArray(res) ? res : (res?.data || []);
-      setProducts(productList);
+      setProducts(Array.isArray(res) ? res : (res?.data || []));
     } catch (err) {
       console.error("Fetch failed:", err.message);
-      setProducts([]); // Ensure it's an array on error
     }
   };
 
@@ -47,33 +37,28 @@ const SellerDashboard = ({ onLogout }) => {
   // Add or Update Product
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Safeguard against empty required fields
-    if (!newProduct.name.trim() || !newProduct.price.toString().trim() || !newProduct.category) {
-      toast.error("Name, price, and category are required.");
-      return;
-    }
-    if (!editingProduct && !newProduct.image) {
-      toast.error("An image is required for a new product.");
-      return;
-    }
-
     const formData = new FormData();
-    formData.append("name", newProduct.name.trim());
+    formData.append("name", newProduct.name);
     formData.append("price", newProduct.price);
-    formData.append("rating", newProduct.rating || 0); // Default to 0 if empty
+    formData.append("rating", newProduct.rating);
     formData.append("category", newProduct.category);
-    formData.append("description", newProduct.description.trim());
-    if (newProduct.image) formData.append("image", newProduct.image); 
+    formData.append("description", newProduct.description);
+    if (newProduct.image) formData.append("image", newProduct.image);
 
     try {
       if (editingProduct) {
         // Update existing product
-        await callApi("PUT", `/api/products/${editingProduct.id}`, formData);
+        await callApi("PUT", `/api/products/${editingProduct.id}`, {
+          data: formData,
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         toast.success("Product updated successfully! 🎉");
       } else {
         // Add new product
-        await callApi("POST", "/api/products", formData);
+        await callApi("POST", "/api/products", {
+          data: formData,
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         toast.success("Product added successfully! 🎉");
       }
 
@@ -152,47 +137,30 @@ const SellerDashboard = ({ onLogout }) => {
     setShowModal(true);
   };
 
-  const handleOpenAddModal = () => {
-    setEditingProduct(null);
-    setNewProduct(initialFormState);
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setEditingProduct(null);
-    setNewProduct(initialFormState);
-  };
-
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg p-6 border-r flex flex-col">
-        <div>
+      <aside className="w-64 bg-white shadow-lg border-r fixed h-screen">
+        <div className="p-6">
           <div className="text-2xl font-bold text-blue-600 mb-10 flex items-center">
             <span className="mr-2">🛒</span> Kindim
           </div>
           <nav className="space-y-2">
-            <div className="p-3 text-gray-400 hover:text-blue-600 cursor-pointer font-medium">Dashboard</div>
-            <div className="p-3 bg-blue-600 text-white rounded-lg shadow-md font-medium">Product Management</div>
-            <div className="p-3 text-gray-400 hover:text-blue-600 cursor-pointer font-medium">Orders</div>
+            <div className="p-3 text-gray-400 hover:text-blue-600 cursor-pointer font-medium rounded-lg hover:bg-gray-50">
+              Dashboard
+            </div>
+            <div className="p-3 bg-blue-600 text-white rounded-lg shadow-md font-medium">
+              Product Management
+            </div>
+            <div className="p-3 text-gray-400 hover:text-blue-600 cursor-pointer font-medium rounded-lg hover:bg-gray-50">
+              Orders
+            </div>
           </nav>
-        </div>
-        <div className="mt-auto">
-          <button
-            onClick={onLogout}
-            className="w-full flex items-center justify-center gap-2 p-3 text-red-500 hover:bg-red-50 rounded-lg font-medium transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V5h10a1 1 0 100-2H4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
-            </svg>
-            <span>Logout</span>
-          </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8">
+      <main className="flex-1 ml-64 p-8">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Seller Management</h1>
           <div className="flex gap-4">
@@ -223,44 +191,19 @@ const SellerDashboard = ({ onLogout }) => {
               <tr>
                 <th className="p-5">Image</th>
                 <th className="p-5">Name</th>
+                <th className="p-5">Category</th>
                 <th className="p-5">Price</th>
+                <th className="p-5">Rating</th>
                 <th className="p-5">Status</th>
                 <th className="p-5">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {Array.isArray(products) && products.map((p) => (
-                <tr key={p.id} className="hover:bg-blue-50/30 transition">
-                  <td className="p-5">
-                    <img
-                      src={`http://localhost:5000/uploads/${p.image}`}
-                      className="w-14 h-14 rounded-lg object-cover border shadow-sm"
-                      onError={(e) => (e.target.src = "https://placehold.co/100x100?text=No+Image")}
-                      alt=""
-                    />
+              {!products || products.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="p-10 text-center text-gray-400">
+                    No products yet. Click "Add New Product" to get started!
                   </td>
-                  <td className="p-5 font-semibold text-gray-700">{p.name}</td>
-                  <td className="p-5 text-blue-600 font-black">Rs. {p.price}</td>
-                  <td className="p-5">
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span>
-                  </td>
-                  <td className="p-5 flex space-x-2">
-                    <div className="flex items-center gap-6">
-                    <button
-                      onClick={() => handleEdit(p)}
-                      className="text-blue-500 hover:text-blue-700 font-bold text-sm"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(p.id)}
-                      className="text-red-400 hover:text-red-600 font-bold text-sm"
-                    >
-                      Delete
-                    </button>
-                    </div>
-                  </td>
-                   
                 </tr>
               ) : (
                 products.map((p) => (
