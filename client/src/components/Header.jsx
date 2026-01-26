@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/icons/logo-icon.png";
 import profileIcon from "../assets/icons/profile.png";
-import Products from "../data/Product";
 
 export default function Header({
   show = true,
