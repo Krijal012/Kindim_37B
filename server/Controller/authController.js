@@ -94,11 +94,16 @@ export const login = async (req, res) => {
             return res.status(401).json({ message: "Incorrect password" });
         }
 
+        // DEBUG: Log the secret being used
+        console.log("JWT_SECRET in login:", process.env.JWT_SECRET);
+        
         const access_token = generateToken({
             id: user.id,
             email: user.email,
             role: user.role,
         });
+
+        console.log("Generated token:", access_token.substring(0, 50) + "...");
 
         res.status(200).json({
             message: "Login successful",
