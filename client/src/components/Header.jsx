@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/icons/logo-icon.png";
-import profileIcon from "../assets/icons/profile.png";
 
 export default function Header({
   show = true,
@@ -14,8 +13,24 @@ export default function Header({
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const Products = [];
+  // Fetch all products for autocomplete
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const response = await fetch('http://localhost:5000/api/products');
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(data);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    }
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     setQuery(searchQuery || "");
@@ -28,29 +43,37 @@ export default function Header({
     if (!value) {
       setSuggestions([]);
       if (setSearchQuery) setSearchQuery("");
-      if (onSearchSubmit) onSearchSubmit();
       return;
     }
 
-    const filtered = Products.filter((product) =>
+    // Filter products for autocomplete
+    const filtered = products.filter((product) =>
       product.name.toLowerCase().includes(value.toLowerCase())
     );
 
     setSuggestions(
-      filtered.length
-        ? filtered
-        : [{ id: "no-result", name: "No products found" }]
+      filtered.length > 0
+        ? filtered.slice(0, 5) // Show max 5 suggestions
+        : [{ id: "no-result", name: `No products found for "${value}"` }]
     );
   };
 
-  // FIX: Use button with onClick instead of Link
+  const handleSearch = () => {
+    setSuggestions([]);
+    if (setSearchQuery) setSearchQuery(query);
+    if (onSearchSubmit) onSearchSubmit();
+    
+    // Navigate to products page with search
+    if (query) {
+      navigate(`/products?search=${encodeURIComponent(query)}`);
+    }
+  };
+
   const handleCartClick = () => {
-    console.log("Navigating to cart");
     navigate("/cart");
   };
 
   const handleWishlistClick = () => {
-    console.log("Navigating to wishlist");
     navigate("/wishlist");
   };
 
@@ -60,7 +83,6 @@ export default function Header({
       bg-[#1A73E8] px-6 py-4 transition-transform duration-300
       ${show ? "translate-y-0" : "-translate-y-full"}`}
     >
-      {/* Logo */}
       <div
         className="flex items-center gap-2 cursor-pointer"
         onClick={() => navigate("/")}
@@ -69,7 +91,6 @@ export default function Header({
         <span className="text-white font-bold text-2xl">Kindim</span>
       </div>
 
-      {/* Search */}
       {!hideSearch && (
         <div className="ml-10 hidden md:flex flex-1 max-w-xl relative">
           <input
@@ -77,29 +98,54 @@ export default function Header({
             value={query}
             onChange={handleChange}
             placeholder="Search products..."
-            className="w-full px-4 py-2 rounded-md outline-none"
+            className="w-full px-4 py-2 pr-20 rounded-md outline-none"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                setSuggestions([]);
-                if (setSearchQuery) setSearchQuery(query);
-                if (onSearchSubmit) onSearchSubmit();
+                handleSearch();
               }
             }}
           />
+          <button
+            onClick={handleSearch}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 transition"
+          >
+            Search
+          </button>
 
           {suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 bg-white border rounded-md mt-1 shadow-lg z-10">
+            <div className="absolute top-full left-0 right-0 bg-white border rounded-md mt-1 shadow-lg z-10 max-h-80 overflow-y-auto">
               {suggestions.map((s) => (
                 <div
                   key={s.id}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                  className={`p-3 hover:bg-gray-100 cursor-pointer border-b last:border-b-0 ${
+                    s.id === "no-result" ? "text-gray-500 text-center italic" : ""
+                  }`}
                   onClick={() => {
                     if (s.id === "no-result") return;
                     navigate(`/product/${s.id}`);
                     setSuggestions([]);
+                    setQuery("");
                   }}
                 >
-                  {s.name}
+                  {s.id === "no-result" ? (
+                    <span>{s.name}</span>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gray-200 rounded flex-shrink-0">
+                        {s.image && (
+                          <img
+                            src={`http://localhost:5000/uploads/${s.image}`}
+                            alt={s.name}
+                            className="w-full h-full object-cover rounded"
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-800">{s.name}</p>
+                        <p className="text-sm text-gray-600">Rs. {s.price}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -107,9 +153,7 @@ export default function Header({
         </div>
       )}
 
-      {/* Right Actions */}
       <div className="ml-auto flex items-center gap-4">
-        {/* Wishlist Icon - CHANGED TO BUTTON */}
         <button
           onClick={handleWishlistClick}
           className="relative p-2 rounded-full hover:bg-blue-400 transition group"
@@ -130,7 +174,6 @@ export default function Header({
           </svg>
         </button>
 
-        {/* Cart Icon - CHANGED TO BUTTON */}
         <button
           onClick={handleCartClick}
           className="relative p-2 rounded-full hover:bg-blue-400 transition group"
@@ -151,14 +194,7 @@ export default function Header({
           </svg>
         </button>
 
-        {/* Profile */}
         <div className="flex items-center gap-2">
-          <img
-            src={profileIcon}
-            alt="profile"
-            className="w-10 h-10 rounded-full border-2 border-white cursor-pointer"
-            onClick={() => navigate("/profile")}
-          />
           <button
             onClick={onLogout}
             className="text-white font-bold hover:underline"

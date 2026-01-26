@@ -1,33 +1,36 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import CategoryBar from "../../components/CategoryBar";
 import ProductGrid from "../../components/ProductGrid";
 
-
 function CategorySection({ onLogout }) {
   const { category } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  // State for products from database
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Filter state
   const [selectedCategory, setSelectedCategory] = useState(category || 'All');
   const [priceRange, setPriceRange] = useState(125000);
   const [selectedRating, setSelectedRating] = useState('All Stars');
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchSubmitted, setSearchSubmitted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || "");
 
   // Fetch products from database
   useEffect(() => {
     async function fetchProducts() {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/api/products');
+        
+        // Build URL with search query if exists
+        const url = searchQuery 
+          ? `http://localhost:5000/api/products?search=${encodeURIComponent(searchQuery)}`
+          : 'http://localhost:5000/api/products';
+        
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error('Failed to fetch products');
@@ -45,9 +48,17 @@ function CategorySection({ onLogout }) {
     }
 
     fetchProducts();
-  }, []);
+  }, [searchQuery]);
 
-  // Filter products
+  // Update search query from URL params
+  useEffect(() => {
+    const searchFromUrl = searchParams.get('search');
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
+    }
+  }, [searchParams]);
+
+  // Filter products (client-side filtering for category, price, rating)
   const filteredProducts = products.filter((product) => {
     if (selectedCategory !== 'All' && product.category !== selectedCategory) return false;
     if (parseFloat(product.price) > parseFloat(priceRange)) return false;
@@ -58,25 +69,25 @@ function CategorySection({ onLogout }) {
       if (productRating < ratingNumber || productRating >= ratingNumber + 1) return false;
     }
 
-    if (searchQuery && !product.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-
     return true;
   });
 
-  // Handle product click to navigate to detail page
   const handleProductClick = (product) => {
     navigate(`/product/${product.id}`);
   };
 
-  // Handle logout
   const handleLogout = () => {
     onLogout();
+    handleClearFilters();
+    navigate("/login", { replace: true });
+  };
+
+  const handleClearFilters = () => {
     setSelectedCategory('All');
     setPriceRange(125000);
     setSelectedRating('All Stars');
     setSearchQuery("");
-    setSearchSubmitted(false);
-    navigate("/login", { replace: true });
+    navigate('/products', { replace: true });
   };
 
   return (
@@ -85,7 +96,7 @@ function CategorySection({ onLogout }) {
         show={true}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        onSearchSubmit={() => setSearchSubmitted(true)}
+        onSearchSubmit={() => {}}
         onLogout={handleLogout}
       />
 
@@ -102,14 +113,12 @@ function CategorySection({ onLogout }) {
           />
 
           <div className="flex-1">
-            {/* Loading state */}
             {loading ? (
               <div className="text-center py-20">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 <p className="mt-4 text-gray-600">Loading products...</p>
               </div>
             ) : error ? (
-              /* Error state */
               <div className="text-center py-20">
                 <p className="text-red-600 text-lg">{error}</p>
                 <button
@@ -120,29 +129,50 @@ function CategorySection({ onLogout }) {
                 </button>
               </div>
             ) : filteredProducts.length === 0 ? (
-              /* No results */
               <div className="text-center py-20">
-                <p className="text-gray-600 text-lg">
-                  No products found matching your filters
-                </p>
+                {searchQuery ? (
+                  <>
+                    <div className="text-6xl mb-4">🔍</div>
+                    <p className="text-gray-800 text-xl font-semibold mb-2">
+                      No products found for "{searchQuery}"
+                    </p>
+                    <p className="text-gray-600 mb-4">
+                      Try searching with different keywords or clear filters
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-6xl mb-4">📦</div>
+                    <p className="text-gray-800 text-xl font-semibold mb-2">
+                      No products match your filters
+                    </p>
+                  </>
+                )}
                 <button
-                  onClick={() => {
-                    setSelectedCategory('All');
-                    setPriceRange(125000);
-                    setSelectedRating('All Stars');
-                    setSearchQuery("");
-                    setSearchSubmitted(false);
-                  }}
-                  className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  onClick={handleClearFilters}
+                  className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                 >
-                  Clear Filters
+                  Clear All Filters
                 </button>
               </div>
             ) : (
-              /* Display products */
               <>
-                <div className="mb-4 text-gray-600">
-                  Showing {filteredProducts.length} products
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-gray-600">
+                    {searchQuery ? (
+                      <>Showing {filteredProducts.length} results for <span className="font-semibold">"{searchQuery}"</span></>
+                    ) : (
+                      <>Showing {filteredProducts.length} products</>
+                    )}
+                  </p>
+                  {(searchQuery || selectedCategory !== 'All') && (
+                    <button
+                      onClick={handleClearFilters}
+                      className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+                    >
+                      Clear Filters
+                    </button>
+                  )}
                 </div>
 
                 <ProductGrid
