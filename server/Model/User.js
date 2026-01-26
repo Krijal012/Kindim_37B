@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../database/db.js";
+import { sequelize } from "../Database/db.js";
 
-export const User = sequelize.define("User", {
+export const User = sequelize.define("UserDetails", {
   name: { type: DataTypes.STRING, allowNull: false },
   dob: { type: DataTypes.DATEONLY, allowNull: true },
   gender: { type: DataTypes.STRING, allowNull: true },

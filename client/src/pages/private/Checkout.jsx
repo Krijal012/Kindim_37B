@@ -1,58 +1,67 @@
 import { useEffect, useState } from "react";
+import { useApi } from "../../hooks/useAPI";
 import ShippingSection from "../../components/ShippingSection";
-import OrderSummary from "../../components/OrderSummary";
 import PaymentMethod from "../../components/PaymentMethod";
-import { apiRequest } from "../../utils/api";
+import OrderSummary from "../../components/OrderSummary";
 
 const Checkout = () => {
+  const { callApi } = useApi();
+
+  const [cartItems, setCartItems] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(null);
-  const [cartItems, setCartItems] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchCartItems = async () => {
+      try {
+        const res = await callApi("GET", "/api/cart");
+        // The data from the cart API is nested. We need to flatten it
+        // for the OrderSummary component to work correctly.
+        const formattedItems = res.data.map(item => ({
+          id: item.id, // Cart Item ID
+          productId: item.Product.id,
+          productName: item.Product.name,
+          price: parseFloat(item.Product.price), // Ensure price is a number
+          quantity: item.quantity,
+        }));
+        setCartItems(formattedItems);
+      } catch (err) {
+        setError("Please login again to continue checkout.");
+        console.error("Failed to fetch cart items:", err.message);
+      }
+    };
+
     fetchCartItems();
-  }, []);
+  }, [callApi]);
 
-  const fetchCartItems = async () => {
-    const res = await apiRequest("get", "/cart");
-
-    const formatted = res.data.map((item) => ({
-      id: item.id,
-      name: item.Product.name,
-      price: item.Product.price,
-      quantity: item.quantity,
-    }));
-
-    setCartItems(formatted);
-  };
+  if (error) {
+    return (
+      <div className="text-center mt-20 text-red-600 font-semibold">
+        {error}
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <div className="flex-1 overflow-y-auto flex justify-center">
-        <div className="w-[1200px] px-4 py-8">
-          <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+    <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-2 space-y-8">
+        <ShippingSection
+          selectedAddress={selectedAddress}
+          setSelectedAddress={setSelectedAddress}
+        />
 
-          <div className="flex gap-12">
-            <ShippingSection
-              selectedAddress={selectedAddress}
-              setSelectedAddress={setSelectedAddress}
-            />
-
-            <div className="w-[320px] self-start space-y-6">
-              <OrderSummary
-                cartItems={cartItems}
-                selectedAddress={selectedAddress}
-                paymentMethod={paymentMethod}
-              />
-
-              <PaymentMethod
-                paymentMethod={paymentMethod}
-                setPaymentMethod={setPaymentMethod}
-              />
-            </div>
-          </div>
-        </div>
+        <PaymentMethod
+          paymentMethod={paymentMethod}
+          setPaymentMethod={setPaymentMethod}
+        />
       </div>
+
+      <OrderSummary
+        cartItems={cartItems}
+        selectedAddress={selectedAddress}
+        paymentMethod={paymentMethod}
+      />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../database/db.js";
+import { sequelize } from "../Database/db.js";
 
 export const Order = sequelize.define("Order", {
   userId: { type: DataTypes.INTEGER, allowNull: false },

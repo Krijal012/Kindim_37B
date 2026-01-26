@@ -3,7 +3,8 @@ import { ShippingAddress } from "../Model/ShippingAddress.js";
 // Get all addresses
 export const getShippingAddresses = async (req, res) => {
   try {
-    const addresses = await ShippingAddress.findAll();
+    const userId = req.user.id;
+    const addresses = await ShippingAddress.findAll({ where: { userId } });
     res.json(addresses.map(addr => addr.toJSON()));
   } catch (err) {
     console.error(err);
@@ -14,7 +15,8 @@ export const getShippingAddresses = async (req, res) => {
 export const getShippingAddressById = async (req, res) => {
   try {
     const { id } = req.params;
-    const address = await ShippingAddress.findByPk(id);
+    const userId = req.user.id;
+    const address = await ShippingAddress.findOne({ where: { id, userId } });
     if (!address) return res.status(404).json({ message: "Address not found" });
     res.json(address.toJSON());
   } catch (err) {
@@ -26,8 +28,9 @@ export const getShippingAddressById = async (req, res) => {
 // Create new address
 export const createShippingAddress = async (req, res) => {
   try {
+    const userId = req.user.id;
     const { fullname, address, phonenumber } = req.body;
-    const newAddress = await ShippingAddress.create({ fullname, address, phonenumber });
+    const newAddress = await ShippingAddress.create({ userId, fullname, address, phonenumber });
     res.status(201).json(newAddress.toJSON());
   } catch (err) {
     console.error(err);
@@ -39,7 +42,8 @@ export const createShippingAddress = async (req, res) => {
 export const updateShippingAddress = async (req, res) => {
   try {
     const { id } = req.params;
-    const address = await ShippingAddress.findByPk(id);
+    const userId = req.user.id;
+    const address = await ShippingAddress.findOne({ where: { id, userId } });
     if (!address) return res.status(404).json({ message: "Address not found" });
 
     await address.update({
@@ -59,7 +63,8 @@ export const updateShippingAddress = async (req, res) => {
 export const deleteShippingAddress = async (req, res) => {
   try {
     const { id } = req.params;
-    const address = await ShippingAddress.findByPk(id);
+    const userId = req.user.id;
+    const address = await ShippingAddress.findOne({ where: { id, userId } });
     if (!address) return res.status(404).json({ message: "Address not found" });
 
     await address.destroy();

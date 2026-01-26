@@ -9,18 +9,18 @@ const PaymentMethod = ({ paymentMethod, setPaymentMethod }) => {
         <div
           onClick={() => setPaymentMethod("QR")}
           className={`w-36 h-36 border-2 rounded-xl flex flex-col items-center justify-center cursor-pointer
-            ${paymentMethod === "QR" ? "border-blue-600 bg-blue-50" : "border-black"}`}
+          ${paymentMethod === "QR" ? "border-blue-600 bg-blue-50" : "border-black"}`}
         >
-          <img src={qrImg} className="w-20 h-20 mb-2" />
+          <img src={qrImg} alt="QR" className="w-20 h-20 mb-2" />
           <p className="text-sm font-medium">QR Payment</p>
         </div>
 
         <div
           onClick={() => setPaymentMethod("CASH")}
           className={`w-36 h-36 border-2 rounded-xl flex items-center justify-center cursor-pointer
-            ${paymentMethod === "CASH" ? "border-blue-600 bg-blue-50" : "border-black"}`}
+          ${paymentMethod === "CASH" ? "border-blue-600 bg-blue-50" : "border-black"}`}
         >
-          <p className="text-sm font-medium">Direct Cash</p>
+          <p className="text-sm font-medium">Cash on Delivery</p>
         </div>
       </div>
     </div>

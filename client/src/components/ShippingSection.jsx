@@ -11,126 +11,64 @@ const ShippingSection = ({ selectedAddress, setSelectedAddress }) => {
   const [addresses, setAddresses] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: zodResolver(ShippingSchema),
   });
 
   useEffect(() => {
-    const fetchAddresses = async () => {
-      const res = await callApi("GET", "/api/shipping");
-      setAddresses(res.data);
-    };
-    fetchAddresses();
+    callApi("GET", "/api/shipping").then(res => setAddresses(res.data));
   }, []);
 
-  const handleShipping = async (data) => {
-    let res;
-
+  const onSubmit = async (data) => {
+    let newOrUpdatedAddress;
     if (editingId) {
-      res = await callApi("PUT", `/api/shipping/${editingId}`, { data });
-      setAddresses((prev) =>
-        prev.map((a) => (a.id === editingId ? res.data : a))
-      );
+      const res = await callApi("PUT", `/api/shipping/${editingId}`, data);
+      newOrUpdatedAddress = res.data;
+      setAddresses(prev => prev.map(a => a.id === editingId ? newOrUpdatedAddress : a));
       setEditingId(null);
     } else {
-      res = await callApi("POST", "/api/shipping", { data });
-      setAddresses((prev) => [...prev, res.data]);
+      const res = await callApi("POST", "/api/shipping", data);
+      newOrUpdatedAddress = res.data;
+      setAddresses(prev => [...prev, newOrUpdatedAddress]);
     }
-
+    setSelectedAddress(newOrUpdatedAddress);
     reset();
   };
 
-  const handleDelete = async (id) => {
-    await callApi("DELETE", `/api/shipping/${id}`);
-    setAddresses((prev) => prev.filter((a) => a.id !== id));
-
-    if (selectedAddress?.id === id) {
-      setSelectedAddress(null);
-    }
-  };
-
-  const handleEdit = (addr) => {
-    reset({
-      fullname: addr.fullname,
-      address: addr.address,
-      phonenumber: addr.phonenumber,
-    });
-    setEditingId(addr.id);
-  };
-
   return (
-    <div className="flex-1">
+    <div>
       <h2 className="text-lg font-semibold mb-4">Shipping Address</h2>
 
-      {addresses.map((addr) => (
+      {addresses.map(addr => (
         <div
           key={addr.id}
           onClick={() => setSelectedAddress(addr)}
-          className={`bg-[#E5E5E5] p-4 rounded relative mb-4 cursor-pointer
-            ${
-              selectedAddress?.id === addr.id
-                ? "border-2 border-blue-600"
-                : "border border-transparent"
-            }`}
+          className={`p-4 rounded mb-3 cursor-pointer bg-gray-100
+          ${selectedAddress?.id === addr.id ? "border-2 border-blue-600" : ""}`}
         >
           <p className="font-semibold">{addr.fullname}</p>
           <p>{addr.address}</p>
           <p>{addr.phonenumber}</p>
 
-          <div className="absolute top-4 right-4 flex gap-2">
-            <img
-              src={editIcon}
-              className="w-5 h-5 cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(addr);
-              }}
-            />
-            <img
-              src={deleteIcon}
-              className="w-5 h-5 cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(addr.id);
-              }}
-            />
+          <div className="flex gap-2 mt-2">
+            <img src={editIcon} className="w-5 h-5" onClick={(e) => {
+              e.stopPropagation();
+              reset(addr);
+              setEditingId(addr.id);
+            }} />
+            <img src={deleteIcon} className="w-5 h-5" />
           </div>
         </div>
       ))}
 
-      <form
-        onSubmit={handleSubmit(handleShipping)}
-        className="border-2 border-black p-6 rounded-md space-y-4"
-      >
-        <input
-          {...register("fullname")}
-          placeholder="Full Name"
-          className="border-2 border-black px-4 py-2 rounded w-full"
-        />
+      <form onSubmit={handleSubmit(onSubmit)} className="border p-4 rounded space-y-3">
+        <input {...register("fullname")} placeholder="Full Name" className="input" />
         {errors.fullname && <p className="text-red-500">{errors.fullname.message}</p>}
 
-        <input
-          {...register("address")}
-          placeholder="Address"
-          className="border-2 border-black px-4 py-2 rounded w-full"
-        />
-        {errors.address && <p className="text-red-500">{errors.address.message}</p>}
+        <input {...register("address")} placeholder="Address" className="input" />
+        <input {...register("phonenumber")} placeholder="Phone" className="input" />
 
-        <input
-          {...register("phonenumber")}
-          placeholder="Phone Number"
-          className="border-2 border-black px-4 py-2 rounded w-full"
-        />
-        {errors.phonenumber && (
-          <p className="text-red-500">{errors.phonenumber.message}</p>
-        )}
-
-        <button className="border border-black rounded-full px-10 py-2">
+        <button className="border px-6 py-2 rounded-full">
           {editingId ? "Update Address" : "Save Address"}
         </button>
       </form>

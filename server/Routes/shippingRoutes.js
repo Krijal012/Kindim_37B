@@ -7,8 +7,11 @@ import {
   getShippingAddressById
   
 } from "../Controller/shippingController.js";
+import { verifyToken } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();
+
+router.use(verifyToken);
 
 router.get("/", getShippingAddresses);
 router.post("/", createShippingAddress);

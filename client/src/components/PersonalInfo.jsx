@@ -32,10 +32,7 @@ export default function PersonalInfo({ user, setUser }) {
       });
       if (data.profileImage?.[0]) formData.append("profileImage", data.profileImage[0]);
 
-      const res = await callApi("POST", "/api/profile", {
-        data: formData,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await callApi("POST", "/api/profile", formData);
 
       setUser(res.data.user);
       setPreview(res.data.user.profileImage ? `http://localhost:5000${res.data.user.profileImage}` : null);

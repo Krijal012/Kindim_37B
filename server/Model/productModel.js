@@ -1,23 +1,21 @@
-
 import { DataTypes } from "sequelize";
-import { sequelize } from "../database/db.js";
+import { sequelize } from "../Database/db.js";
 
-const Product = sequelize.define("Product", {
-  name: { type: DataTypes.STRING, allowNull: false },
-  price: { type: DataTypes.FLOAT, allowNull: false },
-  brand: { type: DataTypes.STRING },
-  screen_size: { type: DataTypes.STRING },
-  ram: { type: DataTypes.STRING },
-  storage: { type: DataTypes.STRING },
-  battery_life: { type: DataTypes.STRING },
-  operating_system: { type: DataTypes.STRING },
-  water_resistance: { type: DataTypes.STRING },
-  wireless_charging: { type: DataTypes.STRING },
-  warranty: { type: DataTypes.STRING },
-  included_accessories: { type: DataTypes.STRING },
-}, {
-  tableName: "products",
-  timestamps: true
-});
+const Product = sequelize.define(
+  "Product",
+  {
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    name: { type: DataTypes.STRING, allowNull: false },
+    price: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+    category: { type: DataTypes.STRING, allowNull: false },
+    rating: { type: DataTypes.DECIMAL(2, 1), defaultValue: 0 },
+    description: { type: DataTypes.TEXT },
+    image: { type: DataTypes.TEXT },
+  },
+  {
+    tableName: "products",
+    timestamps: true,
+  }
+);
 
 export default Product;

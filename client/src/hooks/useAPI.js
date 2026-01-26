@@ -1,28 +1,49 @@
-import axios from "axios";
 import { useState } from "react";
 
-const API = axios.create({
-  baseURL: "http://localhost:5000",
-});
+const API_URL = "http://localhost:5000";
 
 export const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const callApi = async (method, url, options = {}) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const callApi = async (method, url, data = null) => {
+    setLoading(true);
+    setError(null);
 
-      const res = await API({
+    try {
+      const token = localStorage.getItem("token");
+
+      const headers = {};
+
+      // DO NOT set Content-Type for FormData
+      if (!(data instanceof FormData)) {
+        headers["Content-Type"] = "application/json";
+      }
+
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      const res = await fetch(API_URL + url, {
         method,
-        url,
-        ...options,
+        headers,
+        body:
+          data instanceof FormData
+            ? data
+            : data
+            ? JSON.stringify(data)
+            : null,
       });
 
-      return res;
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.message || "Request failed");
+      }
+
+      return result;
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
+      setError(err.message);
       throw err;
     } finally {
       setLoading(false);
