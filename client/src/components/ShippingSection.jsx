@@ -2,76 +2,191 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ShippingSchema } from "../schema/shipping.schemas";
-import { useApi } from "../hooks/useApi";
-import editIcon from "../assets/icons/edit.png";
-import deleteIcon from "../assets/icons/delete.png";
+import { useApi } from "../hooks/useAPI";
+import { toast } from "react-toastify";
 
 const ShippingSection = ({ selectedAddress, setSelectedAddress }) => {
   const { callApi } = useApi();
   const [addresses, setAddresses] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm({
     resolver: zodResolver(ShippingSchema),
   });
 
   useEffect(() => {
-    callApi("GET", "/api/shipping").then(res => setAddresses(res.data));
+    fetchAddresses();
   }, []);
 
-  const onSubmit = async (data) => {
-    let newOrUpdatedAddress;
-    if (editingId) {
-      const res = await callApi("PUT", `/api/shipping/${editingId}`, data);
-      newOrUpdatedAddress = res.data;
-      setAddresses(prev => prev.map(a => a.id === editingId ? newOrUpdatedAddress : a));
-      setEditingId(null);
-    } else {
-      const res = await callApi("POST", "/api/shipping", data);
-      newOrUpdatedAddress = res.data;
-      setAddresses(prev => [...prev, newOrUpdatedAddress]);
+  const fetchAddresses = async () => {
+    try {
+      const res = await callApi("GET", "/api/shipping");
+      const addressList = res.data || res;
+      setAddresses(addressList);
+      
+      // Auto-select first address if none selected
+      if (addressList.length > 0 && !selectedAddress) {
+        setSelectedAddress(addressList[0]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch addresses:", err);
+      toast.error("Failed to load addresses");
     }
-    setSelectedAddress(newOrUpdatedAddress);
-    reset();
+  };
+
+  const onSubmit = async (data) => {
+    try {
+      let newOrUpdatedAddress;
+      
+      if (editingId) {
+        const res = await callApi("PUT", `/api/shipping/${editingId}`, data);
+        newOrUpdatedAddress = res.data;
+        setAddresses(prev => prev.map(a => a.id === editingId ? newOrUpdatedAddress : a));
+        setEditingId(null);
+        toast.success("Address updated successfully");
+      } else {
+        const res = await callApi("POST", "/api/shipping", data);
+        newOrUpdatedAddress = res.data;
+        setAddresses(prev => [...prev, newOrUpdatedAddress]);
+        toast.success("Address added successfully");
+      }
+      
+      setSelectedAddress(newOrUpdatedAddress);
+      reset();
+      setShowForm(false);
+    } catch (err) {
+      console.error("Failed to save address:", err);
+      toast.error("Failed to save address");
+    }
+  };
+
+  const handleEdit = (e, addr) => {
+    e.stopPropagation();
+    reset(addr);
+    setEditingId(addr.id);
+    setShowForm(true);
+  };
+
+  const handleDelete = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm("Delete this address?")) return;
+    
+    try {
+      await callApi("DELETE", `/api/shipping/${id}`);
+      setAddresses(prev => prev.filter(a => a.id !== id));
+      if (selectedAddress?.id === id) {
+        setSelectedAddress(null);
+      }
+      toast.success("Address deleted");
+    } catch (err) {
+      console.error("Failed to delete address:", err);
+      toast.error("Failed to delete address");
+    }
   };
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4">Shipping Address</h2>
-
-      {addresses.map(addr => (
-        <div
-          key={addr.id}
-          onClick={() => setSelectedAddress(addr)}
-          className={`p-4 rounded mb-3 cursor-pointer bg-gray-100
-          ${selectedAddress?.id === addr.id ? "border-2 border-blue-600" : ""}`}
+    <div className="bg-white p-6 rounded-lg shadow">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">Shipping Address</h2>
+        <button
+          onClick={() => {
+            setShowForm(!showForm);
+            setEditingId(null);
+            reset({ fullname: "", address: "", phonenumber: "" });
+          }}
+          className="text-blue-600 hover:text-blue-700 font-semibold"
         >
-          <p className="font-semibold">{addr.fullname}</p>
-          <p>{addr.address}</p>
-          <p>{addr.phonenumber}</p>
-
-          <div className="flex gap-2 mt-2">
-            <img src={editIcon} className="w-5 h-5" onClick={(e) => {
-              e.stopPropagation();
-              reset(addr);
-              setEditingId(addr.id);
-            }} />
-            <img src={deleteIcon} className="w-5 h-5" />
-          </div>
-        </div>
-      ))}
-
-      <form onSubmit={handleSubmit(onSubmit)} className="border p-4 rounded space-y-3">
-        <input {...register("fullname")} placeholder="Full Name" className="input" />
-        {errors.fullname && <p className="text-red-500">{errors.fullname.message}</p>}
-
-        <input {...register("address")} placeholder="Address" className="input" />
-        <input {...register("phonenumber")} placeholder="Phone" className="input" />
-
-        <button className="border px-6 py-2 rounded-full">
-          {editingId ? "Update Address" : "Save Address"}
+          {showForm ? "Cancel" : "+ Add New"}
         </button>
-      </form>
+      </div>
+
+      {/* Address List */}
+      <div className="space-y-3 mb-4">
+        {addresses.length === 0 && !showForm && (
+          <p className="text-gray-500 text-center py-4">No saved addresses. Please add one.</p>
+        )}
+        
+        {addresses.map(addr => (
+          <div
+            key={addr.id}
+            onClick={() => setSelectedAddress(addr)}
+            className={`p-4 border-2 rounded-lg cursor-pointer transition ${
+              selectedAddress?.id === addr.id
+                ? "border-blue-600 bg-blue-50"
+                : "border-gray-200 hover:border-blue-300"
+            }`}
+          >
+            <p className="font-semibold">{addr.fullname}</p>
+            <p className="text-gray-600">{addr.address}</p>
+            <p className="text-gray-600">{addr.phonenumber}</p>
+
+            <div className="flex gap-3 mt-3">
+              <button
+                onClick={(e) => handleEdit(e, addr)}
+                className="text-blue-600 hover:text-blue-700 text-sm font-semibold"
+              >
+                Edit
+              </button>
+              <button
+                onClick={(e) => handleDelete(e, addr.id)}
+                className="text-red-600 hover:text-red-700 text-sm font-semibold"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Address Form */}
+      {showForm && (
+        <div onSubmit={handleSubmit(onSubmit)} className="border-2 border-blue-300 bg-blue-50 p-4 rounded-lg space-y-3">
+          <h3 className="font-semibold mb-2">
+            {editingId ? "Edit Address" : "Add New Address"}
+          </h3>
+          
+          <div>
+            <input
+              {...register("fullname")}
+              placeholder="Full Name"
+              className="w-full px-4 py-2 border rounded-lg"
+            />
+            {errors.fullname && (
+              <p className="text-red-500 text-sm mt-1">{errors.fullname.message}</p>
+            )}
+          </div>
+
+          <div>
+            <input
+              {...register("address")}
+              placeholder="Full Address"
+              className="w-full px-4 py-2 border rounded-lg"
+            />
+            {errors.address && (
+              <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
+            )}
+          </div>
+
+          <div>
+            <input
+              {...register("phonenumber")}
+              placeholder="Phone Number"
+              className="w-full px-4 py-2 border rounded-lg"
+            />
+            {errors.phonenumber && (
+              <p className="text-red-500 text-sm mt-1">{errors.phonenumber.message}</p>
+            )}
+          </div>
+
+          <button
+            onClick={handleSubmit(onSubmit)}
+            className="w-full bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition"
+          >
+            {editingId ? "Update Address" : "Save Address"}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

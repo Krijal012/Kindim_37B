@@ -1,11 +1,10 @@
 import { ShippingAddress } from "../Model/ShippingAddress.js";
 
-// Get all addresses
 export const getShippingAddresses = async (req, res) => {
   try {
     const userId = req.user.id;
     const addresses = await ShippingAddress.findAll({ where: { userId } });
-    res.json(addresses.map(addr => addr.toJSON()));
+    res.json({ data: addresses }); // Changed to return data wrapper
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
@@ -18,27 +17,25 @@ export const getShippingAddressById = async (req, res) => {
     const userId = req.user.id;
     const address = await ShippingAddress.findOne({ where: { id, userId } });
     if (!address) return res.status(404).json({ message: "Address not found" });
-    res.json(address.toJSON());
+    res.json({ data: address }); // Changed to return data wrapper
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// Create new address
 export const createShippingAddress = async (req, res) => {
   try {
     const userId = req.user.id;
     const { fullname, address, phonenumber } = req.body;
     const newAddress = await ShippingAddress.create({ userId, fullname, address, phonenumber });
-    res.status(201).json(newAddress.toJSON());
+    res.status(201).json({ data: newAddress }); // Changed to return data wrapper
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// Update address
 export const updateShippingAddress = async (req, res) => {
   try {
     const { id } = req.params;
@@ -52,14 +49,13 @@ export const updateShippingAddress = async (req, res) => {
       phonenumber: req.body.phonenumber || address.phonenumber,
     });
 
-    res.json(address.toJSON());
+    res.json({ data: address }); // Changed to return data wrapper
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-// Delete address
 export const deleteShippingAddress = async (req, res) => {
   try {
     const { id } = req.params;

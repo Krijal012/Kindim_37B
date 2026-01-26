@@ -1,68 +1,109 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
+import { toast } from "react-toastify";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import ShippingSection from "../../components/ShippingSection";
 import PaymentMethod from "../../components/PaymentMethod";
 import OrderSummary from "../../components/OrderSummary";
 
-const Checkout = () => {
-  const { callApi } = useApi();
+const Checkout = ({ onLogout }) => {
+  const navigate = useNavigate();
+  const { callApi, loading } = useApi();
 
   const [cartItems, setCartItems] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState(null);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchCartItems = async () => {
-      try {
-        const res = await callApi("GET", "/api/cart");
-        // The data from the cart API is nested. We need to flatten it
-        // for the OrderSummary component to work correctly.
-        const formattedItems = res.data.map(item => ({
-          id: item.id, // Cart Item ID
-          productId: item.Product.id,
-          productName: item.Product.name,
-          price: parseFloat(item.Product.price), // Ensure price is a number
-          quantity: item.quantity,
-        }));
-        setCartItems(formattedItems);
-      } catch (err) {
-        setError("Please login again to continue checkout.");
-        console.error("Failed to fetch cart items:", err.message);
-      }
-    };
-
     fetchCartItems();
-  }, [callApi]);
+  }, []);
 
-  if (error) {
+  const fetchCartItems = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        toast.error("Please login to continue");
+        navigate("/login");
+        return;
+      }
+
+      const res = await callApi("GET", "/api/cart");
+      const items = res.data || res;
+
+      if (!items || items.length === 0) {
+        toast.info("Your cart is empty");
+        navigate("/cart");
+        return;
+      }
+
+      const formattedItems = items.map(item => ({
+        id: item.id,
+        productId: item.Product?.id || item.productId,
+        productName: item.Product?.name || item.productName,
+        price: parseFloat(item.Product?.price || item.price),
+        quantity: item.quantity,
+      }));
+
+      setCartItems(formattedItems);
+    } catch (err) {
+      console.error("Failed to fetch cart:", err);
+      toast.error("Failed to load cart items");
+      navigate("/cart");
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="text-center mt-20 text-red-600 font-semibold">
-        {error}
-      </div>
+      <>
+        <Header onLogout={onLogout} />
+        <main className="min-h-screen bg-gray-50 pt-24 flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600">Loading checkout...</p>
+          </div>
+        </main>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 space-y-8">
-        <ShippingSection
-          selectedAddress={selectedAddress}
-          setSelectedAddress={setSelectedAddress}
-        />
+    <>
+      <Header onLogout={onLogout} />
+      <main className="min-h-screen bg-gray-50 pt-24 pb-10">
+        <div className="max-w-7xl mx-auto px-6">
+          <h1 className="text-3xl font-bold mb-8">Checkout</h1>
 
-        <PaymentMethod
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
-        />
-      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Shipping & Payment */}
+            <div className="lg:col-span-2 space-y-6">
+              <ShippingSection
+                selectedAddress={selectedAddress}
+                setSelectedAddress={setSelectedAddress}
+              />
 
-      <OrderSummary
-        cartItems={cartItems}
-        selectedAddress={selectedAddress}
-        paymentMethod={paymentMethod}
-      />
-    </div>
+              <PaymentMethod
+                paymentMethod={paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+              />
+            </div>
+
+            {/* Right Column - Order Summary */}
+            <div className="lg:col-span-1">
+              <OrderSummary
+                cartItems={cartItems}
+                selectedAddress={selectedAddress}
+                paymentMethod={paymentMethod}
+              />
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </>
   );
 };
 
