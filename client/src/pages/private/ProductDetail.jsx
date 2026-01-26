@@ -126,11 +126,20 @@ const ProductDetail = ({ onLogout }) => {
           toast.info("Removed from wishlist");
         }
       } else {
+        // FIX: Handle different response structures
         const res = await callApi("POST", "/api/wishlist", { productId: product.id });
+        console.log("Wishlist response:", res); // Debug log
         
-        setInWishlist(true);
-        setWishlistItemId(res.data.wishlistItem.id);
-        toast.success("Added to wishlist!");
+        // The response might be structured differently
+        const wishlistItem = res.wishlistItem || res.data?.wishlistItem || res.data || res;
+        
+        if (wishlistItem && wishlistItem.id) {
+          setInWishlist(true);
+          setWishlistItemId(wishlistItem.id);
+          toast.success("Added to wishlist!");
+        } else {
+          throw new Error("Invalid response format");
+        }
       }
     } catch (err) {
       console.error("Wishlist error:", err);

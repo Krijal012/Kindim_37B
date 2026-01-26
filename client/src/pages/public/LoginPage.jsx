@@ -38,7 +38,8 @@ const LoginPage = ({ onLogin }) => {
       const backendData = res.data || res;
 
       if (backendData && backendData.access_token) {
-        localStorage.setItem("access_token", backendData.access_token);
+        // FIX: Changed from "access_token" to "token"
+        localStorage.setItem("token", backendData.access_token);
         localStorage.setItem("userEmail", loginData.email);
         localStorage.setItem("userRole", backendData.role);
 
@@ -48,13 +49,13 @@ const LoginPage = ({ onLogin }) => {
           });
         }
 
-        // ✅ Fixed navigation - customers go to /dashboard
+        // Navigate based on role
         if (backendData.role === "admin") {
-          navigate("/admin-dashboard", { replace: true });
+          navigate("/", { replace: true });
         } else if (backendData.role === "seller") {
-          navigate("/seller-dashboard", { replace: true });
+          navigate("/", { replace: true });
         } else {
-          navigate("/dashboard", { replace: true });
+          navigate("/", { replace: true });
         }
       } else {
         setBackendError("Unexpected response format from server");
