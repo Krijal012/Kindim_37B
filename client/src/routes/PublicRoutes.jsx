@@ -1,8 +1,8 @@
-import { ErrorPage } from "../Pages/public/ErrorPage";
-import {Route} from "react-router-dom";
+import { ErrorPage } from "../pages/public/ErrorPage";
+import { Route } from "react-router-dom";
 
-export function PublicRoutes (){
+export const PublicRoutes = (
     <>
-    <Route key="error" path="*" element={<ErrorPage />} />
-    </>;
-}
+        <Route key="error" path="*" element={<ErrorPage />} />
+    </>
+);
