@@ -58,4 +58,9 @@ function Wishlist() {
           </p>
         )}
       </main>
+      <Footer show={true} />
+    </div>
+  );
+}
+
 
