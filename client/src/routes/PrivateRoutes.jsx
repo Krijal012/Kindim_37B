@@ -33,7 +33,7 @@ const PrivateRoutes = ({ onLogout, userRole }) => {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="/orderhistory" element={<OrderHistoryPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={<ProfilePage onLogout={onLogout} />} />
         <Route path="/compare" element={<ProductComparison />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
