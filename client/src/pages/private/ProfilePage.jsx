@@ -19,6 +19,10 @@ export default function ProfilePage({ onLogout }) {
   const [showHeader, setShowHeader] = useState(true);
   const [showFooter, setShowFooter] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
 
   const fetchProfile = useCallback(async () => {
     const token = localStorage.getItem("token");
@@ -142,7 +146,46 @@ export default function ProfilePage({ onLogout }) {
         return (
           <div className="flex-1 bg-white p-6 rounded-lg shadow max-w-2xl">
             <h2 className="text-2xl font-bold mb-6">Change Password</h2>
-            <form className="space-y-6">
+            <form
+              className="space-y-6"
+              onSubmit={async (e) => {
+                e.preventDefault();
+
+                if (!currentPassword || !newPassword || !confirmNewPassword) {
+                  toast.warn("Please fill all password fields.");
+                  return;
+                }
+
+                if (newPassword.length < 6) {
+                  toast.warn("New password must be at least 6 characters.");
+                  return;
+                }
+
+                if (newPassword !== confirmNewPassword) {
+                  toast.error("New passwords do not match.");
+                  return;
+                }
+
+                try {
+                  setChangingPassword(true);
+                  await callApi("POST", "/auth/change-password", {
+                    currentPassword,
+                    newPassword,
+                    confirmPassword: confirmNewPassword,
+                  });
+
+                  toast.success("Password changed successfully!");
+                  setCurrentPassword("");
+                  setNewPassword("");
+                  setConfirmNewPassword("");
+                } catch (err) {
+                  console.error("Change password error:", err);
+                  toast.error(err?.message || "Failed to change password.");
+                } finally {
+                  setChangingPassword(false);
+                }
+              }}
+            >
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Current Password
@@ -150,6 +193,8 @@ export default function ProfilePage({ onLogout }) {
                 <input
                   type="password"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
                 />
               </div>
               <div>
@@ -159,6 +204,8 @@ export default function ProfilePage({ onLogout }) {
                 <input
                   type="password"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
               <div>
@@ -168,13 +215,16 @@ export default function ProfilePage({ onLogout }) {
                 <input
                   type="password"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
                 />
               </div>
               <button
                 type="submit"
-                className="w-full py-3 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700"
+                disabled={changingPassword}
+                className="w-full py-3 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                Change Password
+                {changingPassword ? "Changing..." : "Change Password"}
               </button>
             </form>
           </div>
