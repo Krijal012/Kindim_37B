@@ -59,6 +59,7 @@ export const register = async (req, res) => {
             email,
             password: hashedPassword,
             role: role || "customer",
+            status: role === "seller" ? "Pending" : "Verified", // Default status logic
         });
 
         res.status(201).json({
@@ -68,6 +69,7 @@ export const register = async (req, res) => {
                 username: user.username,
                 email: user.email,
                 role: user.role,
+                status: user.status,
             },
         });
     } catch (error) {
@@ -75,6 +77,7 @@ export const register = async (req, res) => {
     }
 };
 
+/* ===================== LOGIN ===================== */
 /* ===================== LOGIN ===================== */
 export const login = async (req, res) => {
     try {
@@ -89,21 +92,26 @@ export const login = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        // Check if seller is verified
+        if (user.role === "seller" && user.status !== "Verified") {
+            return res.status(403).json({
+                message: "Your account is pending admin approval. Please wait for verification."
+            });
+        }
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: "Incorrect password" });
         }
 
         // DEBUG: Log the secret being used
-        console.log("JWT_SECRET in login:", process.env.JWT_SECRET);
-        
+        console.log("JWT_SECRET in login uses configured secret");
+
         const access_token = generateToken({
             id: user.id,
             email: user.email,
             role: user.role,
         });
-
-        console.log("Generated token:", access_token.substring(0, 50) + "...");
 
         res.status(200).json({
             message: "Login successful",
@@ -111,6 +119,7 @@ export const login = async (req, res) => {
                 access_token,
                 role: user.role,
                 username: user.username,
+                status: user.status,
             },
         });
     } catch (error) {
@@ -122,9 +131,9 @@ export const login = async (req, res) => {
 export const getAllUsers = async (req, res) => {
     try {
         const users = await Users.findAll({
-            attributes: ["id", "username", "email", "role", "createdAt", "updatedAt"],
+            attributes: ["id", "username", "email", "role", "status", "createdAt", "updatedAt"],
         });
-        res.status(200).json(users);
+        res.status(200).json({ data: users });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -148,7 +157,7 @@ export const getUserById = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     try {
-        const { username, email, password, role } = req.body;
+        const { username, email, password, role, status } = req.body;
         const user = await Users.findByPk(req.params.id);
 
         if (!user) {
@@ -158,6 +167,7 @@ export const updateUser = async (req, res) => {
         if (username) user.username = username;
         if (email) user.email = email;
         if (password) user.password = await bcrypt.hash(password, 10);
+        if (status) user.status = status;
 
         if (role) {
             const validRoles = ["customer", "seller", "admin"];

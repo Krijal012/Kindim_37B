@@ -4,17 +4,19 @@ import {
   getOrdersByUser,
   getOrderById,
   getAllOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  getSellerOrders
 } from "../Controller/orderController.js";
-import { verifyToken } from "../Middleware/authMiddleware.js";
+import { verifyTokenMiddleware } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // Apply authentication to all order routes
-router.use(verifyToken);
+router.use(verifyTokenMiddleware);
 
 router.post("/", createOrder);
-router.get("/all", getAllOrders); // Must be before /:id to avoid conflict if id matches "all" (though UUID prevents this usually)
+router.get("/all", getAllOrders);
+router.get("/seller-orders", getSellerOrders); // Added from Incoming
 router.get("/", getOrdersByUser);
 router.get("/:id", getOrderById);
 router.put("/:id/status", updateOrderStatus);

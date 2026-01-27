@@ -10,7 +10,7 @@ import {
     resetPassword,
     changePassword,
 } from "../Controller/authController.js";
-import { verifyToken } from "../Middleware/authMiddleware.js";
+import { verifyTokenMiddleware } from "../Middleware/authMiddleware.js";
 
 export const authRouter = express.Router();
 
@@ -19,7 +19,7 @@ authRouter.post("/register", register);
 authRouter.post("/login", login);
 authRouter.post("/forgotpass", forgotPassword);
 authRouter.post("/resetpass/:token", resetPassword);
-authRouter.post("/change-password", verifyToken, changePassword);
+authRouter.post("/change-password", verifyTokenMiddleware, changePassword);
 
 // User Management Routes
 authRouter.get("/users", getAllUsers);

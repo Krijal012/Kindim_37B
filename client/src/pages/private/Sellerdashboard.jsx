@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Link } from 'react-router-dom';
 
 const SellerDashboard = ({ onLogout }) => {
   const navigate = useNavigate();
@@ -21,8 +22,6 @@ const SellerDashboard = ({ onLogout }) => {
     description: "",
     image: null,
   });
-
-
 
   useEffect(() => {
     if (activeTab === "products") {
@@ -48,8 +47,8 @@ const SellerDashboard = ({ onLogout }) => {
   // Fetch all orders
   const fetchOrders = async () => {
     try {
-      const res = await callApi("GET", "/api/orders/all");
-      setOrders(res?.data || []);
+      const res = await callApi("GET", "/api/orders/all"); // Adjust endpoint if needed, e.g. /api/orders
+      setOrders(res?.data || []); // Adjust based on actual API response structure
     } catch (err) {
       console.error("Fetch orders failed:", err.message);
       toast.error("Failed to fetch orders");
@@ -162,6 +161,7 @@ const SellerDashboard = ({ onLogout }) => {
       category: product.category,
       description: product.description,
       image: null,
+
     });
     setShowModal(true);
   };
@@ -384,8 +384,6 @@ const SellerDashboard = ({ onLogout }) => {
               </tbody>
             </table>
           ) : (
-            /* Dashboard View - Recent Activity or something could go here, for now just empty or repeat stats if needed, 
-               but stats are already above. We can show recent orders here. */
             <div className="p-8">
               <h3 className="text-lg font-bold text-gray-800 mb-4">Recent Orders</h3>
               <table className="w-full text-left">

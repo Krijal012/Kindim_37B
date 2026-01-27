@@ -5,19 +5,19 @@ import {
   updateShippingAddress,
   deleteShippingAddress,
   getShippingAddressById
-  
+
 } from "../Controller/shippingController.js";
-import { verifyToken } from "../Middleware/authMiddleware.js";
+import { verifyTokenMiddleware } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.use(verifyToken);
+router.use(verifyTokenMiddleware);
 
 router.get("/", getShippingAddresses);
 router.post("/", createShippingAddress);
 router.put("/:id", updateShippingAddress);
 router.delete("/:id", deleteShippingAddress);
-router.get("/:id", getShippingAddressById); 
+router.get("/:id", getShippingAddressById);
 
 
 

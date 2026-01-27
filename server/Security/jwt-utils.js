@@ -3,14 +3,21 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+
 export const generateToken = (payload) => {
-    const secret = process.env.JWT_SECRET || "your-fallback-secret-key-change-this";
-    console.log("Generating token with secret:", secret.substring(0, 10) + "...");
-    return jwt.sign(payload, secret, { expiresIn: "1h" }); // Changed to 1 hour for testing
+  const secret = process.env.JWT_SECRET || "your-fallback-secret-key-change-this";
+  if (!process.env.JWT_SECRET) {
+    console.warn("WARNING: JWT_SECRET not set in .env, using fallback.");
+  }
+  return jwt.sign(payload, secret, { expiresIn: "7d" });
 };
 
 export const verifyToken = (token) => {
+  try {
     const secret = process.env.JWT_SECRET || "your-fallback-secret-key-change-this";
-    console.log("Verifying token with secret:", secret.substring(0, 10) + "...");
     return jwt.verify(token, secret);
+  } catch (error) {
+    console.error("JWT verification failed:", error.message);
+    return null;
+  }
 };

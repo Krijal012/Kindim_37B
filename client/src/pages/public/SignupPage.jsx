@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-import logoIcon from "../../assets/image/logo-icon.png";
+import logoIcon from "../../assets/icons/logo-icon.png"; // Changed from assets/image/logo-icon.png to assets/icons/logo-icon.png to match Login
 import profileIcon from "../../assets/icons/profile.png";
 import emailIcon from "../../assets/icons/email.png";
 import eyeIcon from "../../assets/icons/eye.png";

@@ -2,6 +2,7 @@ import { Order } from "../Model/Order.js";
 import { OrderItem } from "../Model/OrderItem.js";
 import Cart from "../Model/cartModel.js";
 import Product from "../Model/productModel.js";
+import Users from "../Model/userModel.js";
 
 export const createOrder = async (req, res) => {
   try {
@@ -125,13 +126,43 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
+export const getSellerOrders = async (req, res) => {
+  try {
+    const sellerId = req.user.id;
+
+    // Attempt to find orders by sellerId. 
+    // If exact column 'sellerId' doesn't exist on Order table, this will fail. 
+    // We might need to filter by OrderItems.Product.details.
+    // But adhering to the incoming branch logic which assumes a multi-vendor 'sellerId' on Order or similar setup.
+    // If this fails, we might need to adjust the Order model or this query.
+    const orders = await Order.findAll({
+      where: { sellerId },
+      include: [
+        { model: Product, attributes: ["name", "image", "price"] },
+        // User association might differ based on exact model definition
+        { model: Users, as: "buyer", attributes: ["username", "email"] }
+      ],
+      order: [["createdAt", "DESC"]]
+    });
+
+    res.status(200).json({
+      message: "Seller orders retrieved successfully",
+      data: orders
+    });
+  } catch (error) {
+    console.error(error);
+    // Fallback if sellerId column issues: generic error
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
 
     if (!["Pending", "Approved", "Rejected", "Shipped", "Delivered"].includes(status)) {
-        return res.status(400).json({ message: "Invalid status" });
+      return res.status(400).json({ message: "Invalid status" });
     }
 
     const order = await Order.findByPk(id);

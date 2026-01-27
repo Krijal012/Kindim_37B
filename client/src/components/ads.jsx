@@ -54,8 +54,8 @@ const Ads = () => {
         {ads.map((ad, index) => (
           <div
             key={ad.id}
-            className={`absolute inset - 0 transition - opacity duration - 1000 ease -in -out ${index === current ? "opacity-100" : "opacity-0"
-              } `}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === current ? "opacity-100" : "opacity-0"
+              }`}
           >
             {/* Background Image */}
             <img
@@ -76,7 +76,7 @@ const Ads = () => {
                 {ad.desc}
               </p>
               <button
-                onClick={() => navigate(`/ category / ${ad.category} `)}
+                onClick={() => navigate(`/category/${ad.category}`)}
                 className="mt-4 w-fit bg-[#1A73E8] text-white px-5 py-2 rounded-md hover:bg-blue-600 transition"
               >
                 {ad.button}
@@ -87,7 +87,7 @@ const Ads = () => {
 
         {/* LEFT ARROW */}
         <button
-          onClick={prevSlide}
+          onClick={handlePrev}
           className="absolute left-3 top-1/2 -translate-y-1/2
                      w-10 h-10 rounded-full bg-white/80
                      flex items-center justify-center
@@ -98,7 +98,7 @@ const Ads = () => {
 
         {/* RIGHT ARROW */}
         <button
-          onClick={nextSlide}
+          onClick={handleNext}
           className="absolute right-3 top-1/2 -translate-y-1/2
                      w-10 h-10 rounded-full bg-white/80
                      flex items-center justify-center
@@ -121,4 +121,6 @@ const Ads = () => {
       </div>
     </div>
   );
-}
+};
+
+export default Ads;

@@ -30,30 +30,39 @@ const LoginPage = ({ onLogin }) => {
   });
 
   const handleLogin = async (loginData) => {
-    console.log("Login Data Sent:", loginData);
     try {
       setBackendError("");
+      // Backend expects { email, password } directly in body, not wrapped in 'data'
       const res = await callApi("POST", "/auth/login", loginData);
 
-      const backendData = res.data || res;
+      // Response structure: { message: "...", data: { access_token, role, ... } }
+      const backendData = res.data;
 
       if (backendData && backendData.access_token) {
-        // FIX: Changed from "access_token" to "token"
+
+        // Clear previous session data
+        localStorage.clear();
+
+        // Store session data using standard keys
         localStorage.setItem("token", backendData.access_token);
         localStorage.setItem("userEmail", loginData.email);
         localStorage.setItem("userRole", backendData.role);
 
         if (onLogin) {
+          // Use flushSync to ensure state updates before navigation if critical
           flushSync(() => {
             onLogin();
           });
         }
 
+        console.log("Login Successful. Role:", backendData.role);
+        console.log("Navigating to:", backendData.role === "admin" ? "/admin-dashboard" : "/");
+
         // Navigate based on role
         if (backendData.role === "admin") {
-          navigate("/", { replace: true });
+          navigate("/admin-dashboard", { replace: true });
         } else if (backendData.role === "seller") {
-          navigate("/", { replace: true });
+          navigate("/seller-dashboard", { replace: true }); // Backend prevents login if not verified, so safe to redirect
         } else {
           navigate("/", { replace: true });
         }
@@ -61,6 +70,7 @@ const LoginPage = ({ onLogin }) => {
         setBackendError("Unexpected response format from server");
       }
     } catch (err) {
+      // Backend returns 403 for unverified sellers with a specific message
       setBackendError(err.message || "Login failed");
     }
   };
@@ -82,9 +92,8 @@ const LoginPage = ({ onLogin }) => {
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <div
-        className={`w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden bg-white transition-all duration-600 ${
-          isAnimating ? "animate-slide-right" : "animate-slide-in-left"
-        }`}
+        className={`w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden bg-white transition-all duration-600 ${isAnimating ? "animate-slide-right" : "animate-slide-in-left"
+          }`}
       >
         {/* Left Side - Blue Section */}
         <div className="w-1/2 relative">

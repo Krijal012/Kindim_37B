@@ -1,15 +1,15 @@
 import express from "express";
-import { 
-    createBargain, 
-    getBargainsByUser, 
-    updateBargainStatus 
+import {
+    createBargain,
+    getBargainsByUser,
+    updateBargainStatus
 } from "../Controller/bargainController.js";
-import { verifyToken } from "../Middleware/authMiddleware.js";
+import { verifyTokenMiddleware } from "../Middleware/authMiddleware.js";
 import { validateBargain } from "../Middleware/validation.js";
 
 const router = express.Router();
 
-router.use(verifyToken);
+router.use(verifyTokenMiddleware);
 
 router.post("/", validateBargain, createBargain);
 router.get("/", getBargainsByUser);

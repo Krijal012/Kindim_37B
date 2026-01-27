@@ -6,11 +6,11 @@ import {
   removeFromCart,
   updateCartItem,
 } from "../Controller/cartController.js";
-import { verifyToken } from "../Middleware/authMiddleware.js";
+import { verifyTokenMiddleware } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.use(verifyToken);
+router.use(verifyTokenMiddleware);
 
 router.get("/", getCartItems);
 router.post("/", addToCart);

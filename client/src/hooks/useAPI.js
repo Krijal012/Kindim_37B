@@ -15,13 +15,13 @@ export const useApi = () => {
       const token = localStorage.getItem("token");
       const headers = {};
 
-      // DO NOT set Content-Type for FormData
-      if (!(data instanceof FormData)) {
-        headers["Content-Type"] = "application/json";
-      }
-
       if (token) {
         headers.Authorization = `Bearer ${token}`;
+      }
+
+      // DO NOT set Content-Type for FormData, browser sets it with boundary
+      if (!(data instanceof FormData)) {
+        headers["Content-Type"] = "application/json";
       }
 
       const res = await fetch(API_URL + url, {
@@ -31,8 +31,8 @@ export const useApi = () => {
           data instanceof FormData
             ? data
             : data
-            ? JSON.stringify(data)
-            : null,
+              ? JSON.stringify(data)
+              : null,
       });
 
       // Handle non-JSON responses
@@ -75,14 +75,20 @@ export const useApi = () => {
         throw new Error(errorMessage);
       }
 
+      // Normalize response data: ensure we return the data part if wrapper exists
+      // But based on Login, we might need flexibility. 
+      // HEAD's login used `res.data || res`. 
+      // I'll return the raw result and let caller handle it, or standardize.
+      // HEAD returned `result`.
       return result;
+
     } catch (err) {
       const errorMessage = err.message || "Network error occurred";
       setError(errorMessage);
 
-      // Avoid duplicate toast for session expiry; other errors can be toasted by caller if needed.
-      if (!err.message?.includes("Session expired")) {
-        // toast.error(errorMessage);
+      // Avoid duplicate toast for session expiry
+      if (!errorMessage.includes("Session expired")) {
+        // Optional: toast.error(errorMessage);
       }
       throw err;
     } finally {
