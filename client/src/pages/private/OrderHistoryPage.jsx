@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Header } from "../../components/Header";
-import { Footer } from "../../components/Footer";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import OrderHistoryList from "../../components/OrderHistoryList";
-import { useApi } from "../../hooks/useApi";
+import { useApi } from "../../hooks/useAPI";
 
 export default function OrderHistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,14 +13,17 @@ export default function OrderHistoryPage() {
     const fetchOrders = async () => {
       try {
         const res = await callApi("GET", "/api/orders");
-        // The UI expects a flat list of ordered items, not grouped orders.
-        // We will flatten the response from the backend.
-        const formattedOrders = res.data.flatMap(order =>
-          order.OrderItems.map(item => ({
-            id: item.id,
-            productName: item.Product.name,
+        const data = res?.data || res || [];
+
+        // UI expects a flat list of ordered items, not grouped orders.
+        const formattedOrders = (Array.isArray(data) ? data : []).flatMap((order) =>
+          (order.OrderItems || []).map((item) => ({
+            id: `${order.id}-${item.id}`,
+            productName: item.productName,
             price: `Rs. ${item.price}`,
-            image: `http://localhost:5000/uploads/${item.Product.image}`
+            image: item?.Product?.image
+              ? `http://localhost:5000/uploads/${item.Product.image}`
+              : null,
           }))
         );
         setOrders(formattedOrders);

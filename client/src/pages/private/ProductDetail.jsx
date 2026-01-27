@@ -34,6 +34,7 @@ const ProductDetail = ({ onLogout }) => {
         }
       } catch (err) {
         console.error("Error fetching product details:", err);
+        toast.error("Failed to load product details.", { toastId: `product-detail-fetch-${id}` });
       }
     };
     fetchProductDetails();

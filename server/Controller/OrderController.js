@@ -1,6 +1,7 @@
 import { Order } from "../Model/Order.js";
 import { OrderItem } from "../Model/OrderItem.js";
 import Cart from "../Model/cartModel.js";
+import Product from "../Model/productModel.js";
 
 export const createOrder = async (req, res) => {
   try {
@@ -36,6 +37,7 @@ export const createOrder = async (req, res) => {
     // Create order items
     const orderItems = items.map((item) => ({
       orderId: order.id,
+      productId: item.productId ?? null,
       productName: item.productName,
       quantity: item.quantity,
       price: item.price,
@@ -70,7 +72,7 @@ export const getOrdersByUser = async (req, res) => {
 
     const orders = await Order.findAll({
       where: { userId },
-      include: [{ model: OrderItem }],
+      include: [{ model: OrderItem, include: [{ model: Product }] }],
       order: [["createdAt", "DESC"]],
     });
 
@@ -91,7 +93,7 @@ export const getOrderById = async (req, res) => {
 
     const order = await Order.findOne({
       where: { id, userId },
-      include: [{ model: OrderItem }],
+      include: [{ model: OrderItem, include: [{ model: Product }] }],
     });
 
     if (!order) {

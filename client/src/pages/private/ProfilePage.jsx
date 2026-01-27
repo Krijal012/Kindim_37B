@@ -1,31 +1,55 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
+import { toast } from "react-toastify";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import PersonalInfo from "../../components/PersonalInfo";
+import Orders from "../../components/Orders";
+import Payment from "../../components/Payment";
 
 export default function ProfilePage({ onLogout }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { callApi } = useApi();
   const [user, setUser] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState(null);
   const [activeTab, setActiveTab] = useState("profile");
   const [showHeader, setShowHeader] = useState(true);
   const [showFooter, setShowFooter] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await callApi("GET", "/api/profile");
-        setUser(res.data);
-      } catch (err) {
-        console.error("Profile fetch error:", err);
+  const fetchProfile = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.warn("Please login to view your profile.", { toastId: "profile-login-required" });
+      navigate("/login");
+      return;
+    }
+
+    setProfileLoading(true);
+    setProfileError(null);
+
+    try {
+      const res = await callApi("GET", "/api/profile");
+      const data = res?.data ?? res;
+      setUser(data ?? null);
+      if (!data) {
+        setProfileError("Failed to load profile.");
       }
-    };
+    } catch (err) {
+      console.error("Profile fetch error:", err);
+      setUser(null);
+      setProfileError(err?.message || "Failed to load profile.");
+    } finally {
+      setProfileLoading(false);
+    }
+  }, [callApi, navigate]);
+
+  useEffect(() => {
     fetchProfile();
-  }, []);
+  }, [fetchProfile]);
 
   // Handle URL tab parameter
   useEffect(() => {
@@ -59,34 +83,7 @@ export default function ProfilePage({ onLogout }) {
         return <PersonalInfo user={user} setUser={setUser} />;
       
       case "orders":
-        return (
-          <div className="flex-1 bg-white p-6 rounded-lg shadow">
-            <h2 className="text-2xl font-bold mb-6">My Orders</h2>
-            <div className="text-center py-20">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-16 w-16 mx-auto text-gray-400 mb-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                />
-              </svg>
-              <p className="text-gray-500 text-lg">No orders yet</p>
-              <button
-                onClick={() => navigate("/products")}
-                className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-              >
-                Start Shopping
-              </button>
-            </div>
-          </div>
-        );
+        return <Orders />;
       
       case "returns":
         return (
@@ -139,29 +136,7 @@ export default function ProfilePage({ onLogout }) {
         );
       
       case "payment":
-        return (
-          <div className="flex-1 bg-white p-6 rounded-lg shadow">
-            <h2 className="text-2xl font-bold mb-6">Payment Methods</h2>
-            <div className="text-center py-20">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-16 w-16 mx-auto text-gray-400 mb-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                />
-              </svg>
-              <p className="text-gray-500 text-lg">No payment methods saved</p>
-              <p className="text-gray-400 text-sm mt-2">Add a card for faster checkout</p>
-            </div>
-          </div>
-        );
+        return <Payment />;
       
       case "change-password":
         return (
@@ -210,10 +185,39 @@ export default function ProfilePage({ onLogout }) {
     }
   };
 
-  if (!user) {
+  if (profileLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (profileError) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header show={showHeader} onLogout={handleLogout} />
+        <main className="mt-[112px] px-6 py-12">
+          <div className="max-w-xl mx-auto bg-white p-6 rounded-xl border shadow-sm text-center">
+            <h2 className="text-xl font-bold text-gray-900">Couldn’t load your profile</h2>
+            <p className="text-gray-600 mt-2">{profileError}</p>
+            <div className="mt-5 flex justify-center gap-3">
+              <button
+                onClick={fetchProfile}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700"
+              >
+                Retry
+              </button>
+              <button
+                onClick={() => navigate("/")}
+                className="border border-gray-300 px-6 py-2 rounded-lg font-semibold hover:bg-gray-50"
+              >
+                Go Home
+              </button>
+            </div>
+          </div>
+        </main>
+        <Footer show={showFooter} />
       </div>
     );
   }

@@ -39,6 +39,7 @@ function App() {
         draggable
         pauseOnHover
         theme="colored"
+        style={{ top: 90, zIndex: 10000 }}
       />
     </>
   );

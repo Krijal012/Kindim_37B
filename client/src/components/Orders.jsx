@@ -11,7 +11,7 @@ export default function Orders() {
     const fetchOrders = async () => {
       try {
         const res = await callApi("GET", "/api/orders");
-        setOrders(res.data || []);
+        setOrders(res?.data || res || []);
       } catch (err) {
         console.error("Orders fetch error:", err);
       }
@@ -83,19 +83,19 @@ export default function Orders() {
               </div>
 
               <div className="space-y-3">
-                {order.items?.map((item, idx) => (
+                {(order.OrderItems || []).map((item, idx) => (
                   <div key={idx} className="flex gap-4 items-center pb-3 border-b last:border-b-0">
                     <div className="w-20 h-20 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                      {item.image && (
+                      {item?.Product?.image && (
                         <img
-                          src={`http://localhost:5000/uploads/${item.image}`}
-                          alt={item.name}
+                          src={`http://localhost:5000/uploads/${item.Product.image}`}
+                          alt={item.productName}
                           className="w-full h-full object-cover"
                         />
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-800">{item.name}</p>
+                      <p className="font-semibold text-gray-800">{item.productName}</p>
                       <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                       <p className="text-sm font-bold text-blue-600">Rs. {item.price}</p>
                     </div>
@@ -106,8 +106,9 @@ export default function Orders() {
               <div className="mt-4 pt-4 border-t flex justify-between items-center">
                 <div>
                   <p className="text-lg font-bold text-gray-800">
-                    Total: Rs. {order.total}
+                    Total: Rs. {order.totalPrice}
                   </p>
+                  <p className="text-sm text-gray-600">Payment: {order.paymentMethod}</p>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -116,7 +117,7 @@ export default function Orders() {
                   >
                     View Details
                   </button>
-                  {order.status === "delivered" && (
+                  {order.status?.toLowerCase() === "delivered" && (
                     <button
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >

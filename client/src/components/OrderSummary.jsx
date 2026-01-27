@@ -39,6 +39,7 @@ const OrderSummary = ({ cartItems, selectedAddress, paymentMethod }) => {
       const orderData = {
         shippingAddressId: selectedAddress.id,
         items: cartItems.map(item => ({
+          productId: item.productId,
           productName: item.productName,
           quantity: item.quantity,
           price: item.price,

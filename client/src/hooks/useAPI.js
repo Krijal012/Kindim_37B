@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const API_URL = "http://localhost:5000";
 
@@ -6,7 +6,7 @@ export const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const callApi = async (method, url, data = null) => {
+  const callApi = useCallback(async (method, url, data = null) => {
     setLoading(true);
     setError(null);
 
@@ -48,7 +48,7 @@ export const useApi = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return { callApi, loading, error };
 };
