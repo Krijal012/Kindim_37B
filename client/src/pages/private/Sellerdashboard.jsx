@@ -9,7 +9,7 @@ const SellerDashboard = ({ onLogout }) => {
   const { loading, error, callApi } = useApi();
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [activeTab, setActiveTab] = useState("products");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -28,6 +28,9 @@ const SellerDashboard = ({ onLogout }) => {
     if (activeTab === "products") {
       fetchProducts();
     } else if (activeTab === "orders") {
+      fetchOrders();
+    } else if (activeTab === "dashboard") {
+      fetchProducts();
       fetchOrders();
     }
   }, [activeTab]);
@@ -166,23 +169,29 @@ const SellerDashboard = ({ onLogout }) => {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg border-r fixed h-screen">
+      <aside className="w-64 bg-slate-900 shadow-xl border-r border-slate-800 fixed h-screen">
         <div className="p-6">
-          <div className="text-2xl font-bold text-blue-600 mb-10 flex items-center">
+          <div className="text-2xl font-bold text-white mb-10 flex items-center">
             <span className="mr-2">🛒</span> Kindim
           </div>
           <nav className="space-y-2">
             <div
-              onClick={() => setActiveTab("products")}
-              className={`p-3 cursor-pointer font-medium rounded-lg transition-colors ${activeTab === 'products' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-50'}`}
+              onClick={() => setActiveTab("dashboard")}
+              className={`p-3 cursor-pointer font-medium rounded-lg transition-all ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
             >
-              Product Management
+              📊 Dashboard
+            </div>
+            <div
+              onClick={() => setActiveTab("products")}
+              className={`p-3 cursor-pointer font-medium rounded-lg transition-all ${activeTab === 'products' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+            >
+              📦 Product Management
             </div>
             <div
               onClick={() => setActiveTab("orders")}
-              className={`p-3 cursor-pointer font-medium rounded-lg transition-colors ${activeTab === 'orders' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-50'}`}
+              className={`p-3 cursor-pointer font-medium rounded-lg transition-all ${activeTab === 'orders' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
             >
-              Orders
+              🚚 Orders
             </div>
           </nav>
         </div>
@@ -192,7 +201,7 @@ const SellerDashboard = ({ onLogout }) => {
       <main className="flex-1 ml-64 p-8">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800">
-            {activeTab === "products" ? "Product Management" : "Order Management"}
+            {activeTab === "products" ? "Product Management" : activeTab === "orders" ? "Order Management" : "Dashboard Overview"}
           </h1>
           <div className="flex gap-4">
             {activeTab === "products" && (
@@ -217,6 +226,25 @@ const SellerDashboard = ({ onLogout }) => {
 
         {loading && <div className="text-blue-500 animate-pulse font-bold mb-4">Syncing...</div>}
         {error && <div className="text-red-500 bg-red-50 p-3 rounded-lg border border-red-200 mb-4">{error}</div>}
+
+        {activeTab === 'dashboard' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <div className="text-gray-400 text-sm font-bold uppercase mb-2">Total Revenue</div>
+              <div className="text-3xl font-black text-gray-800">
+                Rs. {orders.reduce((acc, order) => acc + (parseFloat(order.totalPrice) || 0), 0).toLocaleString()}
+              </div>
+            </div>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <div className="text-gray-400 text-sm font-bold uppercase mb-2">Total Orders</div>
+              <div className="text-3xl font-black text-gray-800">{orders.length}</div>
+            </div>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <div className="text-gray-400 text-sm font-bold uppercase mb-2">Total Products</div>
+              <div className="text-3xl font-black text-gray-800">{products.length}</div>
+            </div>
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {activeTab === "products" ? (
@@ -280,7 +308,7 @@ const SellerDashboard = ({ onLogout }) => {
                 )}
               </tbody>
             </table>
-          ) : (
+          ) : activeTab === 'orders' ? (
             <table className="w-full text-left">
               <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
                 <tr>
@@ -355,6 +383,42 @@ const SellerDashboard = ({ onLogout }) => {
                 )}
               </tbody>
             </table>
+          ) : (
+            /* Dashboard View - Recent Activity or something could go here, for now just empty or repeat stats if needed, 
+               but stats are already above. We can show recent orders here. */
+            <div className="p-8">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">Recent Orders</h3>
+              <table className="w-full text-left">
+                <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
+                  <tr>
+                    <th className="p-5">Order ID</th>
+                    <th className="p-5">Total</th>
+                    <th className="p-5">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {orders.slice(0, 5).map((order) => (
+                    <tr key={order.id} className="hover:bg-blue-50/30 transition">
+                      <td className="p-5 text-sm text-gray-500 font-mono">{order.id.slice(0, 8)}...</td>
+                      <td className="p-5 font-black text-gray-700">Rs. {order.totalPrice}</td>
+                      <td className="p-5">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${order.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                          order.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                            'bg-yellow-100 text-yellow-700'
+                          }`}>
+                          {order.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {orders.length === 0 && (
+                    <tr>
+                      <td colSpan="3" className="p-10 text-center text-gray-400">No recent orders.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </main>
