@@ -48,20 +48,31 @@ const OrderSummary = ({ cartItems, selectedAddress, paymentMethod }) => {
         totalPrice: total,
       };
 
-      console.log("Placing order:", orderData);
+      console.log("📦 Placing order:", orderData);
 
-      const res = await callApi("POST", "/orders", orderData); // ✅ Fixed - removed /api
+      // ✅ CORRECT: Use /api/orders because API_URL = "http://localhost:5000"
+      // This will become: http://localhost:5000/api/orders
+      const res = await callApi("POST", "/api/orders", orderData);
 
-      console.log("Order response:", res);
+      console.log("✅ Order response:", res);
 
       toast.success("Order placed successfully!");
+      
+      // Clear cart after successful order
+      try {
+        await callApi("DELETE", "/api/cart/clear");
+        console.log("✅ Cart cleared");
+      } catch (clearErr) {
+        console.warn("⚠️ Could not clear cart:", clearErr);
+        // Don't fail the whole order if cart clear fails
+      }
       
       setTimeout(() => {
         navigate("/orderhistory");
       }, 1500);
 
     } catch (err) {
-      console.error("Place order failed:", err);
+      console.error("❌ Place order failed:", err);
       toast.error(err.message || "Failed to place order. Please try again.");
     } finally {
       setIsPlacingOrder(false);

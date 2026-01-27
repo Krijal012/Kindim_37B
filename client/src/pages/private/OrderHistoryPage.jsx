@@ -1,6 +1,8 @@
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Orders from "../../components/Orders";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function OrderHistoryPage({ onLogout }) {
   return (
@@ -12,6 +14,14 @@ export default function OrderHistoryPage({ onLogout }) {
         </div>
       </main>
       <Footer />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }

@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 
@@ -127,14 +126,6 @@ function WishlistPage() {
                 </div>
             </main>
             <Footer />
-            <ToastContainer
-                position="bottom-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                closeOnClick
-                pauseOnHover
-                theme="light"
-            />
         </>
     );
 }

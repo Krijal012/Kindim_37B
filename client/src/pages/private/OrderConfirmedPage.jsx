@@ -2,6 +2,8 @@ import OrderSummary from "../../components/OrderSummary";
 import { OrderItem } from "../../components/OrderItem";
 import { Header } from "../../components/Header";
 import { Footer } from "../../components/Footer";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function OrderConfirmedPage() {
   const orderItems = [
@@ -44,6 +46,14 @@ function OrderConfirmedPage() {
       </div>
     </div>
     <Footer />
+    <ToastContainer
+      position="bottom-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      closeOnClick
+      pauseOnHover
+      theme="light"
+    />
     </>
   );
 }

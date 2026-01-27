@@ -2,7 +2,8 @@ import { BargainForm } from "../../components/BargainForm";
 import { ProductDisplay } from "../../components/ProductDisplay";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useApi } from "../../hooks/useAPI";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -107,6 +108,14 @@ function BargainPage() {
       </div>
     </div>
     <Footer />
+    <ToastContainer
+      position="bottom-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      closeOnClick
+      pauseOnHover
+      theme="light"
+    />
     </>
   );
 }

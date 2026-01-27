@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import ShippingSection from "../../components/ShippingSection";
@@ -66,6 +67,14 @@ const Checkout = ({ onLogout }) => {
           </div>
         </main>
         <Footer />
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          theme="light"
+        />
       </>
     );
   }
@@ -103,6 +112,14 @@ const Checkout = ({ onLogout }) => {
         </div>
       </main>
       <Footer />
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 };
