@@ -30,14 +30,14 @@ export default function ChangePassword() {
     }
 
     try {
-      await callApi("POST", "/api/change-password", {
+      await callApi("POST", "/change-password", { // ✅ Fixed - removed /api
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword,
       });
       setMessage({ type: "success", text: "Password changed successfully!" });
       setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (err) {
-      setMessage({ type: "error", text: err.response?.data?.message || "Failed to change password" });
+      setMessage({ type: "error", text: err.message || "Failed to change password" });
     }
   };
 

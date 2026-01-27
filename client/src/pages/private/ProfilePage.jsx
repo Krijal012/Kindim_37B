@@ -14,14 +14,23 @@ export default function ProfilePage({ onLogout }) {
   const [showHeader, setShowHeader] = useState(true);
   const [showFooter, setShowFooter] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await callApi("GET", "/api/profile");
-        setUser(res.data);
+        setUser(res.data || res);
       } catch (err) {
         console.error("Profile fetch error:", err);
+        // Set a default user object if API fails
+        setUser({
+          name: "User",
+          email: localStorage.getItem("userEmail") || "user@example.com",
+          profileImage: null
+        });
+      } finally {
+        setLoading(false);
       }
     };
     fetchProfile();
@@ -167,7 +176,10 @@ export default function ProfilePage({ onLogout }) {
         return (
           <div className="flex-1 bg-white p-6 rounded-lg shadow max-w-2xl">
             <h2 className="text-2xl font-bold mb-6">Change Password</h2>
-            <form className="space-y-6">
+            <form className="space-y-6" onSubmit={(e) => {
+              e.preventDefault();
+              alert("Password change functionality will be implemented soon!");
+            }}>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Current Password
@@ -175,6 +187,7 @@ export default function ProfilePage({ onLogout }) {
                 <input
                   type="password"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter current password"
                 />
               </div>
               <div>
@@ -184,6 +197,7 @@ export default function ProfilePage({ onLogout }) {
                 <input
                   type="password"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter new password"
                 />
               </div>
               <div>
@@ -193,6 +207,7 @@ export default function ProfilePage({ onLogout }) {
                 <input
                   type="password"
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Confirm new password"
                 />
               </div>
               <button
@@ -210,10 +225,11 @@ export default function ProfilePage({ onLogout }) {
     }
   };
 
-  if (!user) {
+  if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex flex-col justify-center items-center h-screen bg-gray-50">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <p className="mt-4 text-gray-600">Loading profile...</p>
       </div>
     );
   }
@@ -253,8 +269,8 @@ export default function ProfilePage({ onLogout }) {
                   </div>
                 )}
                 <div className="flex-1">
-                  <h3 className="font-semibold text-sm">{user?.name}</h3>
-                  <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                  <h3 className="font-semibold text-sm">{user?.name || "User"}</h3>
+                  <p className="text-xs text-gray-500 truncate">{user?.email || ""}</p>
                 </div>
               </div>
 
@@ -262,10 +278,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("profile")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer ${
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
                       activeTab === "profile"
                         ? "bg-blue-600 text-white font-semibold"
-                        : "hover:bg-gray-100"
+                        : "hover:bg-gray-100 text-gray-700"
                     }`}
                   >
                     My Account
@@ -274,10 +290,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("orders")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer ${
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
                       activeTab === "orders"
                         ? "bg-blue-600 text-white font-semibold"
-                        : "hover:bg-gray-100"
+                        : "hover:bg-gray-100 text-gray-700"
                     }`}
                   >
                     My Orders
@@ -286,10 +302,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("returns")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer ${
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
                       activeTab === "returns"
                         ? "bg-blue-600 text-white font-semibold"
-                        : "hover:bg-gray-100"
+                        : "hover:bg-gray-100 text-gray-700"
                     }`}
                   >
                     Returns & Cancel
@@ -298,10 +314,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("reviews")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer ${
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
                       activeTab === "reviews"
                         ? "bg-blue-600 text-white font-semibold"
-                        : "hover:bg-gray-100"
+                        : "hover:bg-gray-100 text-gray-700"
                     }`}
                   >
                     My Rating & Review
@@ -310,7 +326,7 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => navigate("/wishlist")}
-                    className="w-full text-left px-3 py-2 rounded cursor-pointer hover:bg-gray-100"
+                    className="w-full text-left px-3 py-2 rounded cursor-pointer hover:bg-gray-100 text-gray-700 transition-colors"
                   >
                     My Wishlist
                   </button>
@@ -318,10 +334,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("payment")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer ${
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
                       activeTab === "payment"
                         ? "bg-blue-600 text-white font-semibold"
-                        : "hover:bg-gray-100"
+                        : "hover:bg-gray-100 text-gray-700"
                     }`}
                   >
                     Payment
@@ -330,10 +346,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("change-password")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer ${
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
                       activeTab === "change-password"
                         ? "bg-blue-600 text-white font-semibold"
-                        : "hover:bg-gray-100"
+                        : "hover:bg-gray-100 text-gray-700"
                     }`}
                   >
                     Change Password

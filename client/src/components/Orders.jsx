@@ -10,10 +10,11 @@ export default function Orders() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await callApi("GET", "/api/orders");
-        setOrders(res.data || []);
+        const res = await callApi("GET", "/orders"); // ✅ Fixed - removed /api
+        setOrders(res.data || res || []);
       } catch (err) {
         console.error("Orders fetch error:", err);
+        setOrders([]);
       }
     };
     fetchOrders();

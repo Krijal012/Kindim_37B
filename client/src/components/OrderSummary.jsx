@@ -49,13 +49,12 @@ const OrderSummary = ({ cartItems, selectedAddress, paymentMethod }) => {
 
       console.log("Placing order:", orderData);
 
-      const res = await callApi("POST", "/api/orders", orderData);
+      const res = await callApi("POST", "/orders", orderData); // ✅ Fixed - removed /api
 
       console.log("Order response:", res);
 
       toast.success("Order placed successfully!");
       
-      // Redirect to order confirmation or order history
       setTimeout(() => {
         navigate("/orderhistory");
       }, 1500);
