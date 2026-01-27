@@ -100,3 +100,55 @@ export const getOrderById = async (req, res) => {
     res.status(500).json({ message: err.message || "Failed to fetch order" });
   }
 };
+
+export const getAllOrders = async (req, res) => {
+  try {
+    // In a real multi-vendor app, we would filter by seller's products here.
+    // For now, assuming admin/single-seller view of all orders.
+    const orders = await Order.findAll({
+      include: [
+        {
+          model: OrderItem,
+          include: [{ model: Product }]
+        }
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.status(200).json({
+      message: "All orders retrieved successfully",
+      data: orders,
+    });
+  } catch (err) {
+    console.error("Get all orders error:", err);
+    res.status(500).json({ message: err.message || "Failed to fetch all orders" });
+  }
+};
+
+export const updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!["Pending", "Approved", "Rejected", "Shipped", "Delivered"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const order = await Order.findByPk(id);
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    order.status = status;
+    await order.save();
+
+    res.status(200).json({
+      message: `Order status updated to ${status}`,
+      data: order,
+    });
+  } catch (err) {
+    console.error("Update order status error:", err);
+    res.status(500).json({ message: err.message || "Failed to update order status" });
+  }
+};

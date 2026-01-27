@@ -8,6 +8,8 @@ const SellerDashboard = ({ onLogout }) => {
   const navigate = useNavigate();
   const { loading, error, callApi } = useApi();
   const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [activeTab, setActiveTab] = useState("products");
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
@@ -20,19 +22,49 @@ const SellerDashboard = ({ onLogout }) => {
     image: null,
   });
 
+
+
+  useEffect(() => {
+    if (activeTab === "products") {
+      fetchProducts();
+    } else if (activeTab === "orders") {
+      fetchOrders();
+    }
+  }, [activeTab]);
+
   // Fetch all products
   const fetchProducts = async () => {
     try {
       const res = await callApi("GET", "/api/products");
       setProducts(Array.isArray(res) ? res : (res?.data || []));
     } catch (err) {
-      console.error("Fetch failed:", err.message);
+      console.error("Fetch products failed:", err.message);
     }
   };
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  // Fetch all orders
+  const fetchOrders = async () => {
+    try {
+      const res = await callApi("GET", "/api/orders/all");
+      setOrders(res?.data || []);
+    } catch (err) {
+      console.error("Fetch orders failed:", err.message);
+      toast.error("Failed to fetch orders");
+    }
+  };
+
+  // Update order status
+  const handleUpdateStatus = async (orderId, newStatus) => {
+    try {
+      await callApi("PUT", `/api/orders/${orderId}/status`, { status: newStatus });
+      toast.success(`Order ${newStatus.toLowerCase()} successfully!`);
+      // Update local state
+      setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    } catch (err) {
+      console.error("Update status failed:", err);
+      toast.error("Failed to update status");
+    }
+  };
 
   // Add or Update Product
   const handleSubmit = async (e) => {
@@ -48,11 +80,11 @@ const SellerDashboard = ({ onLogout }) => {
     try {
       if (editingProduct) {
         // Update existing product
-      await callApi("PUT", `/api/products/${editingProduct.id}`, formData);
+        await callApi("PUT", `/api/products/${editingProduct.id}`, formData);
         toast.success("Product updated successfully! 🎉");
       } else {
         // Add new product
-       await callApi("POST", "/api/products", formData);
+        await callApi("POST", "/api/products", formData);
         toast.success("Product added successfully! 🎉");
       }
 
@@ -140,13 +172,16 @@ const SellerDashboard = ({ onLogout }) => {
             <span className="mr-2">🛒</span> Kindim
           </div>
           <nav className="space-y-2">
-            <div className="p-3 text-gray-400 hover:text-blue-600 cursor-pointer font-medium rounded-lg hover:bg-gray-50">
-              Dashboard
-            </div>
-            <div className="p-3 bg-blue-600 text-white rounded-lg shadow-md font-medium">
+            <div
+              onClick={() => setActiveTab("products")}
+              className={`p-3 cursor-pointer font-medium rounded-lg transition-colors ${activeTab === 'products' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-50'}`}
+            >
               Product Management
             </div>
-            <div className="p-3 text-gray-400 hover:text-blue-600 cursor-pointer font-medium rounded-lg hover:bg-gray-50">
+            <div
+              onClick={() => setActiveTab("orders")}
+              className={`p-3 cursor-pointer font-medium rounded-lg transition-colors ${activeTab === 'orders' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-400 hover:text-blue-600 hover:bg-gray-50'}`}
+            >
               Orders
             </div>
           </nav>
@@ -156,17 +191,21 @@ const SellerDashboard = ({ onLogout }) => {
       {/* Main Content */}
       <main className="flex-1 ml-64 p-8">
         <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">Seller Management</h1>
+          <h1 className="text-3xl font-bold text-gray-800">
+            {activeTab === "products" ? "Product Management" : "Order Management"}
+          </h1>
           <div className="flex gap-4">
-            <button
-              onClick={() => {
-                setEditingProduct(null);
-                setShowModal(true);
-              }}
-              className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all"
-            >
-              Add New Product
-            </button>
+            {activeTab === "products" && (
+              <button
+                onClick={() => {
+                  setEditingProduct(null);
+                  setShowModal(true);
+                }}
+                className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all"
+              >
+                Add New Product
+              </button>
+            )}
             <button
               onClick={onLogout}
               className="bg-gray-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-gray-700 transition-all"
@@ -180,66 +219,143 @@ const SellerDashboard = ({ onLogout }) => {
         {error && <div className="text-red-500 bg-red-50 p-3 rounded-lg border border-red-200 mb-4">{error}</div>}
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
-              <tr>
-                <th className="p-5">Image</th>
-                <th className="p-5">Name</th>
-                <th className="p-5">Category</th>
-                <th className="p-5">Price</th>
-                <th className="p-5">Rating</th>
-                <th className="p-5">Status</th>
-                <th className="p-5">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {!products || products.length === 0 ? (
+          {activeTab === "products" ? (
+            <table className="w-full text-left">
+              <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
                 <tr>
-                  <td colSpan="7" className="p-10 text-center text-gray-400">
-                    No products yet. Click "Add New Product" to get started!
-                  </td>
+                  <th className="p-5">Image</th>
+                  <th className="p-5">Name</th>
+                  <th className="p-5">Category</th>
+                  <th className="p-5">Price</th>
+                  <th className="p-5">Rating</th>
+                  <th className="p-5">Status</th>
+                  <th className="p-5">Action</th>
                 </tr>
-              ) : (
-                products.map((p) => (
-                  <tr key={p.id} className="hover:bg-blue-50/30 transition">
-                    <td className="p-5">
-                      <img
-                        src={`http://localhost:5000/uploads/${p.image}`}
-                        className="w-14 h-14 rounded-lg object-cover border shadow-sm"
-                        onError={(e) => e.target.src = "https://placehold.co/100x100?text=No+Image"}
-                        alt={p.name}
-                      />
-                    </td>
-                    <td className="p-5 font-semibold text-gray-700">{p.name}</td>
-                    <td className="p-5 text-gray-600">
-                      <span className="bg-gray-100 px-2 py-1 rounded text-xs">{p.category}</span>
-                    </td>
-                    <td className="p-5 text-blue-600 font-black">Rs. {p.price}</td>
-                    <td className="p-5 text-yellow-500 font-bold">⭐ {p.rating}</td>
-                    <td className="p-5">
-                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span>
-                    </td>
-                    <td className="p-5">
-                      <div className="flex items-center gap-6">
-                        <button
-                          onClick={() => handleEdit(p)}
-                          className="text-blue-500 hover:text-blue-700 font-bold text-sm"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(p.id)}
-                          className="text-red-400 hover:text-red-600 font-bold text-sm transition"
-                        >
-                          Delete
-                        </button>
-                      </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {!products || products.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" className="p-10 text-center text-gray-400">
+                      No products yet. Click "Add New Product" to get started!
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  products.map((p) => (
+                    <tr key={p.id} className="hover:bg-blue-50/30 transition">
+                      <td className="p-5">
+                        <img
+                          src={`http://localhost:5000/uploads/${p.image}`}
+                          className="w-14 h-14 rounded-lg object-cover border shadow-sm"
+                          onError={(e) => e.target.src = "https://placehold.co/100x100?text=No+Image"}
+                          alt={p.name}
+                        />
+                      </td>
+                      <td className="p-5 font-semibold text-gray-700">{p.name}</td>
+                      <td className="p-5 text-gray-600">
+                        <span className="bg-gray-100 px-2 py-1 rounded text-xs">{p.category}</span>
+                      </td>
+                      <td className="p-5 text-blue-600 font-black">Rs. {p.price}</td>
+                      <td className="p-5 text-yellow-500 font-bold">⭐ {p.rating}</td>
+                      <td className="p-5">
+                        <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">Active</span>
+                      </td>
+                      <td className="p-5">
+                        <div className="flex items-center gap-6">
+                          <button
+                            onClick={() => handleEdit(p)}
+                            className="text-blue-500 hover:text-blue-700 font-bold text-sm"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(p.id)}
+                            className="text-red-400 hover:text-red-600 font-bold text-sm transition"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          ) : (
+            <table className="w-full text-left">
+              <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
+                <tr>
+                  <th className="p-5">Order ID</th>
+                  <th className="p-5">Items</th>
+                  <th className="p-5">Total</th>
+                  <th className="p-5">Status</th>
+                  <th className="p-5">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {!orders || orders.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="p-10 text-center text-gray-400">
+                      No orders found.
+                    </td>
+                  </tr>
+                ) : (
+                  orders.map((order) => (
+                    <tr key={order.id} className="hover:bg-blue-50/30 transition">
+                      <td className="p-5 text-sm text-gray-500 font-mono">
+                        {order.id.slice(0, 8)}...
+                      </td>
+                      <td className="p-5">
+                        <div className="space-y-1">
+                          {order.OrderItems?.map((item, idx) => (
+                            <div key={idx} className="text-sm text-gray-700">
+                              <span className="font-bold">{item.quantity}x</span> {item.productName || item.Product?.name}
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="p-5 font-black text-gray-700">
+                        Rs. {order.totalPrice}
+                      </td>
+                      <td className="p-5">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${order.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                          order.status === 'Rejected' ? 'bg-red-100 text-red-700' :
+                            'bg-yellow-100 text-yellow-700'
+                          }`}>
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="p-5">
+                        {order.status === 'Pending' && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleUpdateStatus(order.id, "Approved")}
+                              className="bg-green-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-green-600"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleUpdateStatus(order.id, "Rejected")}
+                              className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-red-600"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        )}
+                        {order.status === 'Approved' && (
+                          <button
+                            onClick={() => handleUpdateStatus(order.id, "Shipped")}
+                            className="bg-blue-500 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-blue-600"
+                          >
+                            Ship Order
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </main>
 
