@@ -296,8 +296,11 @@ const ProductDetail = ({ onLogout }) => {
               </button>
             </div>
 
-            <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all">
-              Buy Now
+            <button
+              onClick={() => navigate(`/bargain/${product.id}`, { state: { product } })}
+              className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all"
+            >
+              Bargain Here
             </button>
           </div>
         </div>

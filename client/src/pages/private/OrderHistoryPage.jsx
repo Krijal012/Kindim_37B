@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import OrderHistoryList from "../../components/OrderHistoryList";
 import { useApi } from "../../hooks/useAPI";
 
 export default function OrderHistoryPage() {
@@ -34,10 +33,6 @@ export default function OrderHistoryPage() {
     fetchOrders();
   }, [callApi]);
 
-  const filteredOrders = orders.filter(order =>
-    order.productName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   if (loading) {
     return (
       <>
@@ -52,6 +47,10 @@ export default function OrderHistoryPage() {
       </>
     );
   }
+
+  const filteredOrders = orders.filter(order =>
+    order.productName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <>
@@ -69,7 +68,25 @@ export default function OrderHistoryPage() {
             className="w-64 border rounded-md px-4 py-2 outline-none"
           />
         </div>
-        <OrderHistoryList orders={filteredOrders} />
+        {filteredOrders.length === 0 ? (
+          <div className="text-center text-gray-500 py-10">No orders found</div>
+        ) : (
+          <div className="space-y-4">
+            {filteredOrders.map((order) => (
+              <div key={order.id} className="bg-white rounded-lg shadow-sm border p-4 flex items-center gap-4">
+                <div className="w-16 h-16 bg-gray-200 rounded overflow-hidden flex-shrink-0">
+                  {order.image ? (
+                    <img src={order.image} alt={order.productName} className="w-full h-full object-cover" />
+                  ) : null}
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900">{order.productName}</p>
+                  <p className="text-gray-600 text-sm">{order.price}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </main>
       <Footer />
     </>

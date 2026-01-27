@@ -3,7 +3,7 @@ import {
   createOrder, 
   getOrdersByUser, 
   getOrderById 
-} from "../Controller/OrderController.js";
+} from "../Controller/orderController.js";
 import { verifyToken } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();

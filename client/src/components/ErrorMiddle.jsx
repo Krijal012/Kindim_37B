@@ -1,5 +1,3 @@
-
-import errorpage from "../assets/errorpage.png";
 function ErrorMiddle() {
     const handleReload = () => {
         window.location.reload();
@@ -45,7 +43,7 @@ function ErrorMiddle() {
 
             {/* Right Side - Empty Box/Placeholder */}
            <img 
-                src={errorpage} 
+                src="https://via.placeholder.com/800x600?text=404+Not+Found" 
                 alt="Error Page" 
                 className="w-full max-w-md lg:max-w-lg h-auto object-contain"
            />

@@ -9,6 +9,7 @@ import { wishlistRouter } from "./Routes/wishlistRoutes.js";
 import shippingRoutes from "./Routes/shippingRoutes.js";
 import orderRoutes from "./Routes/orderRoutes.js";
 import profileRoutes from "./Routes/profile.js";
+import bargainRoutes from "./Routes/bargainRoutes.js";
 
 import Wishlist from "./Model/wishlistModel.js";
 import Product from "./Model/productModel.js";
@@ -34,6 +35,7 @@ app.use("/api/wishlist", wishlistRouter);
 app.use("/api/shipping", shippingRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/bargains", bargainRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);
