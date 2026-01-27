@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "react-toastify";
 
 const API_URL = "http://localhost:5000";
@@ -7,13 +7,12 @@ export const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const callApi = async (method, url, data = null) => {
+  const callApi = useCallback(async (method, url, data = null) => {
     setLoading(true);
     setError(null);
 
     try {
       const token = localStorage.getItem("token");
-
       const headers = {};
 
       // DO NOT set Content-Type for FormData
@@ -36,54 +35,60 @@ export const useApi = () => {
             : null,
       });
 
-      const result = await res.json();
+      // Handle non-JSON responses
+      let result;
+      const contentType = res.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
+        result = await res.json();
+      } else {
+        const text = await res.text();
+        result = { message: text || "Request completed" };
+      }
 
       // Handle 401 Unauthorized - Token expired or invalid
       if (res.status === 401) {
         const errorMessage = result.message || "Session expired";
-        
-        // Check if it's a token expiration or invalid token
+
         if (
           errorMessage.toLowerCase().includes("token expired") ||
           errorMessage.toLowerCase().includes("invalid token") ||
           errorMessage.toLowerCase().includes("no token")
         ) {
-          // Clear authentication data
           localStorage.removeItem("token");
           localStorage.removeItem("userRole");
           localStorage.removeItem("userEmail");
-          
-          // Show notification
+
           toast.error("Your session has expired. Please login again.");
-          
-          // Redirect to login after a short delay
+
           setTimeout(() => {
             window.location.href = "/login";
           }, 1500);
-          
+
           throw new Error("Session expired");
         }
       }
 
       if (!res.ok) {
-        throw new Error(result.message || "Request failed");
+        const errorMessage = result.message || `Request failed with status ${res.status}`;
+        setError(errorMessage);
+        throw new Error(errorMessage);
       }
 
       return result;
     } catch (err) {
-      setError(err.message);
-      
-      // Don't show toast for session expired (already shown above)
-      if (!err.message.includes("Session expired")) {
-        // Optionally show toast for other errors
-        // toast.error(err.message);
+      const errorMessage = err.message || "Network error occurred";
+      setError(errorMessage);
+
+      // Avoid duplicate toast for session expiry; other errors can be toasted by caller if needed.
+      if (!err.message?.includes("Session expired")) {
+        // toast.error(errorMessage);
       }
-      
       throw err;
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   return { callApi, loading, error };
 };

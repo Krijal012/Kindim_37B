@@ -1,5 +1,4 @@
-// src/pages/private/ProductDetail.jsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useApi } from "../../hooks/useAPI";
 import { toast, ToastContainer } from "react-toastify";
@@ -10,7 +9,7 @@ import Footer from "../../components/Footer";
 const ProductDetail = ({ onLogout }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { loading, error, callApi } = useApi();
+  const { loading, callApi } = useApi();
   const [product, setProduct] = useState(null);
 
   // State for selections
@@ -23,22 +22,24 @@ const ProductDetail = ({ onLogout }) => {
   const [wishlistItemId, setWishlistItemId] = useState(null);
 
   useEffect(() => {
-    const fetchProductDetails = async () => {
-      try {
-        const res = await callApi("GET", `/api/products/${id}`);
-        setProduct(res.data || res);
-        
-        // Only check wishlist if user is logged in
-        const token = localStorage.getItem("token");
-        if (token) {
-          checkWishlistStatus();
-        }
-      } catch (err) {
-        console.error("Error fetching product details:", err);
-      }
-    };
     fetchProductDetails();
   }, [id]);
+
+  const fetchProductDetails = async () => {
+    try {
+      const res = await callApi("GET", `/api/products/${id}`);
+      setProduct(res.data || res);
+      
+      // Only check wishlist if user is logged in
+      const token = localStorage.getItem("token");
+      if (token) {
+        checkWishlistStatus();
+      }
+    } catch (err) {
+      console.error("Error fetching product details:", err);
+      toast.error("Failed to load product details");
+    }
+  };
 
   const checkWishlistStatus = async () => {
     try {
@@ -50,7 +51,6 @@ const ProductDetail = ({ onLogout }) => {
       }
 
       const res = await callApi("GET", "/api/wishlist");
-
       const wishlistArray = Array.isArray(res) ? res : (res?.data || []);
       const wishlistItem = wishlistArray.find(item => item.productId === parseInt(id));
 
@@ -72,16 +72,19 @@ const ProductDetail = ({ onLogout }) => {
     const newQuantity = quantity + change;
     if (newQuantity >= 1) {
       setQuantity(newQuantity);
+    } else {
+      toast.warning("Quantity cannot be less than 1");
     }
   };
 
   const handleAddToCart = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.warn("Please login to add items to cart.");
+      toast.warning("Please login to add items to cart");
       navigate("/login");
       return;
     }
+
     try {
       setAddingToCart(true);
 
@@ -97,7 +100,7 @@ const ProductDetail = ({ onLogout }) => {
     } catch (err) {
       console.error("Add to cart failed:", err);
       if (err.message === "No token provided" || err.response?.status === 401) {
-        toast.warn("Please login to add items to cart.");
+        toast.warning("Please login to add items to cart");
         navigate("/login");
       } else {
         toast.error(err.message || "Failed to add to cart");
@@ -108,30 +111,29 @@ const ProductDetail = ({ onLogout }) => {
   };
 
   const handleWishlistToggle = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.warn("Please login to use your wishlist.");
-        navigate("/login");
-        return;
-      }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.warning("Please login to use wishlist");
+      navigate("/login");
+      return;
+    }
 
+    try {
       setAddingToWishlist(true);
       
       if (inWishlist) {
+        // Remove from wishlist
         if (wishlistItemId) {
           await callApi("DELETE", `/api/wishlist/${wishlistItemId}`);
-          
           setInWishlist(false);
           setWishlistItemId(null);
-          toast.info("Removed from wishlist");
+          toast.success("Removed from wishlist");
         }
       } else {
-        // FIX: Handle different response structures
+        // Add to wishlist
         const res = await callApi("POST", "/api/wishlist", { productId: product.id });
-        console.log("Wishlist response:", res); // Debug log
         
-        // The response might be structured differently
+        // Handle different response structures
         const wishlistItem = res.wishlistItem || res.data?.wishlistItem || res.data || res;
         
         if (wishlistItem && wishlistItem.id) {
@@ -145,10 +147,10 @@ const ProductDetail = ({ onLogout }) => {
     } catch (err) {
       console.error("Wishlist error:", err);
       if (err.message === "No token provided" || err.response?.status === 401) {
-        toast.warn("Please login to use your wishlist.");
+        toast.warning("Please login to use wishlist");
         navigate("/login");
       } else {
-        toast.error(err.message || "Something went wrong");
+        toast.error(err.message || "Failed to update wishlist");
       }
     } finally {
       setAddingToWishlist(false);
@@ -164,8 +166,40 @@ const ProductDetail = ({ onLogout }) => {
     { name: "Yellow", hex: "#F59E0B" }
   ];
 
-  if (loading) return <div className="mt-20 text-center">Loading...</div>;
-  if (!product) return <div className="mt-20 text-center">Product not found.</div>;
+  if (loading) {
+    return (
+      <>
+        <Header onLogout={onLogout} />
+        <main className="mt-20 min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p className="mt-4 text-gray-600">Loading product...</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  if (!product) {
+    return (
+      <>
+        <Header onLogout={onLogout} />
+        <main className="mt-20 min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-gray-600 text-lg mb-4">Product not found</p>
+            <button
+              onClick={() => navigate("/")}
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+            >
+              Back to Home
+            </button>
+          </div>
+        </main>
+        <Footer />
+      </>
+    );
+  }
 
   const imageUrl = product.image
     ? (product.image.startsWith('http') ? product.image : `http://localhost:5000/uploads/${product.image}`)
@@ -178,6 +212,7 @@ const ProductDetail = ({ onLogout }) => {
 
         <div className="bg-white rounded-3xl p-8 shadow-sm flex flex-col md:flex-row gap-10">
 
+          {/* Product Images */}
           <div className="flex-1">
             <div className="bg-gray-100 rounded-2xl overflow-hidden mb-4 border">
               <img
@@ -204,8 +239,10 @@ const ProductDetail = ({ onLogout }) => {
             </div>
           </div>
 
+          {/* Product Details */}
           <div className="flex-1 space-y-6">
             <h1 className="text-3xl font-bold text-gray-800">{product.name}</h1>
+            
             <div className="flex items-center gap-4">
               <p className="text-2xl font-black text-blue-600">Rs. {product.price}</p>
               <div className="flex items-center gap-1">
@@ -214,6 +251,7 @@ const ProductDetail = ({ onLogout }) => {
               </div>
             </div>
 
+            {/* Color Selection */}
             <div>
               <label className="text-sm font-bold text-gray-400 uppercase">Color</label>
               <div className="flex gap-3 mt-2">
@@ -221,10 +259,11 @@ const ProductDetail = ({ onLogout }) => {
                   <button
                     key={color.name}
                     onClick={() => setSelectedColor(color.name)}
-                    className={`w-12 h-12 rounded-full border-2 transition-all ${selectedColor === color.name
+                    className={`w-12 h-12 rounded-full border-2 transition-all ${
+                      selectedColor === color.name
                         ? 'border-blue-600 scale-110 shadow-lg'
                         : 'border-gray-300 hover:border-gray-400'
-                      }`}
+                    }`}
                     style={{ backgroundColor: color.hex }}
                     title={color.name}
                   />
@@ -233,6 +272,7 @@ const ProductDetail = ({ onLogout }) => {
               <p className="text-sm text-gray-600 mt-2">Selected: {selectedColor}</p>
             </div>
 
+            {/* Size Selection */}
             <div>
               <label className="text-sm font-bold text-gray-400 uppercase">Size</label>
               <div className="flex gap-3 mt-2">
@@ -240,10 +280,11 @@ const ProductDetail = ({ onLogout }) => {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`border px-6 py-2 rounded-lg font-medium transition ${selectedSize === size
+                    className={`border px-6 py-2 rounded-lg font-medium transition ${
+                      selectedSize === size
                         ? 'bg-blue-600 text-white border-blue-600'
                         : 'border-gray-300 hover:border-blue-400'
-                      }`}
+                    }`}
                   >
                     {size}
                   </button>
@@ -251,6 +292,7 @@ const ProductDetail = ({ onLogout }) => {
               </div>
             </div>
 
+            {/* Quantity Selection */}
             <div>
               <label className="text-sm font-bold text-gray-400 uppercase">Quantity</label>
               <div className="flex items-center gap-4 mt-2">
@@ -270,6 +312,7 @@ const ProductDetail = ({ onLogout }) => {
               </div>
             </div>
 
+            {/* Action Buttons */}
             <div className="flex gap-4 pt-4">
               <button
                 onClick={handleAddToCart}
@@ -296,12 +339,16 @@ const ProductDetail = ({ onLogout }) => {
               </button>
             </div>
 
-            <button className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all">
-              Buy Now
+            <button
+              onClick={() => navigate(`/bargain/${product.id}`, { state: { product } })}
+              className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all"
+            >
+              Bargain Here
             </button>
           </div>
         </div>
 
+        {/* Product Details Section */}
         <div className="mt-8 bg-gray-200 p-8 rounded-2xl shadow-inner border border-gray-300">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">Product Details</h2>
           <div className="bg-white p-6 rounded-xl">
@@ -321,6 +368,7 @@ const ProductDetail = ({ onLogout }) => {
           </div>
         </div>
 
+        {/* Customer Reviews Section */}
         <div className="mt-8 bg-gray-200 p-8 rounded-2xl shadow-inner border border-gray-300">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Customer Reviews</h2>
           <div className="space-y-4">
@@ -341,6 +389,7 @@ const ProductDetail = ({ onLogout }) => {
           </div>
         </div>
 
+        {/* Questions & Answers Section */}
         <div className="mt-8 bg-gray-200 p-8 rounded-2xl shadow-inner border border-gray-300">
           <h2 className="text-2xl font-bold text-gray-800 mb-6">Questions & Answers</h2>
           <div className="space-y-4">
@@ -361,7 +410,10 @@ const ProductDetail = ({ onLogout }) => {
                 placeholder="Have a question? Ask here..."
               />
               <div className="flex justify-end mt-3">
-                <button className="bg-blue-600 text-white px-12 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md">
+                <button 
+                  onClick={() => toast.info("Question submission feature coming soon!")}
+                  className="bg-blue-600 text-white px-12 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md"
+                >
                   Submit Question
                 </button>
               </div>

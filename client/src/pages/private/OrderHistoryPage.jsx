@@ -1,9 +1,8 @@
-import React from "react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Orders from "../../components/Orders";
 
-const OrderHistoryPage = ({ onLogout }) => {
+export default function OrderHistoryPage({ onLogout }) {
   return (
     <>
       <Header onLogout={onLogout} />
@@ -15,6 +14,4 @@ const OrderHistoryPage = ({ onLogout }) => {
       <Footer />
     </>
   );
-};
-
-export default OrderHistoryPage;
+}

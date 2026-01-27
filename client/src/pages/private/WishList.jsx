@@ -21,6 +21,7 @@ function WishlistPage() {
             const token = localStorage.getItem("token");
 
             if (!token) {
+                toast.warn("Please login to view your wishlist.", { toastId: "wishlist-login-required" });
                 navigate("/login");
                 return;
             }
@@ -32,6 +33,7 @@ function WishlistPage() {
         } catch (err) {
             console.error("Failed to fetch wishlist:", err);
             setWishlistItems([]);
+            toast.error("Failed to load wishlist items.", { toastId: "wishlist-fetch-failed" });
         }
     };
 

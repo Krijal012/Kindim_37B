@@ -21,6 +21,7 @@ function CartPage() {
             const token = localStorage.getItem("token");
 
             if (!token) {
+                toast.warn("Please login to view your cart.", { toastId: "cart-login-required" });
                 navigate("/login");
                 return;
             }
@@ -30,6 +31,7 @@ function CartPage() {
             setCartItems(Array.isArray(res) ? res : (res?.data || []));
         } catch (err) {
             console.error("Failed to fetch cart:", err);
+            toast.error("Failed to load cart items.", { toastId: "cart-fetch-failed" });
         }
     };
 
@@ -38,7 +40,10 @@ function CartPage() {
         if (!item) return;
 
         const newQuantity = item.quantity + change;
-        if (newQuantity < 1) return;
+        if (newQuantity < 1) {
+            toast.warn("Quantity can't be less than 1.", { toastId: `cart-qty-min-${cartId}` });
+            return;
+        }
 
         try {
             await callApi("PUT", `/api/cart/${cartId}`, { quantity: newQuantity });
@@ -46,8 +51,15 @@ function CartPage() {
             setCartItems(cartItems.map(item =>
                 item.id === cartId ? { ...item, quantity: newQuantity } : item
             ));
+            toast.success("Cart quantity updated.", { toastId: `cart-qty-updated-${cartId}` });
         } catch (err) {
             console.error("Failed to update quantity:", err);
+            if (err.message === "No token provided" || err.response?.status === 401) {
+                toast.warn("Please login to update your cart.", { toastId: "cart-login-update-required" });
+                navigate("/login");
+            } else {
+                toast.error("Failed to update quantity.", { toastId: `cart-qty-update-failed-${cartId}` });
+            }
         }
     };
 

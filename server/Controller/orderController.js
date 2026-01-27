@@ -1,14 +1,12 @@
 import { Order } from "../Model/Order.js";
 import { OrderItem } from "../Model/OrderItem.js";
 import Cart from "../Model/cartModel.js";
+import Product from "../Model/productModel.js";
 
 export const createOrder = async (req, res) => {
   try {
     const userId = req.user.id; // From JWT token
     const { shippingAddressId, items, paymentMethod, totalPrice } = req.body;
-
-    console.log("Creating order for user:", userId);
-    console.log("Order data:", { shippingAddressId, items, paymentMethod, totalPrice });
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No order items provided" });
@@ -31,11 +29,10 @@ export const createOrder = async (req, res) => {
       status: "Pending",
     });
 
-    console.log("Order created:", order.id);
-
     // Create order items
     const orderItems = items.map((item) => ({
       orderId: order.id,
+      productId: item.productId ?? null,
       productName: item.productName,
       quantity: item.quantity,
       price: item.price,
@@ -43,12 +40,8 @@ export const createOrder = async (req, res) => {
 
     await OrderItem.bulkCreate(orderItems);
 
-    console.log("Order items created:", orderItems.length);
-
     // Clear user's cart after successful order
     await Cart.destroy({ where: { userId } });
-
-    console.log("Cart cleared for user:", userId);
 
     res.status(201).json({
       message: "Order placed successfully",
@@ -70,7 +63,7 @@ export const getOrdersByUser = async (req, res) => {
 
     const orders = await Order.findAll({
       where: { userId },
-      include: [{ model: OrderItem }],
+      include: [{ model: OrderItem, include: [{ model: Product }] }],
       order: [["createdAt", "DESC"]],
     });
 
@@ -91,7 +84,7 @@ export const getOrderById = async (req, res) => {
 
     const order = await Order.findOne({
       where: { id, userId },
-      include: [{ model: OrderItem }],
+      include: [{ model: OrderItem, include: [{ model: Product }] }],
     });
 
     if (!order) {

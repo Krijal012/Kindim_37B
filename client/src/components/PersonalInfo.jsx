@@ -1,17 +1,19 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useApi } from "../hooks/useApi";
 import { profileSchema } from "../schema/profile.schemas";
+import { toast } from "react-toastify";
 
 export default function PersonalInfo({ user, setUser }) {
+  const navigate = useNavigate();
   const { register, handleSubmit, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(profileSchema),
   });
 
   const [preview, setPreview] = useState(user?.profileImage ? `http://localhost:5000${user.profileImage}` : null);
   const { callApi, loading, error } = useApi();
-  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     if (user) {
@@ -34,11 +36,17 @@ export default function PersonalInfo({ user, setUser }) {
 
       const res = await callApi("POST", "/api/profile", formData);
 
-      setUser(res.data.user);
-      setPreview(res.data.user.profileImage ? `http://localhost:5000${res.data.user.profileImage}` : null);
-      setSuccessMessage("Profile updated successfully!");
+      const updatedUser = res?.data?.user ?? res?.user ?? res?.data ?? res;
+      if (updatedUser) {
+        setUser(updatedUser);
+        setPreview(
+          updatedUser.profileImage ? `http://localhost:5000${updatedUser.profileImage}` : null
+        );
+      }
+      toast.success("Profile updated successfully!");
     } catch (err) {
       console.error(err);
+      toast.error(err?.message || "Failed to update profile");
     }
   };
 
@@ -50,10 +58,16 @@ export default function PersonalInfo({ user, setUser }) {
       await callApi("DELETE", "/api/profile");
       setUser(null);
       setPreview(null);
-      setSuccessMessage("Account deleted successfully!");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      toast.success("Account deleted successfully!");
+
+      // Log out locally + redirect
+      localStorage.removeItem("token");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userEmail");
+      navigate("/login", { replace: true });
     } catch (err) {
       console.error(err);
+      toast.error(err?.message || "Failed to delete account");
     }
   };
 
@@ -104,7 +118,6 @@ export default function PersonalInfo({ user, setUser }) {
         </button>
       </div>
 
-      {successMessage && <p className="text-green-500 mt-2">{successMessage}</p>}
       {error && <p className="text-red-500 mt-2">{error}</p>}
     </form>
   );
