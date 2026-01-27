@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { toast } from "react-toastify";
 
 const API_URL = "http://localhost:5000";
 
@@ -35,15 +36,31 @@ export const useApi = () => {
             : null,
       });
 
-      const result = await res.json();
+      // Handle non-JSON responses
+      let result;
+      const contentType = res.headers.get("content-type");
+      
+      if (contentType && contentType.includes("application/json")) {
+        result = await res.json();
+      } else {
+        const text = await res.text();
+        result = { message: text || "Request completed" };
+      }
 
       if (!res.ok) {
-        throw new Error(result.message || "Request failed");
+        const errorMessage = result.message || `Request failed with status ${res.status}`;
+        setError(errorMessage);
+        
+        // Don't show toast here - let components handle it
+        throw new Error(errorMessage);
       }
 
       return result;
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err.message || "Network error occurred";
+      setError(errorMessage);
+      
+      // Don't show toast here - let components handle it
       throw err;
     } finally {
       setLoading(false);
