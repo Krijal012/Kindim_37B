@@ -166,9 +166,9 @@ const ProductDetail = ({ onLogout }) => {
   if (loading) return <div className="mt-20 text-center">Loading...</div>;
   if (!product) return <div className="mt-20 text-center">Product not found.</div>;
 
-  const imageUrl = product.image?.startsWith('http') 
-    ? product.image 
-    : `http://localhost:5000/uploads/${product.image}`;
+  const imageUrl = product.image
+    ? (product.image.startsWith('http') ? product.image : `http://localhost:5000/uploads/${product.image}`)
+    : 'https://placehold.co/400?text=No+Image';
 
   return (
     <>
@@ -184,7 +184,7 @@ const ProductDetail = ({ onLogout }) => {
                 className="w-full h-[400px] object-contain"
                 alt={product.name}
                 onError={(e) => {
-                  e.target.src = 'https://via.placeholder.com/400?text=No+Image';
+                  e.target.src = 'https://placehold.co/400?text=No+Image';
                 }}
               />
             </div>
@@ -196,7 +196,7 @@ const ProductDetail = ({ onLogout }) => {
                   className="w-20 h-20 rounded-lg border object-cover cursor-pointer hover:border-blue-500"
                   alt="thumbnail"
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/80?text=No+Image';
+                    e.target.src = 'https://placehold.co/80?text=No+Image';
                   }}
                 />
               ))}

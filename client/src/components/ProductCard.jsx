@@ -2,23 +2,25 @@ import { Link } from "react-router-dom";
 
 export default function ProductCard({ product }) {
   // FIX: Add full URL path for images
-  const imageUrl = product.image?.startsWith('http') 
-    ? product.image 
-    : `http://localhost:5000/uploads/${product.image}`;
+  const imageUrl = product?.image
+    ? (product.image.startsWith('http')
+      ? product.image
+      : `http://localhost:5000/uploads/${product.image}`)
+    : 'https://placehold.co/150?text=No+Image';
 
   return (
     <Link
-      to={`/product/${product.id}`}
-      className="border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 block"
+      to={`/product/${product?.id}`}
+      className="border rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-200 block bg-white"
     >
-      <div className="relative bg-cyan-400 p-4 flex items-center justify-center h-40">
+      <div className="relative bg-gray-100 p-4 flex items-center justify-center h-48">
         <img
           src={imageUrl}
-          alt={product.name}
-          className="max-h-full object-contain"
+          alt={product?.name}
+          className="w-full h-full object-contain mix-blend-multiply"
           onError={(e) => {
             // Fallback image if loading fails
-            e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+            e.target.src = 'https://placehold.co/150?text=No+Image';
           }}
         />
 

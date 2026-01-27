@@ -135,9 +135,9 @@ function WishlistItem({ item, onRemove, onAddToCart }) {
         return null;
     }
 
-    const imageUrl = product.image?.startsWith('http') 
-        ? product.image 
-        : `http://localhost:5000/uploads/${product.image}`;
+    const imageUrl = product.image
+        ? (product.image.startsWith('http') ? product.image : `http://localhost:5000/uploads/${product.image}`)
+        : 'https://placehold.co/150?text=No+Image';
 
     return (
         <div className="flex items-center gap-6 p-4 border border-gray-200 rounded-lg hover:shadow-md transition">
@@ -147,7 +147,7 @@ function WishlistItem({ item, onRemove, onAddToCart }) {
                     alt={product.name}
                     className="w-24 h-24 object-cover rounded-lg"
                     onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/96?text=No+Image';
+                        e.target.src = 'https://placehold.co/96?text=No+Image';
                     }}
                 />
             </div>
