@@ -25,7 +25,7 @@ const ForgotPassword = () => {
     setMessage("");
     try {
       const res = await callApi("POST", "/auth/forgotpass", data);
-      setMessage(res.data.message || "Check your email for a reset link!");
+      setMessage(res.message || res.data?.message || "Check your email for a reset link!");
     } catch (err) {
       setMessage(err.message);
     }
