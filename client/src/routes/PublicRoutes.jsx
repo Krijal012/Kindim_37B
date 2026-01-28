@@ -40,6 +40,7 @@ const PublicRoutes = ({ onLogin }) => {
       }
     >
       <Routes>
+        {/* <Route path="/welcome" element={<WelcomePage />} /> */}
         <Route path="/login" element={<LoginPage onLogin={onLogin} />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
