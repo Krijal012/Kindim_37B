@@ -12,7 +12,7 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token"); // Extract token from URL
-  
+
   const { loading, error, callApi } = useApi();
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -58,11 +58,11 @@ const ResetPassword = () => {
 
   return (
     <div
-      className="flex items-center justify-center min-h-screen bg-cover bg-center p-4"
+      className="flex items-center justify-center min-h-screen bg-cover bg-center p-4 sm:p-6"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      <div className="bg-white p-10 rounded-2xl shadow-lg w-[450px]">
-        <h2 className="text-3xl mb-2 text-center font-bold">Reset Password</h2>
+      <div className="bg-white p-6 sm:p-10 rounded-2xl shadow-lg w-full max-w-[450px] mx-2">
+        <h2 className="text-2xl sm:text-3xl mb-2 text-center font-bold">Reset Password</h2>
         <p className="text-sm text-gray-600 mb-6 text-center">
           Enter your new password below
         </p>
@@ -70,11 +70,10 @@ const ResetPassword = () => {
         {/* Error or Success Message */}
         {message && (
           <p
-            className={`text-sm mb-4 text-center p-3 rounded ${
-              error || message.includes("Failed") || message.includes("Invalid")
+            className={`text-sm mb-4 text-center p-3 rounded ${error || message.includes("Failed") || message.includes("Invalid")
                 ? "bg-red-100 text-red-600"
                 : "bg-green-100 text-green-600"
-            }`}
+              }`}
           >
             {message}
           </p>

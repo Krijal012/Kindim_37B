@@ -58,16 +58,16 @@ const SignupPage = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center p-4 overflow-hidden"
+      className="min-h-screen flex items-center justify-center bg-cover bg-center p-2 sm:p-4 overflow-hidden"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <div
-        className={`w-[900px] h-[650px] rounded-lg shadow-2xl flex overflow-hidden bg-white transition-all duration-600 ${isAnimating ? "animate-slide-left" : "animate-slide-in-right"
+        className={`w-full max-w-[900px] min-h-[500px] sm:h-auto lg:h-[650px] rounded-lg shadow-2xl flex flex-col md:flex-row overflow-hidden bg-white transition-all duration-600 ${isAnimating ? "animate-slide-left" : "animate-slide-in-right"
           }`}
       >
         {/* Left Side - Form */}
-        <div className="w-1/2 flex flex-col justify-center items-center px-10 py-8 bg-white">
-          <h3 className="text-4xl font-bold mb-6">Signup</h3>
+        <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-4 sm:px-6 md:px-10 py-6 md:py-8 bg-white order-2 md:order-1">
+          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 md:mb-6">Signup</h3>
 
           {error && (
             <p className="text-red-600 text-sm mb-2 w-full text-center">
@@ -82,7 +82,7 @@ const SignupPage = () => {
 
           <form
             onSubmit={handleSubmit(handleRegister)}
-            className="w-full flex flex-col gap-3"
+            className="w-full flex flex-col gap-2 sm:gap-3"
           >
             {/* Username */}
             <div>
@@ -207,7 +207,7 @@ const SignupPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="mt-3 bg-blue-500 text-white py-3 rounded-md font-semibold hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105"
+              className="mt-2 sm:mt-3 bg-blue-500 text-white py-2.5 sm:py-3 rounded-md font-semibold hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 text-sm sm:text-base"
             >
               {loading ? "Signing up..." : "Signup"}
             </button>
@@ -215,16 +215,16 @@ const SignupPage = () => {
         </div>
 
         {/* Right Side - Blue Gradient */}
-        <div className="w-1/2 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1A73E8] to-[#0F4EB3] rounded-tl-[70px] flex flex-col justify-center items-center text-white p-8">
-            <img src={logoIcon} className="w-24 h-24 mb-6" alt="Kindim Logo" />
-            <h2 className="text-3xl font-bold text-center mb-2">Hello,</h2>
-            <h2 className="text-3xl font-bold text-center mb-6">
+        <div className="w-full md:w-1/2 relative order-1 md:order-2">
+          <div className="relative md:absolute inset-0 bg-gradient-to-b from-[#1A73E8] to-[#0F4EB3] md:rounded-tl-[70px] flex flex-col justify-center items-center text-white p-6 sm:p-8 min-h-[200px] md:min-h-0">
+            <img src={logoIcon} className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mb-3 md:mb-6" alt="Kindim Logo" />
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-1 md:mb-2">Hello,</h2>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-3 md:mb-6">
               Welcome to Kindim
             </h2>
-            <p className="mb-4 text-lg">Already have an account?</p>
+            <p className="mb-2 md:mb-4 text-sm sm:text-base md:text-lg">Already have an account?</p>
             <button
-              className="px-10 py-2.5 bg-black text-white rounded-full hover:bg-gray-800 transition-all hover:scale-105"
+              className="px-6 sm:px-8 md:px-10 py-2 md:py-2.5 bg-black text-white rounded-full hover:bg-gray-800 transition-all hover:scale-105 text-sm sm:text-base"
               onClick={handleLoginClick}
             >
               Login

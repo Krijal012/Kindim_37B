@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 const UserManagement = () => {
   const { callApi } = useApi();
   const navigate = useNavigate();
-  
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -20,13 +20,13 @@ const UserManagement = () => {
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     toast.info("Logged out successfully");
-    navigate("/login"); 
+    navigate("/login");
   };
 
   const getUsers = async () => {
     try {
       const response = await callApi("GET", "/auth/users");
-      setUsers(response.data.users || response.data); 
+      setUsers(response.data.users || response.data);
     } catch (error) {
       toast.error("Failed to load users from server");
     } finally {
@@ -88,30 +88,30 @@ const UserManagement = () => {
   ];
 
   return (
-    <div className="p-10 flex flex-col items-center min-h-screen bg-white relative font-sans">
+    <div className="p-4 sm:p-10 flex flex-col items-center min-h-screen bg-white relative font-sans">
       <ToastContainer position="top-right" autoClose={3000} />
 
       {/* --- NEW LOGOUT CONFIRMATION UI --- */}
-      <div className="w-full max-w-6xl flex justify-end mb-6 h-12">
+      <div className="w-full max-w-6xl flex justify-end mb-4 sm:mb-6 h-12">
         {!showLogoutConfirm ? (
-          <button 
+          <button
             onClick={() => setShowLogoutConfirm(true)}
-            className="bg-red-500 text-white px-8 py-2.5 rounded-full font-bold hover:bg-red-600 transition-all shadow-lg active:scale-95"
+            className="bg-red-500 text-white px-6 sm:px-8 py-2.5 rounded-full font-bold hover:bg-red-600 transition-all shadow-lg active:scale-95 text-sm sm:text-base"
           >
             Logout
           </button>
         ) : (
-          <div className="flex items-center gap-4 bg-red-50 px-6 py-2 rounded-full border border-red-200 shadow-sm animate-in slide-in-from-right-4 duration-300">
-            <span className="text-red-700 font-bold text-sm">Are you sure?</span>
-            <button 
+          <div className="flex items-center gap-2 sm:gap-4 bg-red-50 px-4 sm:px-6 py-2 rounded-full border border-red-200 shadow-sm">
+            <span className="text-red-700 font-bold text-xs sm:text-sm">Are you sure?</span>
+            <button
               onClick={handleLogout}
-              className="bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold hover:bg-red-700 transition-colors"
+              className="bg-red-600 text-white px-3 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-bold hover:bg-red-700 transition-colors"
             >
               Yes, Exit
             </button>
-            <button 
+            <button
               onClick={() => setShowLogoutConfirm(false)}
-              className="text-gray-500 hover:text-gray-800 text-xs font-bold uppercase tracking-wider"
+              className="text-gray-500 hover:text-gray-800 text-[10px] sm:text-xs font-bold uppercase tracking-wider"
             >
               Cancel
             </button>
@@ -119,11 +119,11 @@ const UserManagement = () => {
         )}
       </div>
 
-      <h2 className="text-4xl font-extrabold mb-12 text-center text-gray-900 tracking-tight">
+      <h2 className="text-2xl sm:text-4xl font-extrabold mb-6 sm:mb-12 text-center text-gray-900 tracking-tight">
         User Management
       </h2>
 
-      <div className="bg-[#F3F4F6] rounded-[40px] p-8 w-full max-w-6xl shadow-inner border border-gray-200">
+      <div className="bg-[#F3F4F6] rounded-2xl sm:rounded-[40px] p-4 sm:p-8 w-full max-w-6xl shadow-inner border border-gray-200 overflow-x-auto">
         <DataTable
           columns={columns}
           data={users}
@@ -136,23 +136,23 @@ const UserManagement = () => {
       {/* Edit Modal Logic (remains same) */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-           <div className="bg-white p-10 rounded-[30px] w-full max-w-md shadow-2xl relative border border-gray-100">
+          <div className="bg-white p-10 rounded-[30px] w-full max-w-md shadow-2xl relative border border-gray-100">
             <button onClick={() => setShowEditModal(false)} className="absolute top-6 right-8 text-gray-400 hover:text-red-500 text-3xl">&times;</button>
             <h3 className="text-3xl font-bold mb-8">Update Profile</h3>
             <form onSubmit={handleUpdate} className="space-y-5">
-              <input 
-                className="w-full bg-gray-50 border p-3.5 rounded-2xl" 
-                value={editFormData.username} 
-                onChange={(e) => setEditFormData({ ...editFormData, username: e.target.value })} 
+              <input
+                className="w-full bg-gray-50 border p-3.5 rounded-2xl"
+                value={editFormData.username}
+                onChange={(e) => setEditFormData({ ...editFormData, username: e.target.value })}
                 placeholder="Username"
               />
-              <input 
-                className="w-full bg-gray-50 border p-3.5 rounded-2xl" 
-                value={editFormData.email} 
-                onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })} 
+              <input
+                className="w-full bg-gray-50 border p-3.5 rounded-2xl"
+                value={editFormData.email}
+                onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
                 placeholder="Email"
               />
-              <select 
+              <select
                 className="w-full bg-gray-50 border p-3.5 rounded-2xl"
                 value={editFormData.role}
                 onChange={(e) => setEditFormData({ ...editFormData, role: e.target.value })}

@@ -28,7 +28,7 @@ const ProductDetail = ({ onLogout }) => {
     try {
       const res = await callApi("GET", `/api/products/${id}`);
       setProduct(res.data || res);
-      
+
       // Only check wishlist if user is logged in
       const token = localStorage.getItem("token");
       if (token) {
@@ -119,7 +119,7 @@ const ProductDetail = ({ onLogout }) => {
 
     try {
       setAddingToWishlist(true);
-      
+
       if (inWishlist) {
         // Remove from wishlist
         if (wishlistItemId) {
@@ -131,10 +131,10 @@ const ProductDetail = ({ onLogout }) => {
       } else {
         // Add to wishlist
         const res = await callApi("POST", "/api/wishlist", { productId: product.id });
-        
+
         // Handle different response structures
         const wishlistItem = res.wishlistItem || res.data?.wishlistItem || res.data || res;
-        
+
         if (wishlistItem && wishlistItem.id) {
           setInWishlist(true);
           setWishlistItemId(wishlistItem.id);
@@ -207,16 +207,16 @@ const ProductDetail = ({ onLogout }) => {
   return (
     <>
       <Header onLogout={onLogout} />
-      <main className="max-w-7xl mx-auto px-6 py-10 mt-20 bg-gray-50">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 mt-16 sm:mt-20 bg-gray-50">
 
-        <div className="bg-white rounded-3xl p-8 shadow-sm flex flex-col md:flex-row gap-10">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm flex flex-col md:flex-row gap-6 md:gap-10">
 
           {/* Product Images */}
           <div className="flex-1">
             <div className="bg-gray-100 rounded-2xl overflow-hidden mb-4 border">
               <img
                 src={imageUrl}
-                className="w-full h-[400px] object-contain"
+                className="w-full h-[300px] sm:h-[400px] object-contain"
                 alt={product.name}
                 onError={(e) => {
                   e.target.src = 'https://placehold.co/400?text=No+Image';
@@ -239,9 +239,9 @@ const ProductDetail = ({ onLogout }) => {
           </div>
 
           {/* Product Details */}
-          <div className="flex-1 space-y-6">
-            <h1 className="text-3xl font-bold text-gray-800">{product.name}</h1>
-            
+          <div className="flex-1 space-y-4 sm:space-y-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">{product.name}</h1>
+
             <div className="flex items-center gap-4">
               <p className="text-2xl font-black text-blue-600">Rs. {product.price}</p>
               <div className="flex items-center gap-1">
@@ -258,11 +258,10 @@ const ProductDetail = ({ onLogout }) => {
                   <button
                     key={color.name}
                     onClick={() => setSelectedColor(color.name)}
-                    className={`w-12 h-12 rounded-full border-2 transition-all ${
-                      selectedColor === color.name
+                    className={`w-12 h-12 rounded-full border-2 transition-all ${selectedColor === color.name
                         ? 'border-blue-600 scale-110 shadow-lg'
                         : 'border-gray-300 hover:border-gray-400'
-                    }`}
+                      }`}
                     style={{ backgroundColor: color.hex }}
                     title={color.name}
                   />
@@ -279,11 +278,10 @@ const ProductDetail = ({ onLogout }) => {
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`border px-6 py-2 rounded-lg font-medium transition ${
-                      selectedSize === size
+                    className={`border px-6 py-2 rounded-lg font-medium transition ${selectedSize === size
                         ? 'bg-blue-600 text-white border-blue-600'
                         : 'border-gray-300 hover:border-blue-400'
-                    }`}
+                      }`}
                   >
                     {size}
                   </button>
@@ -312,7 +310,7 @@ const ProductDetail = ({ onLogout }) => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
               <button
                 onClick={handleAddToCart}
                 disabled={addingToCart}
@@ -320,19 +318,18 @@ const ProductDetail = ({ onLogout }) => {
               >
                 {addingToCart ? "Adding..." : "Add To Cart"}
               </button>
-              <button 
+              <button
                 onClick={handleWishlistToggle}
                 disabled={addingToWishlist}
-                className={`flex-1 border py-3 rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed ${
-                  inWishlist 
-                    ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100' 
+                className={`flex-1 border py-3 rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed ${inWishlist
+                    ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100'
                     : 'border-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
-                {addingToWishlist 
-                  ? "Processing..." 
-                  : inWishlist 
-                    ? "❤️ In Wishlist" 
+                {addingToWishlist
+                  ? "Processing..."
+                  : inWishlist
+                    ? "❤️ In Wishlist"
                     : "🤍 Add to Wishlist"
                 }
               </button>
@@ -348,13 +345,13 @@ const ProductDetail = ({ onLogout }) => {
         </div>
 
         {/* Product Details Section */}
-        <div className="mt-8 bg-gray-200 p-8 rounded-2xl shadow-inner border border-gray-300">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Product Details</h2>
-          <div className="bg-white p-6 rounded-xl">
-            <p className="text-gray-700 leading-relaxed text-lg">
+        <div className="mt-8 bg-gray-200 p-4 sm:p-8 rounded-2xl shadow-inner border border-gray-300">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Product Details</h2>
+          <div className="bg-white p-4 sm:p-6 rounded-xl">
+            <p className="text-gray-700 leading-relaxed text-base sm:text-lg">
               {product.description || "No detailed description provided for this product."}
             </p>
-            <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="font-bold text-gray-600">Category:</span>
                 <span className="ml-2 text-gray-800">{product.category}</span>
@@ -368,8 +365,8 @@ const ProductDetail = ({ onLogout }) => {
         </div>
 
         {/* Customer Reviews Section */}
-        <div className="mt-8 bg-gray-200 p-8 rounded-2xl shadow-inner border border-gray-300">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Customer Reviews</h2>
+        <div className="mt-8 bg-gray-200 p-4 sm:p-8 rounded-2xl shadow-inner border border-gray-300">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">Customer Reviews</h2>
           <div className="space-y-4">
             {[
               { name: "John Doe", rating: 5, comment: "Great product! Highly recommended." },
@@ -377,20 +374,20 @@ const ProductDetail = ({ onLogout }) => {
               { name: "Mike Johnson", rating: 5, comment: "Exactly as described. Very satisfied!" },
               { name: "Sarah Williams", rating: 4, comment: "Nice product, worth the price." }
             ].map((review, i) => (
-              <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+              <div key={i} className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-bold text-gray-800">{review.name}</span>
                   <span className="text-yellow-500">{"⭐".repeat(review.rating)}</span>
                 </div>
-                <p className="text-gray-600">{review.comment}</p>
+                <p className="text-gray-600 text-sm sm:text-base">{review.comment}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Questions & Answers Section */}
-        <div className="mt-8 bg-gray-200 p-8 rounded-2xl shadow-inner border border-gray-300">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Questions & Answers</h2>
+        <div className="mt-8 bg-gray-200 p-4 sm:p-8 rounded-2xl shadow-inner border border-gray-300">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">Questions & Answers</h2>
           <div className="space-y-4">
             {[
               { q: "Is this product available in other colors?", a: "Yes, we have 6 color options." },
@@ -409,7 +406,7 @@ const ProductDetail = ({ onLogout }) => {
                 placeholder="Have a question? Ask here..."
               />
               <div className="flex justify-end mt-3">
-                <button 
+                <button
                   onClick={() => toast.info("Question submission feature coming soon!")}
                   className="bg-blue-600 text-white px-12 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md"
                 >

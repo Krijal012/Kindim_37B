@@ -86,10 +86,10 @@ export default function ProfilePage({ onLogout }) {
     switch (activeTab) {
       case "profile":
         return <PersonalInfo user={user} setUser={setUser} />;
-      
+
       case "orders":
         return <Orders />;
-      
+
       case "returns":
         return (
           <div className="flex-1 bg-white p-6 rounded-lg shadow">
@@ -114,7 +114,7 @@ export default function ProfilePage({ onLogout }) {
             </div>
           </div>
         );
-      
+
       case "reviews":
         return (
           <div className="flex-1 bg-white p-6 rounded-lg shadow">
@@ -139,10 +139,10 @@ export default function ProfilePage({ onLogout }) {
             </div>
           </div>
         );
-      
+
       case "payment":
         return <Payment />;
-      
+
       case "change-password":
         return (
           <div className="flex-1 bg-white p-6 rounded-lg shadow max-w-2xl">
@@ -233,7 +233,7 @@ export default function ProfilePage({ onLogout }) {
             </form>
           </div>
         );
-      
+
       default:
         return <PersonalInfo user={user} setUser={setUser} />;
     }
@@ -281,11 +281,11 @@ export default function ProfilePage({ onLogout }) {
     <div className="min-h-screen bg-gray-50">
       <Header show={showHeader} onLogout={handleLogout} />
 
-      <main className="mt-[112px] px-6 py-8 pb-32 bg-gray-100 min-h-screen">
+      <main className="mt-[80px] sm:mt-[112px] px-4 sm:px-6 py-4 sm:py-8 pb-32 bg-gray-100 min-h-screen">
         <div className="max-w-7xl mx-auto">
-          <div className="flex gap-6">
+          <div className="flex flex-col lg:flex-row gap-6">
             {/* Sidebar with menu items */}
-            <div className="w-64 bg-white shadow p-4 rounded-lg">
+            <div className="w-full lg:w-64 bg-white shadow p-4 rounded-lg">
               <div className="flex items-center gap-3 border-b pb-4 mb-4">
                 {user?.profileImage ? (
                   <img
@@ -321,11 +321,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("profile")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
-                      activeTab === "profile"
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${activeTab === "profile"
                         ? "bg-blue-600 text-white font-semibold"
                         : "hover:bg-gray-100 text-gray-700"
-                    }`}
+                      }`}
                   >
                     My Account
                   </button>
@@ -333,11 +332,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("orders")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
-                      activeTab === "orders"
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${activeTab === "orders"
                         ? "bg-blue-600 text-white font-semibold"
                         : "hover:bg-gray-100 text-gray-700"
-                    }`}
+                      }`}
                   >
                     My Orders
                   </button>
@@ -345,11 +343,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("returns")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
-                      activeTab === "returns"
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${activeTab === "returns"
                         ? "bg-blue-600 text-white font-semibold"
                         : "hover:bg-gray-100 text-gray-700"
-                    }`}
+                      }`}
                   >
                     Returns & Cancel
                   </button>
@@ -357,11 +354,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("reviews")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
-                      activeTab === "reviews"
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${activeTab === "reviews"
                         ? "bg-blue-600 text-white font-semibold"
                         : "hover:bg-gray-100 text-gray-700"
-                    }`}
+                      }`}
                   >
                     My Rating & Review
                   </button>
@@ -377,11 +373,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("payment")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
-                      activeTab === "payment"
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${activeTab === "payment"
                         ? "bg-blue-600 text-white font-semibold"
                         : "hover:bg-gray-100 text-gray-700"
-                    }`}
+                      }`}
                   >
                     Payment
                   </button>
@@ -389,11 +384,10 @@ export default function ProfilePage({ onLogout }) {
                 <li>
                   <button
                     onClick={() => setActiveTab("change-password")}
-                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${
-                      activeTab === "change-password"
+                    className={`w-full text-left px-3 py-2 rounded cursor-pointer transition-colors ${activeTab === "change-password"
                         ? "bg-blue-600 text-white font-semibold"
                         : "hover:bg-gray-100 text-gray-700"
-                    }`}
+                      }`}
                   >
                     Change Password
                   </button>

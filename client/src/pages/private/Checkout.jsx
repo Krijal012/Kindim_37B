@@ -24,7 +24,7 @@ const Checkout = ({ onLogout }) => {
   const fetchCartItems = async () => {
     try {
       const token = localStorage.getItem("token");
-      
+
       if (!token) {
         toast.error("Please login to continue");
         navigate("/login");
@@ -82,9 +82,9 @@ const Checkout = ({ onLogout }) => {
   return (
     <>
       <Header onLogout={onLogout} />
-      <main className="min-h-screen bg-gray-50 pt-24 pb-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+      <main className="min-h-screen bg-gray-50 pt-16 sm:pt-24 pb-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Checkout</h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Shipping & Payment */}

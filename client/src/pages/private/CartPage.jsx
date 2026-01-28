@@ -99,9 +99,9 @@ function CartPage() {
     return (
         <>
             <Header />
-            <main className="bg-gray-50 py-10 mt-20 min-h-screen">
-                <div className="max-w-7xl mx-auto px-6">
-                    <h1 className="text-3xl text-left font-bold text-gray-900 mb-8">Your Shopping Cart</h1>
+            <main className="bg-gray-50 py-6 sm:py-10 mt-16 sm:mt-20 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                    <h1 className="text-2xl sm:text-3xl text-left font-bold text-gray-900 mb-6 sm:mb-8">Your Shopping Cart</h1>
 
                     {cartItems.length === 0 ? (
                         <div className="text-center py-20">

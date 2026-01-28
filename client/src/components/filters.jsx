@@ -24,34 +24,51 @@ function Filters({ products, setFilteredProducts }) {
     };
 
     return (
-        <div className="font-sans p-4">
-            <h2 className="text-xl font-bold mb-4">Filters</h2>
+        <div className="font-sans p-3 sm:p-4 bg-white rounded-lg shadow">
+            <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Filters</h2>
 
             {/* Category */}
-            <div className="mb-6">
-                <h3 className="font-semibold mb-2">Category</h3>
-                {categories.map((c) => (
-                    <label key={c} className="flex items-center gap-2 text-sm mb-1 cursor-pointer">
-                        <input
-                            type="radio"
-                            name="category"
-                            checked={selectedCategory === c}
-                            onChange={() => handleCategory(c)}
-                        />
-                        {c}
-                    </label>
-                ))}
+            <div className="mb-4 sm:mb-6">
+                <h3 className="font-semibold mb-2 text-sm sm:text-base">Category</h3>
+                <div className="space-y-1 sm:space-y-1.5">
+                    {categories.map((c) => (
+                        <label
+                            key={c}
+                            className="flex items-center gap-2 text-xs sm:text-sm mb-1 cursor-pointer hover:bg-gray-50 p-1.5 sm:p-2 rounded transition"
+                        >
+                            <input
+                                type="radio"
+                                name="category"
+                                checked={selectedCategory === c}
+                                onChange={() => handleCategory(c)}
+                                className="w-4 h-4 accent-blue-600"
+                            />
+                            <span className={selectedCategory === c ? "font-semibold" : ""}>
+                                {c}
+                            </span>
+                        </label>
+                    ))}
+                </div>
             </div>
 
             {/* Rating */}
-            <div className="mb-6">
-                <h3 className="font-semibold mb-2">Minimum Rating</h3>
-                {ratings.map((r) => (
-                    <label key={r} className="flex items-center gap-2 text-sm mb-1 cursor-pointer">
-                        <input type="radio" name="rating" />
-                        {r} Stars
-                    </label>
-                ))}
+            <div className="mb-4 sm:mb-6">
+                <h3 className="font-semibold mb-2 text-sm sm:text-base">Minimum Rating</h3>
+                <div className="space-y-1 sm:space-y-1.5">
+                    {ratings.map((r) => (
+                        <label
+                            key={r}
+                            className="flex items-center gap-2 text-xs sm:text-sm mb-1 cursor-pointer hover:bg-gray-50 p-1.5 sm:p-2 rounded transition"
+                        >
+                            <input
+                                type="radio"
+                                name="rating"
+                                className="w-4 h-4 accent-blue-600"
+                            />
+                            <span>{r} Stars</span>
+                        </label>
+                    ))}
+                </div>
             </div>
 
             <button
@@ -59,7 +76,7 @@ function Filters({ products, setFilteredProducts }) {
                     setFilteredProducts(products);
                     setSelectedCategory("All");
                 }}
-                className="w-full bg-blue-600 text-white py-2 rounded"
+                className="w-full bg-blue-600 text-white py-2 sm:py-2.5 rounded-lg hover:bg-blue-700 transition font-semibold text-sm sm:text-base"
             >
                 Clear Filters
             </button>

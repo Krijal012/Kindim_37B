@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import CategoryBar from "../../components/CategoryBar";
-import ProductGrid from "../../components/ProductGrid";
+import ProductGrid from "../../components/productgrid";
 
 function CategorySection({ onLogout }) {
   const { category } = useParams();
@@ -24,12 +24,12 @@ function CategorySection({ onLogout }) {
     async function fetchProducts() {
       try {
         setLoading(true);
-        
+
         // Build URL with search query if exists
-        const url = searchQuery 
+        const url = searchQuery
           ? `http://localhost:5000/api/products?search=${encodeURIComponent(searchQuery)}`
           : 'http://localhost:5000/api/products';
-        
+
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -96,12 +96,12 @@ function CategorySection({ onLogout }) {
         show={true}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        onSearchSubmit={() => {}}
+        onSearchSubmit={() => { }}
         onLogout={handleLogout}
       />
 
-      <main className="bg-gray-50 py-10 mt-20">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8 px-6">
+      <main className="bg-gray-50 py-6 sm:py-10 mt-16 sm:mt-20">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 md:gap-8 px-4 sm:px-6">
 
           <CategoryBar
             selectedCategory={selectedCategory}
@@ -119,11 +119,11 @@ function CategorySection({ onLogout }) {
                 <p className="mt-4 text-gray-600">Loading products...</p>
               </div>
             ) : error ? (
-              <div className="text-center py-20">
-                <p className="text-red-600 text-lg">{error}</p>
+              <div className="text-center py-20 px-4">
+                <p className="text-red-600 text-lg mb-4">{error}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md"
                 >
                   Retry
                 </button>

@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApi } from "../hooks/useApi";
+import { useApi } from "../hooks/useAPI";
 import { profileSchema } from "../schema/profile.schemas";
 import { toast } from "react-toastify";
 
@@ -24,7 +24,6 @@ export default function PersonalInfo({ user, setUser }) {
       setValue("phone", user.phone);
     }
   }, [user]);
-
 
   const onSubmit = async (data) => {
     try {
@@ -50,7 +49,6 @@ export default function PersonalInfo({ user, setUser }) {
     }
   };
 
-
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete your account?")) return;
 
@@ -60,7 +58,6 @@ export default function PersonalInfo({ user, setUser }) {
       setPreview(null);
       toast.success("Account deleted successfully!");
 
-      // Log out locally + redirect
       localStorage.removeItem("token");
       localStorage.removeItem("userRole");
       localStorage.removeItem("userEmail");
@@ -72,53 +69,102 @@ export default function PersonalInfo({ user, setUser }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex-1 bg-white p-6 rounded shadow space-y-4">
-      {preview && <img src={preview} alt="Preview" className="w-24 h-24 rounded-full object-cover mb-2" />}
-      <input
-        type="file"
-        {...register("profileImage")}
-        onChange={(e) => e.target.files[0] && setPreview(URL.createObjectURL(e.target.files[0]))}
-      />
-
-      <div>
-        <input {...register("name")} placeholder="Name" className="w-full p-2 border rounded" />
-        {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+    <form onSubmit={handleSubmit(onSubmit)} className="flex-1 bg-white p-4 sm:p-6 rounded shadow space-y-4">
+      {/* Profile Image */}
+      <div className="flex flex-col items-center sm:items-start gap-3">
+        {preview && (
+          <img
+            src={preview}
+            alt="Preview"
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 border-gray-200"
+          />
+        )}
+        <input
+          type="file"
+          {...register("profileImage")}
+          onChange={(e) => e.target.files[0] && setPreview(URL.createObjectURL(e.target.files[0]))}
+          className="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+        />
       </div>
 
+      {/* Name */}
       <div>
-        <input {...register("email")} placeholder="Email" className="w-full p-2 border rounded" />
-        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+        <label className="block text-sm font-semibold mb-1">Name</label>
+        <input
+          {...register("name")}
+          placeholder="Name"
+          className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {errors.name && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.name.message}</p>}
       </div>
 
+      {/* Email */}
       <div>
-        <input {...register("phone")} placeholder="Phone" className="w-full p-2 border rounded" />
-        {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
+        <label className="block text-sm font-semibold mb-1">Email</label>
+        <input
+          {...register("email")}
+          placeholder="Email"
+          className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {errors.email && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email.message}</p>}
       </div>
 
+      {/* Phone */}
       <div>
-        <select {...register("gender")} className="w-full p-2 border rounded">
+        <label className="block text-sm font-semibold mb-1">Phone</label>
+        <input
+          {...register("phone")}
+          placeholder="Phone"
+          className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {errors.phone && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.phone.message}</p>}
+      </div>
+
+      {/* Gender */}
+      <div>
+        <label className="block text-sm font-semibold mb-1">Gender</label>
+        <select
+          {...register("gender")}
+          className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
           <option value="">Select Gender</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
         </select>
-        {errors.gender && <p className="text-red-500 text-sm">{errors.gender.message}</p>}
+        {errors.gender && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.gender.message}</p>}
       </div>
 
+      {/* Date of Birth */}
       <div>
-        <input {...register("dob")} type="date" className="w-full p-2 border rounded" />
-        {errors.dob && <p className="text-red-500 text-sm">{errors.dob.message}</p>}
+        <label className="block text-sm font-semibold mb-1">Date of Birth</label>
+        <input
+          {...register("dob")}
+          type="date"
+          className="w-full p-2 sm:p-3 border rounded-lg text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {errors.dob && <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.dob.message}</p>}
       </div>
 
-      <div className="flex gap-4 mt-4">
-        <button type="submit" disabled={loading} className={`px-4 py-2 rounded text-white ${loading ? "bg-gray-400" : "bg-blue-600"}`}>
+      {/* Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4">
+        <button
+          type="submit"
+          disabled={loading}
+          className={`flex-1 px-4 py-2 sm:py-3 rounded-lg text-white font-semibold text-sm sm:text-base ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"}`}
+        >
           {loading ? "Saving..." : "Save Changes"}
         </button>
-        <button type="button" onClick={handleDelete} disabled={loading} className="px-4 py-2 rounded text-white bg-red-600 hover:bg-red-700">
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={loading}
+          className="flex-1 px-4 py-2 sm:py-3 rounded-lg text-white font-semibold bg-red-600 hover:bg-red-700 text-sm sm:text-base"
+        >
           Delete Account
         </button>
       </div>
 
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
     </form>
   );
 }

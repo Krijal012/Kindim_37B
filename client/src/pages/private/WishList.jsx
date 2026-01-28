@@ -142,24 +142,24 @@ function WishlistItem({ item, onRemove, onAddToCart }) {
         : 'https://placehold.co/150?text=No+Image';
 
     return (
-        <div className="flex items-center gap-6 p-4 border border-gray-200 rounded-lg hover:shadow-md transition">
-            <div className="flex-shrink-0">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 p-4 border border-gray-200 rounded-lg hover:shadow-md transition">
+            <div className="flex-shrink-0 w-full sm:w-auto">
                 <img
                     src={imageUrl}
                     alt={product.name}
-                    className="w-24 h-24 object-cover rounded-lg"
+                    className="w-full sm:w-24 h-48 sm:h-24 object-cover rounded-lg mx-auto"
                     onError={(e) => {
                         e.target.src = 'https://placehold.co/96?text=No+Image';
                     }}
                 />
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 text-center sm:text-left">
                 <h3 className="text-lg font-semibold text-gray-800 mb-1">
                     {product.name}
                 </h3>
                 <p className="text-sm text-gray-500 mb-2">{product.category}</p>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center sm:justify-start gap-3">
                     <p className="text-xl font-bold text-blue-600">Rs. {product.price}</p>
                     {product.rating && (
                         <div className="flex items-center gap-1">
@@ -170,16 +170,16 @@ function WishlistItem({ item, onRemove, onAddToCart }) {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full sm:w-auto">
                 <button
                     onClick={() => onAddToCart(item)}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition min-w-[140px]"
+                    className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition w-full sm:min-w-[140px]"
                 >
                     Add to Cart
                 </button>
                 <button
                     onClick={() => onRemove(item.id)}
-                    className="border border-red-300 text-red-600 px-6 py-2 rounded-lg font-semibold hover:bg-red-50 transition"
+                    className="border border-red-300 text-red-600 px-6 py-2 rounded-lg font-semibold hover:bg-red-50 transition w-full"
                 >
                     Remove
                 </button>

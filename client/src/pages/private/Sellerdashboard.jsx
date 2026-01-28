@@ -13,6 +13,7 @@ const SellerDashboard = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -167,57 +168,75 @@ const SellerDashboard = ({ onLogout }) => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 relative">
+      {/* Mobile Sidebar Toggle */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="lg:hidden fixed bottom-6 right-6 z-[60] bg-blue-600 text-white p-4 rounded-full shadow-2xl active:scale-95 transition-all"
+      >
+        {isSidebarOpen ? "✕ Close" : "☰ Menu"}
+      </button>
+
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 shadow-xl border-r border-slate-800 fixed h-screen">
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 shadow-xl border-r border-slate-800 transition-transform duration-300 transform
+        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        lg:translate-x-0 lg:static lg:h-screen
+      `}>
         <div className="p-6">
           <div className="text-2xl font-bold text-white mb-10 flex items-center">
             <span className="mr-2">🛒</span> Kindim
           </div>
           <nav className="space-y-2">
-            <div
-              onClick={() => setActiveTab("dashboard")}
-              className={`p-3 cursor-pointer font-medium rounded-lg transition-all ${activeTab === 'dashboard' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
-            >
-              📊 Dashboard
-            </div>
-            <div
-              onClick={() => setActiveTab("products")}
-              className={`p-3 cursor-pointer font-medium rounded-lg transition-all ${activeTab === 'products' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
-            >
-              📦 Product Management
-            </div>
-            <div
-              onClick={() => setActiveTab("orders")}
-              className={`p-3 cursor-pointer font-medium rounded-lg transition-all ${activeTab === 'orders' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
-            >
-              🚚 Orders
-            </div>
+            {[
+              { id: 'dashboard', label: '📊 Dashboard' },
+              { id: 'products', label: '📦 Product Management' },
+              { id: 'orders', label: '🚚 Orders' }
+            ].map((item) => (
+              <div
+                key={item.id}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setIsSidebarOpen(false);
+                }}
+                className={`p-3 cursor-pointer font-medium rounded-lg transition-all ${activeTab === item.id ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
+              >
+                {item.label}
+              </div>
+            ))}
           </nav>
         </div>
       </aside>
 
+      {/* Overlay for mobile sidebar */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Main Content */}
-      <main className="flex-1 ml-64 p-8">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">
+      <main className="flex-1 w-full p-4 sm:p-8 overflow-x-hidden">
+        <header className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
             {activeTab === "products" ? "Product Management" : activeTab === "orders" ? "Order Management" : "Dashboard Overview"}
           </h1>
-          <div className="flex gap-4">
+          <div className="flex gap-3 sm:gap-4">
             {activeTab === "products" && (
               <button
                 onClick={() => {
                   setEditingProduct(null);
                   setShowModal(true);
                 }}
-                className="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all"
+                className="flex-1 sm:flex-none bg-blue-600 text-white px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-all text-sm sm:text-base"
               >
-                Add New Product
+                Add Product
               </button>
             )}
             <button
               onClick={onLogout}
-              className="bg-gray-600 text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-gray-700 transition-all"
+              className="flex-1 sm:flex-none bg-gray-600 text-white px-4 sm:px-8 py-2.5 sm:py-3 rounded-xl font-bold shadow-lg hover:bg-gray-700 transition-all text-sm sm:text-base"
             >
               Logout
             </button>
@@ -246,7 +265,7 @@ const SellerDashboard = ({ onLogout }) => {
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-x-auto">
           {activeTab === "products" ? (
             <table className="w-full text-left">
               <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-bold">

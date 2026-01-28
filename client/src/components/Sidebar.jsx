@@ -14,21 +14,21 @@ export default function Sidebar({ user }) {
   ];
 
   return (
-    <div className="w-64 bg-white shadow p-4 rounded">
-      <div className="flex items-center gap-3 border-b pb-4 mb-4">
+    <div className="w-full sm:w-56 md:w-64 bg-white shadow p-3 sm:p-4 rounded">
+      <div className="flex items-center gap-2 sm:gap-3 border-b pb-3 sm:pb-4 mb-3 sm:mb-4">
         {user?.profileImage ? (
           <img
             src={`http://localhost:5000${user.profileImage}`}
             alt="Profile"
-            className="w-12 h-12 rounded-full object-cover"
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
           />
         ) : (
-          <div className="w-12 h-12 bg-gray-300 rounded-full" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-300 rounded-full" />
         )}
-        <h3 className="font-semibold">{user?.name}</h3>
+        <h3 className="font-semibold text-sm sm:text-base truncate">{user?.name}</h3>
       </div>
 
-      <ul className="space-y-2 text-sm">
+      <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm">
         {menuItems.map((item, i) => {
           const isActive = location.pathname.startsWith(item.path);
 
@@ -36,11 +36,10 @@ export default function Sidebar({ user }) {
             <li key={i}>
               <Link
                 to={item.path}
-                className={`block px-3 py-2 rounded cursor-pointer ${
-                  isActive
+                className={`block px-2 sm:px-3 py-2 rounded cursor-pointer transition ${isActive
                     ? "bg-blue-600 text-white font-semibold"
                     : "hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {item.label}
               </Link>

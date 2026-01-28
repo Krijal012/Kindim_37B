@@ -88,24 +88,24 @@ const LoginPage = ({ onLogin }) => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center overflow-hidden"
+      className="min-h-screen flex items-center justify-center bg-cover bg-center overflow-hidden p-2 sm:p-4"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
       <div
-        className={`w-[800px] h-[500px] rounded-lg shadow-2xl flex overflow-hidden bg-white transition-all duration-600 ${isAnimating ? "animate-slide-right" : "animate-slide-in-left"
+        className={`w-full max-w-[800px] min-h-[450px] sm:h-auto lg:h-[500px] rounded-lg shadow-2xl flex flex-col md:flex-row overflow-hidden bg-white transition-all duration-600 ${isAnimating ? "animate-slide-right" : "animate-slide-in-left"
           }`}
       >
         {/* Left Side - Blue Section */}
-        <div className="w-1/2 relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#1A73E8] to-[#0F4EB3] rounded-tr-[70px] flex flex-col justify-center items-center text-white p-6">
-            <img src={logoIcon} className="w-20 h-20 mb-6" alt="Logo" />
-            <h3 className="text-3xl font-bold mb-2 text-center">Hello,</h3>
-            <h2 className="text-3xl font-bold mb-4 text-center">
+        <div className="w-full md:w-1/2 relative order-1 md:order-1">
+          <div className="relative md:absolute inset-0 bg-gradient-to-b from-[#1A73E8] to-[#0F4EB3] md:rounded-tr-[70px] flex flex-col justify-center items-center text-white p-6 sm:p-8 min-h-[200px] md:min-h-0">
+            <img src={logoIcon} className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 mb-3 md:mb-6" alt="Logo" />
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 md:mb-2 text-center">Hello,</h3>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 md:mb-4 text-center">
               Welcome to Kindim
             </h2>
-            <p className="mb-3">Don't have an account?</p>
+            <p className="mb-2 md:mb-3 text-sm sm:text-base">Don't have an account?</p>
             <button
-              className="px-8 py-2 bg-black rounded-full hover:bg-gray-800 transition-all hover:scale-105"
+              className="px-6 sm:px-8 py-2 bg-black rounded-full hover:bg-gray-800 transition-all hover:scale-105 text-sm sm:text-base"
               onClick={handleSignupClick}
             >
               Signup
@@ -114,8 +114,8 @@ const LoginPage = ({ onLogin }) => {
         </div>
 
         {/* Right Side - Form */}
-        <div className="w-1/2 flex flex-col justify-center items-center p-8">
-          <h3 className="text-3xl font-bold mb-6">Login</h3>
+        <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-4 sm:p-6 md:p-8 order-2 md:order-2">
+          <h3 className="text-2xl sm:text-3xl font-bold mb-4 md:mb-6">Login</h3>
 
           {backendError && (
             <p className="text-red-600 text-sm mb-2">{backendError}</p>
@@ -123,7 +123,7 @@ const LoginPage = ({ onLogin }) => {
 
           <form
             onSubmit={handleSubmit(handleLogin)}
-            className="w-full flex flex-col gap-4"
+            className="w-full flex flex-col gap-3 sm:gap-4"
           >
             {/* Email */}
             <div>
@@ -177,7 +177,7 @@ const LoginPage = ({ onLogin }) => {
             </div>
 
             {/* Login Button */}
-            <button className="mt-4 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-all hover:scale-105">
+            <button className="mt-3 sm:mt-4 bg-blue-500 text-white py-2 sm:py-2.5 rounded-md hover:bg-blue-600 transition-all hover:scale-105 text-sm sm:text-base">
               Login
             </button>
           </form>

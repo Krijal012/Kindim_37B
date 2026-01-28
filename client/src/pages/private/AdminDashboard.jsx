@@ -35,20 +35,20 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-8">Admin Dashboard</h1>
+    <div className="p-4 sm:p-8">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center sm:text-left">Admin Dashboard</h1>
 
-      <div className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-sm flex justify-around items-center mb-10">
+      <div className="bg-white rounded-2xl sm:rounded-[40px] p-6 sm:p-8 border border-gray-100 shadow-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 items-center mb-10">
         {loading ? (
-          <p className="text-gray-500">Loading stats...</p>
+          <p className="text-gray-500 text-center col-span-full">Loading stats...</p>
         ) : (
           statsUI.map((stat, idx) => (
-            <div key={idx} className="bg-gray-50 border border-gray-200 rounded-[30px] w-48 h-48 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-shadow">
+            <div key={idx} className="bg-gray-50 border border-gray-200 rounded-2xl sm:rounded-[30px] p-6 h-auto sm:h-48 flex flex-col items-center justify-center text-center shadow-sm hover:shadow-md transition-shadow">
               <div className="mb-2 text-blue-600">
-                {typeof stat.icon === 'string' ? <span className="text-3xl">{stat.icon}</span> : stat.icon}
+                {typeof stat.icon === 'string' ? <span className="text-2xl sm:text-3xl">{stat.icon}</span> : stat.icon}
               </div>
-              <p className="text-gray-500 text-sm font-bold uppercase mb-1">{stat.label}</p>
-              <p className="text-2xl font-black text-gray-800">{stat.value}</p>
+              <p className="text-gray-400 text-xs sm:text-sm font-bold uppercase mb-1">{stat.label}</p>
+              <p className="text-xl sm:text-2xl font-black text-gray-800">{stat.value}</p>
             </div>
           ))
         )}

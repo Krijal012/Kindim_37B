@@ -73,11 +73,11 @@ const SellerManagement = () => {
   ];
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-8">
       <ToastContainer position="top-right" autoClose={2000} />
 
-      <h2 className="text-3xl font-bold text-gray-800 mb-8">Seller Management</h2>
-      <div className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-sm">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 text-center sm:text-left">Seller Management</h2>
+      <div className="bg-white rounded-2xl sm:rounded-[40px] p-4 sm:p-8 border border-gray-100 shadow-sm overflow-x-auto">
         <DataTable
           columns={columns}
           data={sellers}

@@ -22,57 +22,45 @@ const OrderManagement = () => {
     fetchOrders();
   }, []);
 
-  if (loading) return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading orders...</div>;
-  if (error) return <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>;
+  if (loading) return <div className="text-center mt-12 text-blue-600 animate-pulse font-bold">Loading orders...</div>;
+  if (error) return <div className="text-center mt-12 text-red-500 font-bold bg-red-50 p-4 rounded-xl border border-red-200">{error}</div>;
 
   return (
-    <div style={{ padding: '20px', backgroundColor: '#f4f4f4', minHeight: '100vh' }}>
-      <h2 style={{ textAlign: 'center', fontWeight: 'bold', marginBottom: '20px' }}>Order Management</h2>
+    <div className="p-4 sm:p-8 bg-gray-50 min-h-screen">
+      <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6 sm:mb-8">Order Management</h2>
 
-      <div style={{
-        backgroundColor: '#d9d9d9',
-        borderRadius: '20px',
-        padding: '30px',
-        minHeight: '400px',
-        boxShadow: '0px 4px 10px rgba(0,0,0,0.1)'
-      }}>
+      <div className="bg-white rounded-2xl sm:rounded-[20px] p-4 sm:p-8 min-h-[400px] shadow-sm border border-gray-100 overflow-x-auto">
         {orders.length === 0 ? (
-          <p style={{ textAlign: 'center' }}>No orders found.</p>
+          <p className="text-center text-gray-400 italic py-20">No orders found.</p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table className="w-full border-collapse">
             <thead>
-              <tr style={{ textAlign: 'left', borderBottom: '1px solid #aaa' }}>
-                <th style={{ padding: '10px' }}>ID</th>
-                <th>Customer</th>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Action</th>
+              <tr className="text-left border-bottom border-gray-200 text-gray-600 uppercase text-xs font-bold">
+                <th className="p-3">ID</th>
+                <th className="p-3">Customer</th>
+                <th className="p-3">Date</th>
+                <th className="p-3">Amount</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Action</th>
               </tr>
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order.id} style={{ borderBottom: '1px solid #ccc' }}>
-                  {/* Since you are using UUID in your Order model, slice it for display */}
-                  <td style={{ padding: '15px' }}>#{order.id.slice(0, 5)}</td>
-                  {/* Uses the username from the User model you provided */}
-                  <td>{order.buyer?.username || "Guest"}</td>
-                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                  <td>Rs. {order.totalPrice}</td>
-                  <td>
-                    <span style={{
-                      padding: '5px 10px',
-                      borderRadius: '10px',
-                      backgroundColor: order.status === 'Delivered' ? '#c6f6d5' : '#fefcbf',
-                      color: order.status === 'Delivered' ? '#22543d' : '#744210'
-                    }}>
+                <tr key={order.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <td className="p-4 font-mono text-sm text-gray-500">#{order.id.slice(0, 5)}</td>
+                  <td className="p-4 text-gray-700 font-medium">{order.buyer?.username || "Guest"}</td>
+                  <td className="p-4 text-gray-600 text-sm">{new Date(order.createdAt).toLocaleDateString()}</td>
+                  <td className="p-4 font-black text-gray-800">Rs. {order.totalPrice}</td>
+                  <td className="p-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${order.status === 'Delivered' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                      }`}>
                       {order.status}
                     </span>
                   </td>
-                  <td>
+                  <td className="p-4">
                     <button
                       onClick={() => alert(`Viewing details for order ${order.id}`)}
-                      style={{ color: '#3182ce', border: 'none', background: 'none', cursor: 'pointer' }}
+                      className="text-blue-600 font-bold hover:text-blue-800 hover:underline transition-all"
                     >
                       View
                     </button>

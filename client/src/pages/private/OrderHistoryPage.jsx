@@ -8,8 +8,8 @@ export default function OrderHistoryPage({ onLogout }) {
   return (
     <>
       <Header onLogout={onLogout} />
-      <main className="min-h-screen bg-gray-50 pt-24 pb-10">
-        <div className="max-w-7xl mx-auto px-6">
+      <main className="min-h-screen bg-gray-50 pt-16 sm:pt-24 pb-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <Orders />
         </div>
       </main>

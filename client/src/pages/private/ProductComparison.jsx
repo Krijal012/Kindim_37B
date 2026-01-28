@@ -13,8 +13,8 @@ const features = [
 
 const ProductComparison = () => {
   const navigate = useNavigate();
-  const [allProducts, setAllProducts] = useState([]); 
-  const [compareProducts, setCompareProducts] = useState([]); 
+  const [allProducts, setAllProducts] = useState([]);
+  const [compareProducts, setCompareProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -98,15 +98,15 @@ const ProductComparison = () => {
     <div className="min-h-screen bg-gray-50">
       <Header show={showHeader} onLogout={handleLogout} hideSearch={false} />
 
-      <main className="mt-[112px] px-6 py-8 pb-32 bg-white min-h-screen">
+      <main className="mt-[80px] sm:mt-[112px] px-4 sm:px-6 py-4 sm:py-8 pb-32 bg-white min-h-screen">
         {/* Back Button */}
         <button
           onClick={() => navigate("/")}
-          className="mb-4 text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2"
+          className="mb-4 text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2 text-sm sm:text-base"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
+            className="h-4 w-4 sm:h-5 sm:w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -121,8 +121,8 @@ const ProductComparison = () => {
           Back to Dashboard
         </button>
 
-        <h1 className="text-3xl font-bold mb-2">Product Comparison</h1>
-        <p className="mb-8 text-gray-600">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Product Comparison</h1>
+        <p className="mb-6 sm:mb-8 text-gray-600 text-sm sm:text-base">
           Compare features, specifications, and prices of your favorite products side-by-side.
         </p>
 
@@ -138,7 +138,7 @@ const ProductComparison = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onFocus={() => searchTerm && setShowDropdown(true)}
               />
-              
+
               {/* Dropdown with filtered products */}
               {showDropdown && filteredProducts.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg max-h-96 overflow-y-auto z-10">
@@ -293,7 +293,7 @@ const ProductComparison = () => {
                         key={`${product.id}-${fIndex}`}
                         className="border border-gray-300 p-4 text-gray-700"
                       >
-                        {feature === "price" 
+                        {feature === "price"
                           ? `Rs. ${product[feature] || "-"}`
                           : product[feature] || "-"}
                       </td>

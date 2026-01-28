@@ -6,7 +6,7 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import AdsBoard from "../../components/ads.jsx";
 import Categories from "../../components/catagaries.jsx";
-import ProductGrid from "../../components/ProductGrid.jsx";
+import ProductGrid from "../../components/productgrid.jsx";
 
 // Random products by category function
 function getRandomProductsByCategory(products) {
@@ -85,9 +85,9 @@ export default function DashBoard({ onLogout }) {
     <div className="min-h-screen bg-gray-50">
       <Header show={showHeader} onLogout={handleLogout} />
 
-      <main className="mt-[112px] px-6 bg-white space-y-10 pb-20">
+      <main className="mt-[80px] sm:mt-[112px] px-4 sm:px-6 bg-white space-y-6 sm:space-y-10 pb-20">
         {/* Ads Board */}
-        <div className="h-96 w-full rounded-lg">
+        <div className="h-48 sm:h-64 md:h-96 w-full rounded-lg">
           <AdsBoard />
         </div>
 
@@ -100,18 +100,18 @@ export default function DashBoard({ onLogout }) {
             onClick={() => navigate("/compare")}
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-colors duration-200 flex items-center gap-2"
           >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-5 w-5" 
-              fill="none" 
-              viewBox="0 0 24 24" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
               />
             </svg>
             Compare Products

@@ -50,23 +50,19 @@ const OrderSummary = ({ cartItems, selectedAddress, paymentMethod }) => {
 
       console.log("📦 Placing order:", orderData);
 
-      // ✅ CORRECT: Use /api/orders because API_URL = "http://localhost:5000"
-      // This will become: http://localhost:5000/api/orders
       const res = await callApi("POST", "/api/orders", orderData);
 
       console.log("✅ Order response:", res);
 
       toast.success("Order placed successfully!");
-      
-      // Clear cart after successful order
+
       try {
         await callApi("DELETE", "/api/cart/clear");
         console.log("✅ Cart cleared");
       } catch (clearErr) {
         console.warn("⚠️ Could not clear cart:", clearErr);
-        // Don't fail the whole order if cart clear fails
       }
-      
+
       setTimeout(() => {
         navigate("/orderhistory");
       }, 1500);
@@ -80,30 +76,30 @@ const OrderSummary = ({ cartItems, selectedAddress, paymentMethod }) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow sticky top-24">
-      <h2 className="text-xl font-bold mb-4">Order Summary</h2>
+    <div className="bg-white p-4 sm:p-6 rounded-lg shadow sticky top-20 sm:top-24">
+      <h2 className="text-lg sm:text-xl font-bold mb-4">Order Summary</h2>
 
       {/* Cart Items */}
-      <div className="space-y-2 mb-4 max-h-60 overflow-y-auto">
+      <div className="space-y-2 mb-4 max-h-48 sm:max-h-60 overflow-y-auto">
         {cartItems.map((item) => (
-          <div key={item.id} className="flex justify-between text-sm border-b pb-2">
-            <span className="flex-1">{item.productName} × {item.quantity}</span>
-            <span className="font-semibold">Rs. {(item.price * item.quantity).toFixed(2)}</span>
+          <div key={item.id} className="flex justify-between text-xs sm:text-sm border-b pb-2 gap-2">
+            <span className="flex-1 truncate">{item.productName} × {item.quantity}</span>
+            <span className="font-semibold whitespace-nowrap">Rs. {(item.price * item.quantity).toFixed(2)}</span>
           </div>
         ))}
       </div>
 
       {/* Price Breakdown */}
       <div className="border-t pt-3 space-y-2">
-        <div className="flex justify-between text-gray-600">
+        <div className="flex justify-between text-gray-600 text-sm">
           <span>Subtotal</span>
           <span>Rs. {subtotal.toFixed(2)}</span>
         </div>
-        <div className="flex justify-between text-gray-600">
+        <div className="flex justify-between text-gray-600 text-sm">
           <span>Delivery Fee</span>
           <span>Rs. {deliveryFee.toFixed(2)}</span>
         </div>
-        <div className="flex justify-between font-bold text-lg border-t pt-2">
+        <div className="flex justify-between font-bold text-base sm:text-lg border-t pt-2">
           <span>Total</span>
           <span className="text-blue-600">Rs. {total.toFixed(2)}</span>
         </div>
@@ -111,14 +107,14 @@ const OrderSummary = ({ cartItems, selectedAddress, paymentMethod }) => {
 
       {/* Selected Info */}
       {selectedAddress && (
-        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded text-sm">
+        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded text-xs sm:text-sm">
           <p className="font-semibold text-green-700">✓ Delivery Address Selected</p>
-          <p className="text-gray-600 text-xs mt-1">{selectedAddress.fullname}</p>
+          <p className="text-gray-600 text-xs mt-1 truncate">{selectedAddress.fullname}</p>
         </div>
       )}
 
       {paymentMethod && (
-        <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+        <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded text-xs sm:text-sm">
           <p className="font-semibold text-blue-700">✓ Payment Method: {paymentMethod}</p>
         </div>
       )}
@@ -127,13 +123,13 @@ const OrderSummary = ({ cartItems, selectedAddress, paymentMethod }) => {
       <button
         onClick={handlePlaceOrder}
         disabled={!selectedAddress || !paymentMethod || isPlacingOrder || cartItems.length === 0}
-        className="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+        className="w-full mt-4 bg-blue-600 text-white py-2 sm:py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed text-sm sm:text-base"
       >
         {isPlacingOrder ? "Placing Order..." : "Place Order"}
       </button>
 
       {(!selectedAddress || !paymentMethod) && (
-        <p className="text-center text-sm text-gray-500 mt-2">
+        <p className="text-center text-xs sm:text-sm text-gray-500 mt-2">
           {!selectedAddress && "Select shipping address"}
           {!selectedAddress && !paymentMethod && " and "}
           {!paymentMethod && "payment method"}
