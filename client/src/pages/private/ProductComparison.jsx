@@ -4,11 +4,11 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 
 const features = [
+  "name",
   "price",
-  "brand",
   "category",
   "description",
-  "stock",
+  "rating",
 ];
 
 const ProductComparison = () => {
