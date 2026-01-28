@@ -40,7 +40,7 @@ export default function WelcomePage() {
           Welcome
         </h1>
         <p className="text-2xl text-blue-600 mb-14 animate-text-reveal-delay">
-          Shop smart, shop easy with Kimdim
+          Shop smart, shop easy with Kindim
         </p>
 
         {/* Buttons */}
