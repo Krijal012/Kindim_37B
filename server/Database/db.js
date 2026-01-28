@@ -4,9 +4,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const sequelize = new Sequelize(
-  "Kindim", // Database name
+  "Kidim", // Database name
   "postgres", // User
-  process.env.DB_PASSWORD || "admin123", // Password
+  process.env.DB_PASSWORD || "12345", // Password
   {
     host: "localhost",
     dialect: "postgres",
