@@ -7,6 +7,7 @@ const SignupPage = React.lazy(() => import("../pages/public/SignupPage"));
 const ForgotPassword = React.lazy(() => import("../pages/public/ForgotPassword"));
 const ResetPassword = React.lazy(() => import("../pages/public/ResetPassword"));
 const ErrorPage = React.lazy(() => import("../pages/public/ErrorPage"));
+const WelcomePage = React.lazy(() => import("../pages/public/welcomePage"));
 
 const PublicRoutes = ({ onLogin }) => {
   return (
@@ -22,6 +23,7 @@ const PublicRoutes = ({ onLogin }) => {
       }
     >
       <Routes>
+        <Route path="/" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage onLogin={onLogin} />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgotpass" element={<ForgotPassword />} />
