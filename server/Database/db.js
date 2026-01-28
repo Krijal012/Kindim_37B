@@ -6,7 +6,7 @@ dotenv.config();
 export const sequelize = new Sequelize(
   "Kindim", // Database name
   "postgres", // User
-  process.env.DB_PASSWORD || "admin123", // Password
+  process.env.DB_PASSWORD || "2062/9/22", // Password
   {
     host: "localhost",
     dialect: "postgres",

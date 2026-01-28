@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import loader from "../assets/icons/logo-icon.png";
+import loader from "../assets/loading/loading.gif";
 
 const LoginPage = React.lazy(() => import("../pages/public/LoginPage"));
 const SignupPage = React.lazy(() => import("../pages/public/SignupPage"));

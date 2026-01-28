@@ -1,6 +1,6 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import loader from "../assets/icons/logo-icon.png";
+import loader from "../assets/loading/loading.gif";
 import ProfilePage from "../pages/private/ProfilePage";
 import AdminLayout from "../components/AdminLayout";
 
@@ -21,21 +21,47 @@ const UserManagement = React.lazy(() => import("../pages/private/UserManagement"
 const AdminDashboard = React.lazy(() => import("../pages/private/AdminDashboard"));
 const SellerManagement = React.lazy(() => import("../pages/private/SellerManagement"));
 
-
 const PrivateRoutes = ({ onLogout, userRole }) => {
-  // If userRole is not passed, try fallback from localStorage
   const role = userRole || localStorage.getItem("userRole") || "customer";
 
-  console.log("PrivateRoutes: Current User Role:", role); // DEBUG LOG
+  // 🔹 LOADING STATE
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // 🔹 FIXED, CLEAR, NO BLUR LOADING SCREEN
+  if (loading) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex justify-center items-center bg-white"
+        style={{ filter: "none", backdropFilter: "none" }}
+      >
+        <img
+          src={loader}
+          alt="Loading"
+          className="w-28 opacity-100"
+          style={{ filter: "none" }}
+        />
+      </div>
+    );
+  }
 
   return (
-    <Suspense fallback={
-      <div className="flex justify-center items-center h-screen">
-        <img src={loader} className="w-20 animate-pulse" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="fixed inset-0 z-50 flex justify-center items-center bg-white">
+          <img src={loader} className="w-24" />
+        </div>
+      }
+    >
       <Routes>
-        {/* Admin Routes - Nested under AdminLayout */}
+        {/* Admin Routes */}
         {role === "admin" ? (
           <Route path="/*" element={<AdminLayout onLogout={onLogout} />}>
             <Route index element={<AdminDashboard />} />
@@ -47,12 +73,15 @@ const PrivateRoutes = ({ onLogout, userRole }) => {
           </Route>
         ) : (
           <>
-            {/* Customer & Seller Routes */}
-            <Route path="/" element={
-              role === "seller"
-                ? <SellerDashboard onLogout={onLogout} />
-                : <Dashboard onLogout={onLogout} />
-            } />
+            <Route
+              path="/"
+              element={
+                role === "seller"
+                  ? <SellerDashboard onLogout={onLogout} />
+                  : <Dashboard onLogout={onLogout} />
+              }
+            />
+ 
             <Route path="/products" element={<CategorySection />} />
             <Route path="/category/:category" element={<CategorySection />} />
             <Route path="/product/:id" element={<ProductDetail />} />
@@ -65,17 +94,23 @@ const PrivateRoutes = ({ onLogout, userRole }) => {
             <Route path="/bargain/:id" element={<BargainPage />} />
             <Route path="/rewarddashboard" element={<RewardDashboard onLogout={onLogout} />} />
 
-            {/* Seller Routes */}
-            <Route path="/seller-dashboard" element={
-              role === "seller"
-                ? <SellerDashboard onLogout={onLogout} />
-                : <Navigate to="/" replace />
-            } />
-            <Route path="/seller-orders" element={
-              role === "seller"
-                ? <OrderManagement onLogout={onLogout} />
-                : <Navigate to="/" replace />
-            } />
+            <Route
+              path="/seller-dashboard"
+              element={
+                role === "seller"
+                  ? <SellerDashboard onLogout={onLogout} />
+                  : <Navigate to="/" replace />
+              }
+            />
+
+            <Route
+              path="/seller-orders"
+              element={
+                role === "seller"
+                  ? <OrderManagement onLogout={onLogout} />
+                  : <Navigate to="/" replace />
+              }
+            />
 
             <Route path="*" element={<Navigate to="/" />} />
           </>
