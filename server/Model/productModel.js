@@ -11,6 +11,7 @@ const Product = sequelize.define(
     rating: { type: DataTypes.DECIMAL(2, 1), defaultValue: 0 },
     description: { type: DataTypes.TEXT },
     image: { type: DataTypes.TEXT },
+    sellerId: { type: DataTypes.INTEGER, allowNull: true },
   },
   {
     tableName: "products",

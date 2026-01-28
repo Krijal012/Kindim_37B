@@ -15,9 +15,14 @@ import profileRoutes from "./Routes/profile.js";
 import bargainRoutes from "./Routes/bargainRoutes.js";
 import { getAllUsers, deleteUser } from "./Controller/authController.js";
 import adminRoutes from "./Routes/adminRoutes.js";
+import recentlyViewedRouter from "./Routes/recentlyViewedRoutes.js";
+import questionRouter from "./Routes/questionRoutes.js";
 
 import Wishlist from "./Model/wishlistModel.js";
+import RecentlyViewed from "./Model/recentlyViewedModel.js";
+import Question from "./Model/questionModel.js";
 import Product from "./Model/productModel.js";
+import User from "./Model/userModel.js";
 import "./Model/userModel.js";
 import "./Model/Order.js"; // Ensure Order model is loaded if needed specifically, though usually imported in controllers
 import "./Database/associations.js";
@@ -32,6 +37,14 @@ app.use("/uploads", express.static("uploads"));
 Wishlist.belongsTo(Product, { foreignKey: "productId" });
 Product.hasMany(Wishlist, { foreignKey: "productId" });
 
+RecentlyViewed.belongsTo(Product, { foreignKey: "productId" });
+Product.hasMany(RecentlyViewed, { foreignKey: "productId" });
+
+Question.belongsTo(Product, { foreignKey: "productId" });
+Product.hasMany(Question, { foreignKey: "productId" });
+Question.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(Question, { foreignKey: "userId" });
+
 connection();
 
 // Routes
@@ -45,6 +58,8 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/bargains", bargainRoutes);
 app.get("/auth/users", getAllUsers); // From Incoming
 app.use("/admin", adminRoutes);
+app.use("/api/recently-viewed", recentlyViewedRouter);
+app.use("/api/questions", questionRouter);
 
 app.use((err, req, res, next) => {
   console.error(err);

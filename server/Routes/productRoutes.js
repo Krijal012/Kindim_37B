@@ -8,14 +8,15 @@ import {
   updateProduct,
   deleteProduct,
 } from "../Controller/productController.js";
+import { verifyTokenMiddleware, optionalVerifyTokenMiddleware } from "../Middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", getAllProducts);
+router.get("/", optionalVerifyTokenMiddleware, getAllProducts);
 router.get("/:id", getProductById);
 router.get("/category/:category", getProductsByCategory);
-router.post("/", upload.single("image"), createProduct);
-router.put("/:id", upload.single("image"), updateProduct);
-router.delete("/:id", deleteProduct);
+router.post("/", verifyTokenMiddleware, upload.single("image"), createProduct);
+router.put("/:id", verifyTokenMiddleware, upload.single("image"), updateProduct);
+router.delete("/:id", verifyTokenMiddleware, deleteProduct);
 
 export default router;

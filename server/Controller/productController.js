@@ -3,11 +3,17 @@ import { Op } from "sequelize";
 
 export const getAllProducts = async (req, res) => {
   try {
-    const { search } = req.query;
+    const { search, seller } = req.query;
+    const userId = req.userId;
 
     const where = search
       ? { name: { [Op.iLike]: `%${search}%` } }
       : {};
+
+    // If seller=true is passed, filter products by the logged-in seller's ID
+    if (seller === "true" && userId) {
+      where.sellerId = userId;
+    }
 
     const products = await Product.findAll({
       where,
@@ -43,6 +49,7 @@ export const createProduct = async (req, res) => {
     rating: rating || 0,
     description,
     image: req.file?.filename || null,
+    sellerId: req.userId,
   });
 
   res.status(201).json(product);
@@ -54,6 +61,11 @@ export const updateProduct = async (req, res) => {
 
   Object.assign(product, req.body);
   if (req.file) product.image = req.file.filename;
+
+  // Assign sellerId if it's currently null (claiming ownership)
+  if (!product.sellerId) {
+    product.sellerId = req.userId;
+  }
 
   await product.save();
   res.json(product);

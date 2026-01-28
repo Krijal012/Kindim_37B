@@ -22,3 +22,25 @@ export const verifyTokenMiddleware = (req, res, next) => {
     return res.status(401).json({ message: "Invalid token" });
   }
 };
+
+export const optionalVerifyTokenMiddleware = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return next();
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = verifyToken(token);
+    if (decoded) {
+      req.user = decoded;
+      req.userId = decoded.id;
+    }
+    next();
+  } catch (error) {
+    // If token is invalid, we just proceed without setting req.user
+    next();
+  }
+};

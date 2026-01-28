@@ -14,6 +14,9 @@ const SellerDashboard = ({ onLogout }) => {
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [questions, setQuestions] = useState([]);
+  const [answeringQuestionId, setAnsweringQuestionId] = useState(null);
+  const [sellerAnswer, setSellerAnswer] = useState("");
 
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -29,16 +32,19 @@ const SellerDashboard = ({ onLogout }) => {
       fetchProducts();
     } else if (activeTab === "orders") {
       fetchOrders();
+    } else if (activeTab === "questions") {
+      fetchQuestions();
     } else if (activeTab === "dashboard") {
       fetchProducts();
       fetchOrders();
+      fetchQuestions();
     }
   }, [activeTab]);
 
   // Fetch all products
   const fetchProducts = async () => {
     try {
-      const res = await callApi("GET", "/api/products");
+      const res = await callApi("GET", "/api/products?seller=true");
       setProducts(Array.isArray(res) ? res : (res?.data || []));
     } catch (err) {
       console.error("Fetch products failed:", err.message);
@@ -53,6 +59,31 @@ const SellerDashboard = ({ onLogout }) => {
     } catch (err) {
       console.error("Fetch orders failed:", err.message);
       toast.error("Failed to fetch orders");
+    }
+  };
+
+  const fetchQuestions = async () => {
+    try {
+      const res = await callApi("GET", "/api/questions/seller");
+      setQuestions(Array.isArray(res) ? res : (res.data || []));
+    } catch (err) {
+      console.error("Fetch questions failed:", err.message);
+    }
+  };
+
+  const handleAnswerSubmit = async (e, questionId) => {
+    e.preventDefault();
+    if (!sellerAnswer.trim()) return;
+
+    try {
+      await callApi("PUT", `/api/questions/${questionId}/answer`, { answer: sellerAnswer });
+      toast.success("Answered successfully! ✅");
+      setSellerAnswer("");
+      setAnsweringQuestionId(null);
+      fetchQuestions();
+    } catch (err) {
+      console.error("Answer failed:", err);
+      toast.error("Failed to submit answer");
     }
   };
 
@@ -191,7 +222,8 @@ const SellerDashboard = ({ onLogout }) => {
             {[
               { id: 'dashboard', label: '📊 Dashboard' },
               { id: 'products', label: '📦 Product Management' },
-              { id: 'orders', label: '🚚 Orders' }
+              { id: 'orders', label: '🚚 Orders' },
+              { id: 'questions', label: '❓ Questions' }
             ].map((item) => (
               <div
                 key={item.id}
@@ -220,7 +252,7 @@ const SellerDashboard = ({ onLogout }) => {
       <main className="flex-1 w-full p-4 sm:p-8 overflow-x-hidden">
         <header className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-            {activeTab === "products" ? "Product Management" : activeTab === "orders" ? "Order Management" : "Dashboard Overview"}
+            {activeTab === "products" ? "Product Management" : activeTab === "orders" ? "Order Management" : activeTab === "questions" ? "Product Questions" : "Dashboard Overview"}
           </h1>
           <div className="flex gap-3 sm:gap-4">
             {activeTab === "products" && (
@@ -261,6 +293,10 @@ const SellerDashboard = ({ onLogout }) => {
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <div className="text-gray-400 text-sm font-bold uppercase mb-2">Total Products</div>
               <div className="text-3xl font-black text-gray-800">{products.length}</div>
+            </div>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <div className="text-gray-400 text-sm font-bold uppercase mb-2">New Questions</div>
+              <div className="text-3xl font-black text-blue-600">{questions.filter(q => !q.answer).length}</div>
             </div>
           </div>
         )}
@@ -402,6 +438,92 @@ const SellerDashboard = ({ onLogout }) => {
                 )}
               </tbody>
             </table>
+          ) : activeTab === 'questions' ? (
+            <div className="p-6">
+              {!questions || questions.length === 0 ? (
+                <div className="p-10 text-center text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed">
+                  No questions yet for your products.
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {questions.map((q) => (
+                    <div key={q.id} className="bg-gray-50 rounded-2xl p-6 border border-gray-200 transition-all hover:border-blue-300">
+                      <div className="flex gap-4 items-start">
+                        <img
+                          src={q.Product?.image ? `http://localhost:5000/uploads/${q.Product.image}` : "https://placehold.co/100x100?text=No+Image"}
+                          className="w-16 h-16 rounded-xl object-cover border"
+                          alt={q.Product?.name}
+                        />
+                        <div className="flex-1">
+                          <h4 className="font-bold text-gray-800">{q.Product?.name}</h4>
+                          <p className="text-xs text-gray-400 mb-2">Asked by {q.User?.username} • {new Date(q.createdAt).toLocaleDateString()}</p>
+                          <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                            <p className="text-gray-700 font-medium">Q: {q.question}</p>
+                          </div>
+
+                          <div className="mt-4">
+                            {q.answer ? (
+                              <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100">
+                                <p className="text-blue-800 flex gap-2">
+                                  <span className="font-black">A:</span> {q.answer}
+                                </p>
+                                <button
+                                  onClick={() => {
+                                    setAnsweringQuestionId(q.id);
+                                    setSellerAnswer(q.answer);
+                                  }}
+                                  className="text-xs text-blue-500 hover:text-blue-700 mt-2 font-bold uppercase underline"
+                                >
+                                  Edit Answer
+                                </button>
+                              </div>
+                            ) : (
+                              answeringQuestionId === q.id ? (
+                                <form onSubmit={(e) => handleAnswerSubmit(e, q.id)} className="space-y-3">
+                                  <textarea
+                                    className="w-full bg-white p-4 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-inner"
+                                    placeholder="Type your answer here..."
+                                    rows="2"
+                                    value={sellerAnswer}
+                                    onChange={(e) => setSellerAnswer(e.target.value)}
+                                    autoFocus
+                                  />
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="submit"
+                                      className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95"
+                                    >
+                                      Submit Answer
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setAnsweringQuestionId(null)}
+                                      className="text-gray-500 px-4 py-2 hover:text-gray-700 font-bold"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                </form>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    setAnsweringQuestionId(q.id);
+                                    setSellerAnswer("");
+                                  }}
+                                  className="bg-black text-white px-6 py-2 rounded-lg font-bold hover:bg-gray-800 transition-all shadow-md active:scale-95"
+                                >
+                                  Reply to Customer
+                                </button>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           ) : (
             <div className="p-8">
               <h3 className="text-lg font-bold text-gray-800 mb-4">Recent Orders</h3>

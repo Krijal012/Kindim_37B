@@ -19,9 +19,13 @@ const ProductDetail = ({ onLogout }) => {
   const [addingToWishlist, setAddingToWishlist] = useState(false);
   const [inWishlist, setInWishlist] = useState(false);
   const [wishlistItemId, setWishlistItemId] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [newQuestion, setNewQuestion] = useState("");
+  const [submittingQuestion, setSubmittingQuestion] = useState(false);
 
   useEffect(() => {
     fetchProductDetails();
+    fetchQuestions();
   }, [id]);
 
   const fetchProductDetails = async () => {
@@ -33,10 +37,61 @@ const ProductDetail = ({ onLogout }) => {
       const token = localStorage.getItem("token");
       if (token) {
         checkWishlistStatus();
+        addToRecentlyViewed();
       }
     } catch (err) {
       console.error("Error fetching product details:", err);
       toast.error("Failed to load product details");
+    }
+  };
+
+  const fetchQuestions = async () => {
+    try {
+      const res = await callApi("GET", `/api/questions/product/${id}`);
+      setQuestions(Array.isArray(res) ? res : (res.data || []));
+    } catch (err) {
+      console.error("Error fetching questions:", err);
+    }
+  };
+
+  const handleQuestionSubmit = async () => {
+    if (!newQuestion.trim()) {
+      toast.warning("Please type a question");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.warning("Please login to ask a question");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      setSubmittingQuestion(true);
+      await callApi("POST", "/api/questions", {
+        productId: parseInt(id),
+        question: newQuestion
+      });
+      setNewQuestion("");
+      toast.success("Question submitted successfully!");
+      fetchQuestions(); // Refresh questions
+    } catch (err) {
+      console.error("Error submitting question:", err);
+      toast.error(err.message || "Failed to submit question");
+    } finally {
+      setSubmittingQuestion(false);
+    }
+  };
+
+  const addToRecentlyViewed = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      await callApi("POST", "/api/recently-viewed", { productId: parseInt(id) });
+    } catch (err) {
+      console.error("Error adding to recently viewed:", err);
     }
   };
 
@@ -259,8 +314,8 @@ const ProductDetail = ({ onLogout }) => {
                     key={color.name}
                     onClick={() => setSelectedColor(color.name)}
                     className={`w-12 h-12 rounded-full border-2 transition-all ${selectedColor === color.name
-                        ? 'border-blue-600 scale-110 shadow-lg'
-                        : 'border-gray-300 hover:border-gray-400'
+                      ? 'border-blue-600 scale-110 shadow-lg'
+                      : 'border-gray-300 hover:border-gray-400'
                       }`}
                     style={{ backgroundColor: color.hex }}
                     title={color.name}
@@ -279,8 +334,8 @@ const ProductDetail = ({ onLogout }) => {
                     key={size}
                     onClick={() => setSelectedSize(size)}
                     className={`border px-6 py-2 rounded-lg font-medium transition ${selectedSize === size
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'border-gray-300 hover:border-blue-400'
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'border-gray-300 hover:border-blue-400'
                       }`}
                   >
                     {size}
@@ -322,8 +377,8 @@ const ProductDetail = ({ onLogout }) => {
                 onClick={handleWishlistToggle}
                 disabled={addingToWishlist}
                 className={`flex-1 border py-3 rounded-xl font-bold transition disabled:opacity-50 disabled:cursor-not-allowed ${inWishlist
-                    ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100'
-                    : 'border-gray-300 hover:bg-gray-50'
+                  ? 'bg-red-50 border-red-300 text-red-600 hover:bg-red-100'
+                  : 'border-gray-300 hover:bg-gray-50'
                   }`}
               >
                 {addingToWishlist
@@ -385,32 +440,46 @@ const ProductDetail = ({ onLogout }) => {
           </div>
         </div>
 
-        {/* Questions & Answers Section */}
         <div className="mt-8 bg-gray-200 p-4 sm:p-8 rounded-2xl shadow-inner border border-gray-300">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">Questions & Answers</h2>
           <div className="space-y-4">
-            {[
-              { q: "Is this product available in other colors?", a: "Yes, we have 6 color options." },
-              { q: "What is the warranty period?", a: "1 year manufacturer warranty included." },
-              { q: "Do you offer free shipping?", a: "Yes, free shipping on orders above Rs. 5000." }
-            ].map((qa, i) => (
-              <div key={i} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                <p className="font-bold text-gray-800 mb-2">Q: {qa.q}</p>
-                <p className="text-gray-600 pl-4">A: {qa.a}</p>
-              </div>
-            ))}
+            {questions.length === 0 ? (
+              <p className="text-gray-500 italic p-4 bg-white rounded-xl">No questions yet. Be the first to ask!</p>
+            ) : (
+              questions.map((qa, i) => (
+                <div key={i} className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm transition-all hover:shadow-md">
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="font-bold text-gray-800">Q: {qa.question}</p>
+                    <span className="text-xs text-gray-400 capitalize">{qa.User?.username || 'User'} • {new Date(qa.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  {qa.answer ? (
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                      <p className="text-gray-700 font-medium flex items-start gap-2">
+                        <span className="bg-blue-500 text-white text-[10px] px-1.5 py-0.5 rounded uppercase mt-1">Answer</span>
+                        {qa.answer}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-gray-400 italic text-sm mt-3">Waiting for seller's response...</p>
+                  )}
+                </div>
+              ))
+            )}
 
             <div className="mt-6">
               <textarea
-                className="w-full bg-white h-24 rounded-xl border border-gray-100 shadow-sm p-4 outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Have a question? Ask here..."
+                className="w-full bg-white h-24 rounded-xl border border-gray-100 shadow-sm p-4 outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                placeholder="Have a question about this product? Ask the seller here..."
+                value={newQuestion}
+                onChange={(e) => setNewQuestion(e.target.value)}
               />
               <div className="flex justify-end mt-3">
                 <button
-                  onClick={() => toast.info("Question submission feature coming soon!")}
-                  className="bg-blue-600 text-white px-12 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md"
+                  onClick={handleQuestionSubmit}
+                  disabled={submittingQuestion || !newQuestion.trim()}
+                  className="bg-blue-600 text-white px-12 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-md disabled:bg-gray-400 disabled:shadow-none active:scale-95"
                 >
-                  Submit Question
+                  {submittingQuestion ? "Submitting..." : "Submit Question"}
                 </button>
               </div>
             </div>
