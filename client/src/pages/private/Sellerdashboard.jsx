@@ -17,6 +17,7 @@ const SellerDashboard = ({ onLogout }) => {
   const [questions, setQuestions] = useState([]);
   const [answeringQuestionId, setAnsweringQuestionId] = useState(null);
   const [sellerAnswer, setSellerAnswer] = useState("");
+  const [bargains, setBargains] = useState([]);
 
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -34,10 +35,13 @@ const SellerDashboard = ({ onLogout }) => {
       fetchOrders();
     } else if (activeTab === "questions") {
       fetchQuestions();
+    } else if (activeTab === "bargains") {
+      fetchBargains();
     } else if (activeTab === "dashboard") {
       fetchProducts();
       fetchOrders();
       fetchQuestions();
+      fetchBargains();
     }
   }, [activeTab]);
 
@@ -68,6 +72,32 @@ const SellerDashboard = ({ onLogout }) => {
       setQuestions(Array.isArray(res) ? res : (res.data || []));
     } catch (err) {
       console.error("Fetch questions failed:", err.message);
+    }
+  };
+
+  const fetchBargains = async () => {
+    try {
+      const res = await callApi("GET", "/api/bargains/seller");
+      console.log("Seller bargains response:", res);
+      const bargainData = Array.isArray(res) ? res : (res.data || []);
+      setBargains(bargainData);
+    } catch (err) {
+      console.error("Fetch bargains failed:", err.message);
+      toast.error("Failed to fetch bargains: " + err.message);
+    }
+  };
+
+  const handleBargainStatus = async (bargainId, status) => {
+    try {
+      await callApi("PATCH", `/api/bargains/${bargainId}/status`, { status });
+      toast.success(`Bargain offer successfully ${status}! ✅`, {
+        position: "top-center",
+        autoClose: 2000
+      });
+      setBargains(bargains.map(b => b.id === bargainId ? { ...b, status } : b));
+    } catch (err) {
+      console.error("Update bargain status failed:", err);
+      toast.error("Failed to update bargain status: " + (err.response?.data?.error || err.message));
     }
   };
 
@@ -223,7 +253,8 @@ const SellerDashboard = ({ onLogout }) => {
               { id: 'dashboard', label: '📊 Dashboard' },
               { id: 'products', label: '📦 Product Management' },
               { id: 'orders', label: '🚚 Orders' },
-              { id: 'questions', label: '❓ Questions' }
+              { id: 'questions', label: '❓ Questions' },
+              { id: 'bargains', label: '🤝 Bargains' }
             ].map((item) => (
               <div
                 key={item.id}
@@ -252,7 +283,7 @@ const SellerDashboard = ({ onLogout }) => {
       <main className="flex-1 w-full p-4 sm:p-8 overflow-x-hidden">
         <header className="flex flex-col sm:flex-row gap-4 sm:justify-between sm:items-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-            {activeTab === "products" ? "Product Management" : activeTab === "orders" ? "Order Management" : activeTab === "questions" ? "Product Questions" : "Dashboard Overview"}
+            {activeTab === "products" ? "Product Management" : activeTab === "orders" ? "Order Management" : activeTab === "questions" ? "Product Questions" : activeTab === "bargains" ? "Bargain Offers" : "Dashboard Overview"}
           </h1>
           <div className="flex gap-3 sm:gap-4">
             {activeTab === "products" && (
@@ -297,6 +328,10 @@ const SellerDashboard = ({ onLogout }) => {
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
               <div className="text-gray-400 text-sm font-bold uppercase mb-2">New Questions</div>
               <div className="text-3xl font-black text-blue-600">{questions.filter(q => !q.answer).length}</div>
+            </div>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+              <div className="text-gray-400 text-sm font-bold uppercase mb-2">Pending Bargains</div>
+              <div className="text-3xl font-black text-orange-600">{bargains.filter(b => b.status === 'pending').length}</div>
             </div>
           </div>
         )}
@@ -524,6 +559,73 @@ const SellerDashboard = ({ onLogout }) => {
                 </div>
               )}
             </div>
+          ) : activeTab === 'bargains' ? (
+            <table className="w-full text-left">
+              <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-bold">
+                <tr>
+                  <th className="p-5">Product</th>
+                  <th className="p-5">Original</th>
+                  <th className="p-5">Proposed</th>
+                  <th className="p-5">Reason</th>
+                  <th className="p-5">Status</th>
+                  <th className="p-5">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {!bargains || bargains.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="p-10 text-center text-gray-400">
+                      No bargain offers yet.
+                    </td>
+                  </tr>
+                ) : (
+                  bargains.map((b) => (
+                    <tr key={b.id} className="hover:bg-blue-50/30 transition">
+                      <td className="p-5">
+                        <div className="font-semibold text-gray-700">{b.productName}</div>
+                        <div className="text-xs text-gray-400">ID: {b.productId}</div>
+                      </td>
+                      <td className="p-5 text-gray-400 line-through">Rs. {b.originalPrice}</td>
+                      <td className="p-5 text-blue-600 font-black text-lg">Rs. {b.proposedPrice}</td>
+                      <td className="p-5 text-gray-600 max-w-xs truncate" title={b.reason}>
+                        {b.reason || '-'}
+                      </td>
+                      <td className="p-5">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${b.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                          b.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                            'bg-yellow-100 text-yellow-700'
+                          }`}>
+                          {b.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="p-5">
+                        {b.status === 'pending' && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleBargainStatus(b.id, 'accepted')}
+                              className="bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-600 shadow-sm"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => handleBargainStatus(b.id, 'rejected')}
+                              className="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-red-600 shadow-sm"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        )}
+                        {b.status !== 'pending' && (
+                          <span className="text-gray-400 text-xs italic">
+                            Processed on {new Date(b.updatedAt).toLocaleDateString()}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           ) : (
             <div className="p-8">
               <h3 className="text-lg font-bold text-gray-800 mb-4">Recent Orders</h3>

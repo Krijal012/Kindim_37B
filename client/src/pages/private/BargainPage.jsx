@@ -2,7 +2,7 @@ import { BargainForm } from "../../components/BargainForm";
 import { ProductDisplay } from "../../components/ProductDisplay";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useApi } from "../../hooks/useAPI";
 import Header from "../../components/Header";
@@ -63,8 +63,13 @@ function BargainPage() {
         proposedPrice: proposed,
         reason: data.reason,
       });
-      toast.success("Bargain offer submitted!");
-      navigate(`/product/${product.id}`);
+      // Show toast on global container
+      toast.success("Bargain offer submitted successfully! Check your dashboard for updates.");
+
+      // Delay navigation slightly to ensure toast is visible
+      setTimeout(() => {
+        navigate(`/product/${product.id}`);
+      }, 1000);
     } catch (err) {
       console.error("Bargain submit failed:", err);
       toast.error(err?.message || "Failed to submit bargain.");
@@ -108,14 +113,6 @@ function BargainPage() {
         </div>
       </div>
       <Footer />
-      <ToastContainer
-        position="bottom-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        closeOnClick
-        pauseOnHover
-        theme="light"
-      />
     </>
   );
 }

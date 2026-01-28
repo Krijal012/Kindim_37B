@@ -15,6 +15,10 @@ export const Bargain = sequelize.define('Bargain', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
+    sellerId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
     productName: {
         type: DataTypes.STRING,
         allowNull: false
