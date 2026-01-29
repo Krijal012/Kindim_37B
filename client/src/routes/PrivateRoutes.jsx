@@ -15,7 +15,6 @@ const OrderHistoryPage = React.lazy(() => import("../pages/private/OrderHistoryP
 const Checkout = React.lazy(() => import("../pages/private/Checkout"));
 const ProductComparison = React.lazy(() => import("../pages/private/ProductComparison"));
 const BargainPage = React.lazy(() => import("../pages/private/BargainPage"));
-const RewardDashboard = React.lazy(() => import("../pages/private/RewardDashboard"));
 const OrderManagement = React.lazy(() => import("../pages/private/OrderManagement"));
 const UserManagement = React.lazy(() => import("../pages/private/UserManagement"));
 const AdminDashboard = React.lazy(() => import("../pages/private/AdminDashboard"));
@@ -92,7 +91,6 @@ const PrivateRoutes = ({ onLogout, userRole }) => {
             <Route path="/profile" element={<ProfilePage onLogout={onLogout} />} />
             <Route path="/compare" element={<ProductComparison />} />
             <Route path="/bargain/:id" element={<BargainPage />} />
-            <Route path="/rewarddashboard" element={<RewardDashboard onLogout={onLogout} />} />
 
             <Route
               path="/seller-dashboard"
